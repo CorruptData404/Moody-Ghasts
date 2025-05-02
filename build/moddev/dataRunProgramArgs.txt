@@ -1,0 +1,27 @@
+# Main Class
+cpw.mods.bootstraplauncher.BootstrapLauncher
+
+# NeoForge Run-Type Program Arguments
+--launchTarget
+neoforgeclientdatadev
+--assetIndex
+24
+--assetsDir
+C:\\Users\\Corru\\.gradle\\caches\\neoformruntime\\assets
+--fml.fmlVersion
+7.0.10
+--fml.mcVersion
+1.21.5
+--fml.neoForgeVersion
+21.5.63-beta
+--fml.neoFormVersion
+20250325.162830
+
+# User Supplied Program Arguments
+--mod
+moodyghasts
+--all
+--output
+C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\src\\generated\\resources
+--existing
+C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\src\\main\\resources

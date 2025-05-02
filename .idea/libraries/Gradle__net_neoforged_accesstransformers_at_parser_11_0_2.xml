@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: net.neoforged.accesstransformers:at-parser:11.0.2" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="net.neoforged.accesstransformers" artifactId="at-parser" version="11.0.2" baseVersion="11.0.2" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.neoforged.accesstransformers/at-parser/11.0.2/64aae57d6d26d69543c5275181fe6971707a4e16/at-parser-11.0.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.neoforged.accesstransformers/at-parser/11.0.2/722c87d29605673699769fcaef9990eab048b4e4/at-parser-11.0.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

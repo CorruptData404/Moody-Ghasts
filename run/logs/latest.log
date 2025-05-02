@@ -1,0 +1,69 @@
+[01May2025 23:38:06.255] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher running: args [--launchTarget, neoforgeclientdev, --version, 21.5.63-beta, --assetIndex, 24, --assetsDir, C:\\Users\\Corru\\.gradle\\caches\\neoformruntime\\assets, --fml.fmlVersion, 7.0.10, --fml.mcVersion, 1.21.5, --fml.neoForgeVersion, 21.5.63-beta, --fml.neoFormVersion, 20250325.162830]
+[01May2025 23:38:06.258] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: JVM identified as Eclipse Adoptium OpenJDK 64-Bit Server VM 21.0.6+7-LTS
+[01May2025 23:38:06.259] [main/INFO] [cpw.mods.modlauncher.Launcher/MODLAUNCHER]: ModLauncher 11.0.4+main.d2e20e43 starting: java version 21.0.6 by Eclipse Adoptium; OS Windows 11 arch amd64 version 10.0
+[01May2025 23:38:06.350] [main/INFO] [net.neoforged.fml.loading.ImmediateWindowHandler/]: Loading ImmediateWindowProvider fmlearlywindow
+[01May2025 23:38:06.761] [main/INFO] [mixin/]: SpongePowered MIXIN Subsystem Version=0.8.7 Source=union:/C:/Users/Corru/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/2af2f021d8e02a0220dc27a7a72b4666d66d44ca/sponge-mixin-0.15.2+mixin.0.8.7.jar%23162!/ Service=ModLauncher Env=CLIENT
+[01May2025 23:38:06.971] [pool-2-thread-1/INFO] [EARLYDISPLAY/]: GL info: NVIDIA GeForce RTX 3080/PCIe/SSE2 GL version 3.2.0 NVIDIA 572.47, NVIDIA Corporation
+[01May2025 23:38:07.095] [main/INFO] [net.neoforged.fml.loading.moddiscovery.locators.JarInJarDependencyLocator/]: Found 2 dependencies adding them to mods collection
+[01May2025 23:38:07.097] [main/INFO] [net.neoforged.fml.loading.moddiscovery.ModDiscoverer/]: 
+     Mod List:
+		Name Version (Mod Id)
+
+		Minecraft 1.21.5 (minecraft)
+		Moody Ghasts 1.0.0 (moodyghasts)
+		NeoForge 21.5.63-beta (neoforge)
+[01May2025 23:38:07.817] [main/INFO] [cpw.mods.modlauncher.LaunchServiceHandler/MODLAUNCHER]: Launching target 'neoforgeclientdev' with arguments [--version, 21.5.63-beta, --assetsDir, C:\Users\Corru\.gradle\caches\neoformruntime\assets, --assetIndex, 24]
+[01May2025 23:38:09.554] [pool-7-thread-1/INFO] [MixinExtras|Service/]: Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.4.1).
+[01May2025 23:38:10.046] [Datafixer Bootstrap/INFO] [com.mojang.datafixers.DataFixerBuilder/]: 266 Datafixer optimizations took 1085 milliseconds
+[01May2025 23:38:13.871] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[01May2025 23:38:13.872] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, location] and [teleport, targets] with inputs: [0.1 -0.5 .9, 0 0 0]
+[01May2025 23:38:13.874] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, destination] and [teleport, targets] with inputs: [Player, 0123, @e, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[01May2025 23:38:13.875] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets] and [teleport, destination] with inputs: [Player, 0123, dd12be42-52a9-4a91-a8a1-11c01849e498]
+[01May2025 23:38:13.875] [main/WARN] [net.minecraft.commands.Commands/]: Ambiguity between arguments [teleport, targets, location] and [teleport, targets, destination] with inputs: [0.1 -0.5 .9, 0 0 0]
+[01May2025 23:38:13.929] [modloading-worker-0/INFO] [net.neoforged.neoforge.common.NeoForgeMod/NEOFORGE-MOD]: NeoForge mod loading, version 21.5.63-beta, for MC 1.21.5
+[01May2025 23:38:14.234] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/Corru/IdeaProjects/Moody-Ghasts/build/moddev/artifacts/neoforge-21.5.63-beta.jar%23215!/assets/.mcassetsroot' uses unexpected schema
+[01May2025 23:38:14.235] [Render thread/WARN] [net.minecraft.server.packs.VanillaPackResourcesBuilder/]: Assets URL 'union:/C:/Users/Corru/IdeaProjects/Moody-Ghasts/build/moddev/artifacts/neoforge-21.5.63-beta.jar%23215!/data/.mcassetsroot' uses unexpected schema
+[01May2025 23:38:14.257] [Render thread/INFO] [com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService/]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[01May2025 23:38:14.265] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Setting user: Dev
+[01May2025 23:38:14.352] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Backend library: LWJGL version 3.3.3+5
+[01May2025 23:38:14.454] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Using optional rendering extensions: GL_KHR_debug, GL_ARB_vertex_attrib_binding, GL_ARB_direct_state_access
+[01May2025 23:38:15.016] [Render thread/INFO] [net.minecraft.server.packs.resources.ReloadableResourceManager/]: Reloading ResourceManager: vanilla, mod_resources, mod/moodyghasts, mod/neoforge
+[01May2025 23:38:15.024] [resourceLoad/INFO] [ca.corruptdata.moodyghasts.MoodyGhasts/]: HELLO FROM COMMON SETUP
+[01May2025 23:38:15.024] [resourceLoad/INFO] [ca.corruptdata.moodyghasts.MoodyGhasts/]: DIRT BLOCK >> minecraft:dirt
+[01May2025 23:38:15.024] [resourceLoad/INFO] [ca.corruptdata.moodyghasts.MoodyGhasts/]: The magic number is... 42
+[01May2025 23:38:15.025] [resourceLoad/INFO] [ca.corruptdata.moodyghasts.MoodyGhasts/]: ITEM >> minecraft:iron_ingot
+[01May2025 23:38:15.117] [resourceLoad/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_all_no_pua-16.0.01.hex, loading
+[01May2025 23:38:15.147] [resourceLoad/INFO] [ca.corruptdata.moodyghasts.MoodyGhasts/]: HELLO FROM CLIENT SETUP
+[01May2025 23:38:15.147] [resourceLoad/INFO] [ca.corruptdata.moodyghasts.MoodyGhasts/]: MINECRAFT NAME >> Dev
+[01May2025 23:38:15.184] [Download-1/INFO] [com.mojang.realmsclient.client.RealmsClient/]: Could not authorize you against Realms server: Invalid session id
+[01May2025 23:38:15.189] [Download-1/ERROR] [com.mojang.realmsclient.client.RealmsClient/]: Failed to fetch Realms feature flags
+com.mojang.realmsclient.exception.RealmsServiceException: Realms authentication error with message 'Invalid session id'
+	at TRANSFORMER/minecraft@1.21.5/com.mojang.realmsclient.client.RealmsClient.execute(RealmsClient.java:469) ~[neoforge-21.5.63-beta.jar%23215!/:?]
+	at TRANSFORMER/minecraft@1.21.5/com.mojang.realmsclient.client.RealmsClient.fetchFeatureFlags(RealmsClient.java:151) ~[neoforge-21.5.63-beta.jar%23215!/:?]
+	at java.base/java.util.concurrent.CompletableFuture$AsyncSupply.run(CompletableFuture.java:1768) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144) ~[?:?]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642) ~[?:?]
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+[01May2025 23:38:15.252] [resourceLoad/INFO] [net.minecraft.client.gui.font.providers.UnihexProvider/]: Found unifont_jp_patch-16.0.01.hex, loading
+[01May2025 23:38:15.843] [resourceLoad/WARN] [net.minecraft.client.resources.model.ModelManager/]: Missing model for variant: 'Block{moodyghasts:example_block}'
+[01May2025 23:38:16.213] [Render thread/WARN] [com.mojang.blaze3d.opengl.GlProgram/]: minecraft:pipeline/entity_translucent_emissive shader program does not use sampler Sampler2 defined in the pipeline. This might be a bug.
+[01May2025 23:38:16.286] [Render thread/INFO] [com.mojang.blaze3d.audio.Library/]: OpenAL initialized on device OpenAL Soft on Speakers (Logitech G733 Gaming Headset)
+[01May2025 23:38:16.286] [Render thread/INFO] [net.minecraft.client.sounds.SoundEngine/SOUNDS]: Sound engine started
+[01May2025 23:38:16.349] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x4 minecraft:textures/atlas/blocks.png-atlas
+[01May2025 23:38:16.355] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/signs.png-atlas
+[01May2025 23:38:16.356] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/shield_patterns.png-atlas
+[01May2025 23:38:16.356] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x512x4 minecraft:textures/atlas/banner_patterns.png-atlas
+[01May2025 23:38:16.357] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 2048x1024x4 minecraft:textures/atlas/armor_trims.png-atlas
+[01May2025 23:38:16.359] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x256x4 minecraft:textures/atlas/chest.png-atlas
+[01May2025 23:38:16.362] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 128x64x4 minecraft:textures/atlas/decorated_pot.png-atlas
+[01May2025 23:38:16.363] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/shulker_boxes.png-atlas
+[01May2025 23:38:16.363] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x4 minecraft:textures/atlas/beds.png-atlas
+[01May2025 23:38:16.363] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID moodyghasts:example_block of moodyghasts:example_block
+[01May2025 23:38:16.363] [Render thread/WARN] [net.minecraft.client.resources.model.ModelManager/]: No model loaded for default item model ID moodyghasts:example_item of moodyghasts:example_item
+[01May2025 23:38:16.365] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 64x64x0 minecraft:textures/atlas/map_decorations.png-atlas
+[01May2025 23:38:16.529] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/particles.png-atlas
+[01May2025 23:38:16.532] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 512x256x0 minecraft:textures/atlas/paintings.png-atlas
+[01May2025 23:38:16.533] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 256x128x0 minecraft:textures/atlas/mob_effects.png-atlas
+[01May2025 23:38:16.533] [Render thread/INFO] [net.minecraft.client.renderer.texture.TextureAtlas/]: Created: 1024x512x0 minecraft:textures/atlas/gui.png-atlas
+[01May2025 23:38:16.538] [Render thread/INFO] [net.neoforged.neoforge.client.entity.animation.json.AnimationLoader/]: Loaded 0 entity animations
+[01May2025 23:38:27.000] [Render thread/INFO] [net.minecraft.client.Minecraft/]: Stopping!

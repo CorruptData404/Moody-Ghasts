@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="d039b5d6-23f5-4cad-bd78-96259be90db1" name="Changes" comment="Initial commit" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand />
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Cole &lt;38871274+corrupteddata404@users.noreply.github.com&gt;" />
+      </list>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;CorruptedData404&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/CorruptedData404/Moody-Ghasts.git&quot;,
+    &quot;accountId&quot;: &quot;2280d59c-1425-4848-b7b5-094285b99b78&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2wWliYbkw9D55cyfTizeDOG5xXq" />
+  <component name="ProjectViewState">
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Gradle.Moody-Ghasts [:net.neoforged.devlaunch.Main.main()].executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.settingsdialog.project.gradle"
+  }
+}]]></component>
+  <component name="RunManager" selected="Application.Client">
+    <configuration name="Client" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="Moody-Ghasts.main" />
+      <option name="PROGRAM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\clientRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\clientRunVmArgs.txt -Dfml.modFolders=moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\classes\\java\\main;moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ClientData" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="Moody-Ghasts.main" />
+      <option name="PROGRAM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\clientDataRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\clientDataRunVmArgs.txt -Dfml.modFolders=moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\classes\\java\\main;moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Data" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="Moody-Ghasts.main" />
+      <option name="PROGRAM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\dataRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\dataRunVmArgs.txt -Dfml.modFolders=moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\classes\\java\\main;moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="GameTestServer" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="Moody-Ghasts.main" />
+      <option name="PROGRAM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\gameTestServerRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\gameTestServerRunVmArgs.txt -Dfml.modFolders=moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\classes\\java\\main;moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application">
+      <option name="MAIN_CLASS_NAME" value="net.neoforged.devlaunch.Main" />
+      <module name="Moody-Ghasts.main" />
+      <option name="PROGRAM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\serverRunProgramArgs.txt" />
+      <option name="VM_PARAMETERS" value="@C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\moddev\\serverRunVmArgs.txt -Dfml.modFolders=moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\classes\\java\\main;moodyghasts%%C:\\Users\\Corru\\IdeaProjects\\Moody-Ghasts\\build\\resources\\main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/run" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="Tox" factoryName="Tox">
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="d039b5d6-23f5-4cad-bd78-96259be90db1" name="Changes" comment="" />
+      <created>1746165337825</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1746165337825</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1746168140851</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1746168140851</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Initial commit">
+      <option name="closed" value="true" />
+      <created>1746168612793</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1746168612793</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/ca/corruptdata/moodyghasts/Config.java</url>
+          <line>36</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: net.neoforged.accesstransformers:at-modlauncher:11.0.2" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="net.neoforged.accesstransformers" artifactId="at-modlauncher" version="11.0.2" baseVersion="11.0.2" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.neoforged.accesstransformers/at-modlauncher/11.0.2/88dea58a6e1969cfce4029bf0cc5d231f9d95107/at-modlauncher-11.0.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.neoforged.accesstransformers/at-modlauncher/11.0.2/58dd8d93ab4769da8f1db4531ad14f11702043a6/at-modlauncher-11.0.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
