@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:snowball",
+    "minecraft:packed_ice"
+  ],
+  "result": {
+    "count": 4,
+    "id": "moodyghasts:ice_charge"
+  }
+}
