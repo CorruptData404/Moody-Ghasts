@@ -18,22 +18,23 @@ import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.DispenserBlock;
+import org.jetbrains.annotations.NotNull;
 
 public class IceChargeItem extends Item implements ProjectileItem {
     public static final float PROJECTILE_SHOOT_POWER = 1.5F;
+    public static final float COOLDOWN_SEC = 0.5F;
 
     public IceChargeItem(Properties properties) {
-        super(properties.stacksTo(16));
+        super(properties.useCooldown(COOLDOWN_SEC));
     }
 
     @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         if (level instanceof ServerLevel serverlevel) {
             Projectile.spawnProjectileFromRotation(
                 (p_level, p_shooter, p_projectile) -> new PlayerIceCharge(
-                    player, level, player.position().x(), player.getEyePosition().y(), player.position().z()
-                ),
+                    player, level),
                 serverlevel,
                 itemstack,
                 player,
@@ -59,7 +60,7 @@ public class IceChargeItem extends Item implements ProjectileItem {
     }
 
     @Override
-    public PlayerIceCharge asProjectile(Level level, Position pos, ItemStack stack, Direction dir) {
+    public @NotNull PlayerIceCharge asProjectile(Level level, Position pos, @NotNull ItemStack stack, Direction dir) {
         RandomSource randomsource = level.getRandom();
         double d0 = randomsource.triangle(dir.getStepX(), 0.11485000000000001);
         double d1 = randomsource.triangle(dir.getStepY(), 0.11485000000000001);
@@ -74,7 +75,7 @@ public class IceChargeItem extends Item implements ProjectileItem {
     }
 
     @Override
-    public DispenseConfig createDispenseConfig() {
+    public @NotNull DispenseConfig createDispenseConfig() {
         return DispenseConfig.builder()
                 .positionFunction((src, vel) -> DispenserBlock.getDispensePosition(src, 1.0, Vec3.ZERO))
                 .uncertainty(6.6666665F)

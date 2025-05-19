@@ -13,7 +13,7 @@ public class ModItems {
     public static final DeferredItem<IceChargeItem> ICE_CHARGE = ITEMS.registerItem(
             "ice_charge",
             IceChargeItem::new,
-            new Item.Properties().stacksTo(16)
+            new Item.Properties()
     );
 
     public static void register(IEventBus eventBus) {
