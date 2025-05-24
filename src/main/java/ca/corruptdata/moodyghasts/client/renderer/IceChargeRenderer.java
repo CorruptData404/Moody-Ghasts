@@ -6,6 +6,6 @@ import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
 public class IceChargeRenderer extends ThrownItemRenderer<AbstractIceCharge> {
     public IceChargeRenderer(EntityRendererProvider.Context context) {
-        super(context, 1.0F, true); // 1.0F is scale, true for full bright
+        super(context, 1.0F, false); // 1.0F is scale, true for full bright
     }
 }

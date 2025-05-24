@@ -1,0 +1,68 @@
+modLoader="javafml"
+loaderVersion="${loader_version_range}"
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="${mod_authors}"
+description='''${mod_description}'''
+
+# A URL for the "homepage" for this mod
+#displayURL="https://www.curseforge.com/minecraft/mc-mods/moodyghasts" #optional
+
+# A URL to refer people to when problems occur with this mod
+#issueTrackerURL="https://github.com/yourusername/moodyghasts/issues" #optional
+
+# A URL to query for updates for this mod
+#updateJSONURL="https://raw.githubusercontent.com/yourusername/moodyghasts/main/updates.json" #optional
+
+# A file name (in the root of the mod JAR) containing a logo for display in mod list
+#logoFile="moodyghasts_logo.png" #optional
+
+# Credits for people who helped with the mod
+#credits='''
+#Thanks to:
+#- Contributor1 for help with textures
+#- Contributor2 for code reviews
+#''' #optional
+
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+# Access Transformers allow you to modify the access level of classes, methods, and fields
+#[[accessTransformers]]
+#file="META-INF/accesstransformer.cfg"
+
+# Dependencies section
+[[dependencies.${mod_id}]]
+modId="neoforge"
+type="required"
+versionRange="${neo_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.${mod_id}]]
+modId="minecraft"
+type="required"
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"
+
+# Optional dependencies example
+#[[dependencies.${mod_id}]]
+#modId="jei" #example optional dependency
+#type="optional"
+#versionRange="[15.2.0,)" #example version range
+#ordering="AFTER"
+#side="CLIENT"
+
+# Features are specific properties of the game environment that your mod may require
+#[features.${mod_id}]
+# Declare OpenGL version requirement
+#openGLVersion="[3.2,)"
+# Declare hardware requirements
+#cpuCount=2
+# Other potential feature declarations
+#graphicsMode="fancy"

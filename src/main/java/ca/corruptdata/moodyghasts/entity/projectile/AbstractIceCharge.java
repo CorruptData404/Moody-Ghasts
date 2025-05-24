@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.entity.projectile;
 
+import ca.corruptdata.moodyghasts.api.IceChargeConvertible;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -19,6 +20,7 @@ import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import ca.corruptdata.moodyghasts.item.ModItems;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -28,7 +30,6 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -156,24 +157,34 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
         super.onHitEntity(entityHit);
         if (!this.level().isClientSide && entityHit.getEntity() instanceof LivingEntity target) {
 
+            if (target.isOnFire()) {
+                target.clearFire();
+                applyIceEffects(target.blockPosition(), (ServerLevel) this.level());
+                return;
+            }
+
             boolean isWaterVulnerable = target instanceof Blaze ||
-                                      target instanceof Strider ||
-                                      target instanceof EnderMan;
+                    target instanceof Strider ||
+                    target instanceof EnderMan;
 
             //TODO: Make custom damageSource iceCharge
             if (this.level().dimension() == Level.NETHER) {
                 if (isWaterVulnerable) {
-                    target.hurt(this.damageSources().freeze(), getDamage() * 2);
+                    target.hurtServer((ServerLevel) this.level(), this.damageSources().freeze(), getDamage() * 2);
                 }
-            } else {
-                target.hurt(this.damageSources().freeze(), getDamage());
+            }
+            else {
+                if (target instanceof IceChargeConvertible convertible) {
+                    convertible.moody_Ghasts$startIceChargeConversion();
+                }
+                target.hurtServer((ServerLevel) this.level(), this.damageSources().freeze(), getDamage());
                 target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 2));
                 target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 100, 2));
             }
 
             // Create ice effects around the hit entity
             applyIceEffects(target.blockPosition(), (ServerLevel) this.level());
-        }
+            }
     }
 
 
@@ -196,6 +207,7 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
                     BlockPos below = pos.below();
                     BlockState belowState = server.getBlockState(below);
 
+                    processFireExtinguishing(server, pos);
                     processSnowCreation(server, below, belowState);
                     processBlockConversion(pos, server, state, aboveState);
                 });
@@ -222,6 +234,21 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
             }
         }
         return false;
+    }
+
+    private void processFireExtinguishing(ServerLevel server, BlockPos pos) {
+        BlockState currentState = server.getBlockState(pos);
+        if (currentState.getBlock() instanceof BaseFireBlock) {
+            server.removeBlock(pos, false);
+            server.playSound(
+                    null,
+                    pos.getX(), pos.getY(), pos.getZ(),
+                    SoundEvents.FIRE_EXTINGUISH,
+                    SoundSource.BLOCKS,
+                    0.7F,
+                    1.6F + (server.random.nextFloat() - server.random.nextFloat()) * 0.4F
+            );
+        }
     }
 
     private void processSnowCreation(ServerLevel server, BlockPos below, BlockState belowState) {
@@ -319,7 +346,6 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
                 ParticleTypes.FALLING_WATER :
                 ParticleTypes.SNOWFLAKE;
     }
-
 
     @Override
     public @NotNull ItemStack getItem() {
