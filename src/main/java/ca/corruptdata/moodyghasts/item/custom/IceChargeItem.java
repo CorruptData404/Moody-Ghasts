@@ -1,6 +1,8 @@
 package ca.corruptdata.moodyghasts.item.custom;
 
+import ca.corruptdata.moodyghasts.api.HappyGhastShooter;
 import ca.corruptdata.moodyghasts.entity.projectile.PlayerIceCharge;
+import ca.corruptdata.moodyghasts.item.HappyGhastProjectileItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.server.level.ServerLevel;
@@ -10,9 +12,9 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
@@ -20,21 +22,26 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.block.DispenserBlock;
 import org.jetbrains.annotations.NotNull;
 
-public class IceChargeItem extends Item implements ProjectileItem {
+public class IceChargeItem extends HappyGhastProjectileItem implements ProjectileItem {
     public static final float PROJECTILE_SHOOT_POWER = 1.5F;
-    public static final float COOLDOWN_SEC = 0.5F;
+    public static final int HAPPYGHAST_COOLDOWN = 40; //2 seconds
+    public static final int PLAYER_COOLDOWN = 20; //1 second
 
     public IceChargeItem(Properties properties) {
-        super(properties.useCooldown(COOLDOWN_SEC));
+        super(properties,HAPPYGHAST_COOLDOWN);
     }
 
     @Override
-    public @NotNull InteractionResult use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
-        ItemStack itemstack = player.getItemInHand(hand);
+    public boolean tryShootFromMount(Player player, HappyGhast happyGhast) {
+        return ((HappyGhastShooter)happyGhast).moodyghasts$tryShootIceCharge(player);
+    }
+
+    @Override
+    public InteractionResult onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack) {
         if (level instanceof ServerLevel serverlevel) {
+            // Create and shoot the projectile
             Projectile.spawnProjectileFromRotation(
-                (p_level, p_shooter, p_projectile) -> new PlayerIceCharge(
-                    player, level),
+                (p_level, p_shooter, p_projectile) -> new PlayerIceCharge(player, level),
                 serverlevel,
                 itemstack,
                 player,
@@ -42,21 +49,20 @@ public class IceChargeItem extends Item implements ProjectileItem {
                 PROJECTILE_SHOOT_POWER,
                 1.0F
             );
-        }
 
-        level.playSound(
-            null,
-            player.getX(),
-            player.getY(),
-            player.getZ(),
-            SoundEvents.WIND_CHARGE_THROW,
-            SoundSource.NEUTRAL,
-            0.5F,
-            0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
-        );
-        player.awardStat(Stats.ITEM_USED.get(this));
-        itemstack.consume(1, player);
-        return InteractionResult.SUCCESS;
+            player.getCooldowns().addCooldown(itemstack, PLAYER_COOLDOWN);
+
+            //TODO: Custom Ice Charge throw sound
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.WIND_CHARGE_THROW, SoundSource.NEUTRAL, 0.5F,
+                0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+            );
+        
+            player.awardStat(Stats.ITEM_USED.get(this));
+            itemstack.consume(1, player);
+            return InteractionResult.SUCCESS;
+        }
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -67,11 +73,6 @@ public class IceChargeItem extends Item implements ProjectileItem {
         double d2 = randomsource.triangle(dir.getStepZ(), 0.11485000000000001);
         Vec3 vec3 = new Vec3(d0, d1, d2);
         return new PlayerIceCharge(level, pos.x(), pos.y(), pos.z(), vec3);
-    }
-
-    @Override
-    public void shoot(Projectile projectile, double x, double y, double z, float velocity, float inaccuracy) {
-        projectile.shoot(x, y, z, velocity, inaccuracy);
     }
 
     @Override

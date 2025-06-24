@@ -175,7 +175,7 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
             }
             else {
                 if (target instanceof IceChargeConvertible convertible) {
-                    convertible.moody_Ghasts$startIceChargeConversion();
+                    convertible.moodyghasts$startIceChargeConversion();
                 }
                 target.hurtServer((ServerLevel) this.level(), this.damageSources().freeze(), getDamage());
                 target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 2));
