@@ -1,11 +1,11 @@
 package ca.corruptdata.moodyghasts.client.renderer;
 
-import ca.corruptdata.moodyghasts.entity.projectile.AbstractIceCharge;
+import ca.corruptdata.moodyghasts.entity.projectile.AbstractIceChargeEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
-public class IceChargeRenderer extends ThrownItemRenderer<AbstractIceCharge> {
+public class IceChargeRenderer extends ThrownItemRenderer<AbstractIceChargeEntity> {
     public IceChargeRenderer(EntityRendererProvider.Context context) {
-        super(context, 1.0F, false); // 1.0F is scale, true for full bright
+        super(context, 2.0F, false);
     }
 }

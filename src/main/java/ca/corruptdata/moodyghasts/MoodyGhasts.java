@@ -26,7 +26,7 @@ public class MoodyGhasts {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "moodyghasts";
     // Directly reference a slf4j logger
-    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final Logger LOGGER = LogUtils.getLogger();
     public static final String MIXIN_CONFIG = "moodyghasts.mixins.json";
 
 
@@ -73,7 +73,7 @@ public class MoodyGhasts {
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(ModEntities.ICE_CHARGE.get(), IceChargeRenderer::new);
+            event.registerEntityRenderer(ModEntities.PLAYER_ICE_CHARGE.get(), IceChargeRenderer::new);
         }
     }
 }

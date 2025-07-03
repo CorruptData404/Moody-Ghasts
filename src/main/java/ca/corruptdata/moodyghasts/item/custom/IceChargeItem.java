@@ -1,7 +1,7 @@
 package ca.corruptdata.moodyghasts.item.custom;
 
-import ca.corruptdata.moodyghasts.api.HappyGhastShooter;
-import ca.corruptdata.moodyghasts.entity.projectile.PlayerIceCharge;
+import ca.corruptdata.moodyghasts.api.HappyGhastAccessor;
+import ca.corruptdata.moodyghasts.entity.projectile.PlayerIceChargeEntity;
 import ca.corruptdata.moodyghasts.item.HappyGhastProjectileItem;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -32,16 +32,16 @@ public class IceChargeItem extends HappyGhastProjectileItem implements Projectil
     }
 
     @Override
-    public boolean tryShootFromMount(Player player, HappyGhast happyGhast) {
-        return ((HappyGhastShooter)happyGhast).moodyghasts$tryShootIceCharge(player);
+    public boolean moodyghasts$tryShootFromGhast(Player player, HappyGhast happyGhast) {
+        return ((HappyGhastAccessor)happyGhast).moodyghasts$beginShooting(player);
     }
 
     @Override
-    public InteractionResult onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack) {
+    public InteractionResult moodyghasts$onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack) {
         if (level instanceof ServerLevel serverlevel) {
             // Create and shoot the projectile
             Projectile.spawnProjectileFromRotation(
-                (p_level, p_shooter, p_projectile) -> new PlayerIceCharge(player, level),
+                (p_level, p_shooter, p_projectile) -> new PlayerIceChargeEntity(player, level),
                 serverlevel,
                 itemstack,
                 player,
@@ -66,13 +66,13 @@ public class IceChargeItem extends HappyGhastProjectileItem implements Projectil
     }
 
     @Override
-    public @NotNull PlayerIceCharge asProjectile(Level level, Position pos, @NotNull ItemStack stack, Direction dir) {
+    public @NotNull PlayerIceChargeEntity asProjectile(Level level, Position pos, @NotNull ItemStack stack, Direction dir) {
         RandomSource randomsource = level.getRandom();
         double d0 = randomsource.triangle(dir.getStepX(), 0.11485000000000001);
         double d1 = randomsource.triangle(dir.getStepY(), 0.11485000000000001);
         double d2 = randomsource.triangle(dir.getStepZ(), 0.11485000000000001);
         Vec3 vec3 = new Vec3(d0, d1, d2);
-        return new PlayerIceCharge(level, pos.x(), pos.y(), pos.z(), vec3);
+        return new PlayerIceChargeEntity(level, pos.x(), pos.y(), pos.z(), vec3);
     }
 
     @Override

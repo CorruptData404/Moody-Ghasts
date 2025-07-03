@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 
-public abstract class AbstractIceCharge extends AbstractHurtingProjectile implements ItemSupplier {
+public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile implements ItemSupplier {
 
     protected abstract int getEffectRadius();
     protected abstract int getDamage();
@@ -46,12 +46,12 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
 
 
     // Constructor 1
-    public AbstractIceCharge(EntityType<? extends AbstractIceCharge> type, Level world) {
+    public AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, Level world) {
         super(type, world);
     }
 
     // Constructor 2
-    public AbstractIceCharge(EntityType<? extends AbstractIceCharge> type, LivingEntity shooter, Level world) {
+    public AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity shooter, Level world) {
         super(type,
                 shooter.getX(), shooter.getY() + shooter.getEyeHeight() - 0.1,
                 shooter.getZ(),
@@ -65,11 +65,9 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
         BlockPos prevBlockPos = this.blockPosition();
         super.tick();
         BlockPos newBlockPos = this.blockPosition();
-        
-        // Server-side only operations
+
         if (!level().isClientSide) {
 
-            // Clean up expired converted block positions
             if (level() instanceof ServerLevel) {
                 recentlyConverted.clear();
             }
@@ -126,7 +124,7 @@ public abstract class AbstractIceCharge extends AbstractHurtingProjectile implem
                     server.sendParticles(
                             particleType,
                             x, y, z,  // position
-                            1,        // count (1 particle per position)
+                            2,        // count
                             vx, vy, vz,  // velocity
                             0.10      // speed
                     );

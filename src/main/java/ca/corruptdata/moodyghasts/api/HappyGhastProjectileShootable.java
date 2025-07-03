@@ -12,12 +12,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public interface HappyGhastProjectileShootable {
-    int getCooldown();
-    boolean tryShootFromMount(Player player, HappyGhast happyGhast);
-    InteractionResult onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack);
+    int moodyghasts$getCooldown();
+    boolean moodyghasts$tryShootFromGhast(Player player, HappyGhast happyGhast);
+    InteractionResult moodyghasts$onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack);
     
     default void applySharedCooldown(Player player) {
-        int cooldown = getCooldown();
+        int cooldown = moodyghasts$getCooldown();
         ItemCooldowns cooldownTracker = player.getCooldowns();
 
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
@@ -32,15 +32,15 @@ public interface HappyGhastProjectileShootable {
         ItemStack itemstack = player.getItemInHand(hand);
 
         if (player.getVehicle() instanceof HappyGhast happyGhast && happyGhast.getControllingPassenger() == player) {
-            if (tryShootFromMount(player, happyGhast)) {
+            if (moodyghasts$tryShootFromGhast(player, happyGhast)) {
                 applySharedCooldown(player);
-                itemstack.consume(1, player);
+                itemstack.shrink(1);
                 player.awardStat(Stats.ITEM_USED.get((Item)this));
                 return InteractionResult.SUCCESS;
             }
             return InteractionResult.PASS;
         }
         
-        return onNonMountedUse(level, player, hand, itemstack);
+        return moodyghasts$onNonMountedUse(level, player, hand, itemstack);
     }
 }

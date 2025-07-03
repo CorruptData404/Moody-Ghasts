@@ -1,4 +1,4 @@
-package ca.corruptdata.moodyghasts.mixin;
+package ca.corruptdata.moodyghasts.mixin.entity;
 
 import ca.corruptdata.moodyghasts.api.IceChargeConvertible;
 import net.minecraft.world.entity.monster.Skeleton;

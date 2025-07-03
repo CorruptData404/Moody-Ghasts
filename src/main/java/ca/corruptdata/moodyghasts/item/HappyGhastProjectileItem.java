@@ -18,7 +18,7 @@ public abstract class HappyGhastProjectileItem extends Item implements HappyGhas
     }
 
     @Override
-    public int getCooldown() {
+    public int moodyghasts$getCooldown() {
         return cooldown;
     }
 
