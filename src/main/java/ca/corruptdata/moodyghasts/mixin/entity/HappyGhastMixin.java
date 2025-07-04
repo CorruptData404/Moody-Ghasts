@@ -3,6 +3,9 @@ package ca.corruptdata.moodyghasts.mixin.entity;
 import ca.corruptdata.moodyghasts.api.HappyGhastAccessor;
 import ca.corruptdata.moodyghasts.entity.projectile.PlayerIceChargeEntity;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
@@ -15,13 +18,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HappyGhast.class)
 public class HappyGhastMixin implements HappyGhastAccessor {
+    
+    @Unique
+    private static final float INITIAL_MOOD = 60F;
     @Unique
     private int moodyghasts$shootChargeTime = 0;
     @Unique
-    private final float moodyghasts$mood = 0.6F;
+    private static final EntityDataAccessor<Float> MOOD =
+            SynchedEntityData.defineId(HappyGhast.class, EntityDataSerializers.FLOAT);
+
     @Unique
-    private boolean moodyghasts$isShooting = false;
-    
+    private static final EntityDataAccessor<Boolean> IS_SHOOTING =
+            SynchedEntityData.defineId(HappyGhast.class, EntityDataSerializers.BOOLEAN);
+
+    @Inject(method = "defineSynchedData(Lnet/minecraft/network/syncher/SynchedEntityData$Builder;)V", at = @At("TAIL"))
+    private void defineCustomData(SynchedEntityData.Builder builder, CallbackInfo ci) {
+        builder.define(IS_SHOOTING, false);
+        builder.define(MOOD, INITIAL_MOOD);
+    }
+
+
+
     @Unique
     @Override
     public boolean moodyghasts$beginShooting(Player player) {
@@ -41,7 +58,7 @@ public class HappyGhastMixin implements HappyGhastAccessor {
 @Inject(method = "tick", at = @At("HEAD"))
 private void onTick(CallbackInfo ci) {
     if (moodyghasts$shootChargeTime > 0) {
-        moodyghasts$isShooting = true;
+        moodyghasts$setShooting(true);
         moodyghasts$shootChargeTime++;
 
         if (moodyghasts$shootChargeTime == 10) {
@@ -55,7 +72,7 @@ private void onTick(CallbackInfo ci) {
                 moodyghasts$shootIceCharge(player, ghast);
             }
             moodyghasts$shootChargeTime = 0;
-            moodyghasts$isShooting = false;
+            moodyghasts$setShooting(false);
         }
     }
 }
@@ -86,8 +103,7 @@ private void moodyghasts$shootIceCharge(Player player, HappyGhast ghast) {
             );
 
             serverLevel.addFreshEntity(iceCharge);
-
-            // Play shoot sound
+            
             ghast.level().levelEvent(null, 1016, ghast.blockPosition(), 0);
 
             moodyghasts$shootChargeTime = -1;
@@ -96,11 +112,32 @@ private void moodyghasts$shootIceCharge(Player player, HappyGhast ghast) {
 
     @Override
     public boolean moodyghasts$isShooting() {
-        return moodyghasts$isShooting;
+        HappyGhast ghast = (HappyGhast)(Object)this;
+        return ghast.getEntityData().get(IS_SHOOTING);
     }
 
     @Override
     public float moodyghasts$getMood() {
-        return moodyghasts$mood;
+        HappyGhast ghast = (HappyGhast)(Object)this;
+        return ghast.getEntityData().get(MOOD);
+    }
+
+    @Unique
+    private void moodyghasts$setMood(float mood) {
+        HappyGhast ghast = (HappyGhast)(Object)this;
+        ghast.getEntityData().set(MOOD, mood);
+    }
+
+    @Unique
+    private void moodyghasts$adjustMood(float delta) {
+        HappyGhast ghast = (HappyGhast)(Object)this;
+        float newMood = Math.min(100.0f, Math.max(0.0f, moodyghasts$getMood() + delta));
+        ghast.getEntityData().set(MOOD, newMood);
+    }
+
+    @Unique
+    private void moodyghasts$setShooting(boolean shooting) {
+        HappyGhast ghast = (HappyGhast)(Object)this;
+        ghast.getEntityData().set(IS_SHOOTING, shooting);
     }
 }

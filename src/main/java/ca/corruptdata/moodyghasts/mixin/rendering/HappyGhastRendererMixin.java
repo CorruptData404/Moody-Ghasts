@@ -18,18 +18,17 @@ public class HappyGhastRendererMixin {
     @Shadow @Final private static ResourceLocation GHAST_LOCATION;
 
     @Unique
-    private static final ResourceLocation GHAST_SHOOTING_LOCATION = ResourceLocation.fromNamespaceAndPath("minecraft", "textures/entity/ghast/ghast_shooting.png");
-
+    private static final ResourceLocation GHAST_SHOOTING_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_shooting.png");
     @Unique
-    private static final ResourceLocation GHAST_EXCITED_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/excited_ghast.png");
+    private static final ResourceLocation GHAST_EXCITED_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_excited.png");
     @Unique
-    private static final ResourceLocation GHAST_NEUTRAL_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/neutral_ghast.png");
+    private static final ResourceLocation GHAST_NEUTRAL_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_neutral.png");
     @Unique
-    private static final ResourceLocation GHAST_SAD_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/sad_ghast.png");
+    private static final ResourceLocation GHAST_SAD_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_sad.png");
     @Unique
-    private static final ResourceLocation GHAST_ANGRY_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/angry_ghast.png");
+    private static final ResourceLocation GHAST_ANGRY_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_angry.png");
     @Unique
-    private static final ResourceLocation GHAST_ENRAGED_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/enraged_ghast.png");
+    private static final ResourceLocation GHAST_ENRAGED_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_enraged.png");
 
     /**
      * @author CorruptData
@@ -43,17 +42,16 @@ public class HappyGhastRendererMixin {
 
         HappyGhastRenderStateAccessor accessor = (HappyGhastRenderStateAccessor) ghastState;
 
-        //TODO: This never is true. Figure out why
         if(accessor.isMoodyghasts$isShooting()) {
             return GHAST_SHOOTING_LOCATION;
         }
         float mood = accessor.getMoodyghasts$mood();
 
-        if (mood <= 0.2f) return GHAST_EXCITED_LOCATION;
-        if (mood <= 0.4f) return GHAST_LOCATION;
-        if (mood <= 0.6f) return GHAST_NEUTRAL_LOCATION;
-        if (mood <= 0.7f) return GHAST_SAD_LOCATION;
-        if (mood <= 0.8f) return GHAST_ANGRY_LOCATION;
+        if (mood <= 20f) return GHAST_EXCITED_LOCATION;
+        if (mood <= 40f) return GHAST_LOCATION;
+        if (mood <= 60f) return GHAST_NEUTRAL_LOCATION;
+        if (mood <= 70f) return GHAST_SAD_LOCATION;
+        if (mood <= 80f) return GHAST_ANGRY_LOCATION;
         return GHAST_ENRAGED_LOCATION;
     }
 
