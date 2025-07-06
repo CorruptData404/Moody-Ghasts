@@ -16,10 +16,10 @@ public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES =
             DeferredRegister.create(Registries.ENTITY_TYPE, MoodyGhasts.MOD_ID);
 
-    public static final DeferredHolder<EntityType<?>, EntityType<PlayerIceChargeEntity>> PLAYER_ICE_CHARGE = ENTITIES.register("ice_charge", () -> {
+    public static final DeferredHolder<EntityType<?>, EntityType<PlayerIceChargeEntity>> PLAYER_ICE_CHARGE = ENTITIES.register("player_ice_charge", () -> {
         ResourceKey<EntityType<?>> key = ResourceKey.create(
                 Registries.ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge")
+                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "player_ice_charge")
         );
         return EntityType.Builder
                 .<PlayerIceChargeEntity>of(PlayerIceChargeEntity::new, MobCategory.MISC)
@@ -32,7 +32,7 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<GhastIceChargeEntity>> GHAST_ICE_CHARGE = ENTITIES.register("ghast_ice_charge", () -> {
         ResourceKey<EntityType<?>> key = ResourceKey.create(
                 Registries.ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge")
+                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ghast_ice_charge")
         );
         return EntityType.Builder
                 .<GhastIceChargeEntity>of(GhastIceChargeEntity::new, MobCategory.MISC)

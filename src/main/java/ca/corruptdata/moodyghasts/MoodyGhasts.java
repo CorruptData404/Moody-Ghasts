@@ -74,6 +74,7 @@ public class MoodyGhasts {
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.PLAYER_ICE_CHARGE.get(), IceChargeRenderer::new);
+            event.registerEntityRenderer(ModEntities.GHAST_ICE_CHARGE.get(), IceChargeRenderer::new);
         }
     }
 }

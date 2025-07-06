@@ -12,9 +12,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public interface HappyGhastProjectileShootable {
+    float projectilePower = 0;
     int moodyghasts$getCooldown();
     boolean moodyghasts$tryShootFromGhast(Player player, HappyGhast happyGhast);
-    InteractionResult moodyghasts$onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack);
+
+    default InteractionResult moodyghasts$onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack){
+        return null;
+    }
     
     default void applySharedCooldown(Player player) {
         int cooldown = moodyghasts$getCooldown();
@@ -34,7 +38,7 @@ public interface HappyGhastProjectileShootable {
         if (player.getVehicle() instanceof HappyGhast happyGhast && happyGhast.getControllingPassenger() == player) {
             if (moodyghasts$tryShootFromGhast(player, happyGhast)) {
                 applySharedCooldown(player);
-                itemstack.shrink(1);
+                itemstack.consume(1, player);
                 player.awardStat(Stats.ITEM_USED.get((Item)this));
                 return InteractionResult.SUCCESS;
             }

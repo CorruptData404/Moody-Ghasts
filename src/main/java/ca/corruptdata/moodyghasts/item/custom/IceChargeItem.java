@@ -33,7 +33,7 @@ public class IceChargeItem extends HappyGhastProjectileItem implements Projectil
 
     @Override
     public boolean moodyghasts$tryShootFromGhast(Player player, HappyGhast happyGhast) {
-        return ((HappyGhastAccessor)happyGhast).moodyghasts$beginShooting(player);
+        return ((HappyGhastAccessor)happyGhast).moodyghasts$beginShooting(player, this, PROJECTILE_SHOOT_POWER);
     }
 
     @Override

@@ -11,18 +11,18 @@ public class GhastIceChargeEntity extends AbstractIceChargeEntity {
     //TODO: Define multipliers and rage level
     private static final float DAMAGE_MULTIPLIER = 1.5f;
     private static final float RADIUS_MULTIPLIER = 1.2f;
-    private final int rageLevel;
+    private final float mood;
 
     // Factory constructor for registration
     public GhastIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, Level world) {
         super(type, world);
-        this.rageLevel = 0;
+        this.mood = 0;
     }
 
     // Ghast-thrown constructor with rage level
-    public GhastIceChargeEntity(LivingEntity shooter, Level level, int rageLevel) {
+    public GhastIceChargeEntity(LivingEntity shooter, Level level, float mood) {
         super(ModEntities.GHAST_ICE_CHARGE.get(), shooter, level);
-        this.rageLevel = rageLevel;
+        this.mood = mood;
     }
 
     @Override
