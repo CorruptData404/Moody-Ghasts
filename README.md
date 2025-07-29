@@ -1,25 +1,48 @@
+# Moody Ghasts
 
-Installation information
-=======
+An overhaul mod for the Happy Ghast mob that adds new utility and mechanics!
 
-This template repository can be directly cloned to get you started with a new
-mod. Simply create a new repository cloned from this one, by following the
-instructions provided by [GitHub](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-repository-from-a-template).
+## Planned Features (May Change)
 
-Once you have your clone, simply open the repository in the IDE of your choice. The usual recommendation for an IDE is either IntelliJ IDEA or Eclipse.
+### Projectile Combat System
+You can now shoot various projectiles while controlling your ghast companion:
 
-If at any point you are missing libraries in your IDE, or you've run into problems you can
-run `gradlew --refresh-dependencies` to refresh the local cache. `gradlew clean` to reset everything 
-{this does not affect your code} and then start the process again.
+* **Fire Charges** - Classic nether ghast projectiles
+* **Wind Charges** - More powerful than player-thrown variants
+* **Powdered Snow** - Release a barrage of snowballs
+* **Ice Charges** - New freezing projectile
 
-Mapping Names:
-============
-By default, the MDK is configured to use the official mapping names from Mojang for methods and fields 
-in the Minecraft codebase. These names are covered by a specific license. All modders should be aware of this
-license. For the latest license text, refer to the mapping file itself, or the reference copy here:
-https://github.com/NeoForged/NeoForm/blob/main/Mojang.md
+### Ice Charge Mechanics
+A new projectile that can be:
+* Thrown manually
+* Shot from dispensers
+* Fired from your ghast companion
 
-Additional Resources: 
-==========
-Community Documentation: https://docs.neoforged.net/  
-NeoForged Discord: https://discord.neoforged.net/
+Effects:
+* **On Entity Impact**
+  * Applies slowness and deals damage
+  * Transforms Skeletons into Strays
+* **Area Effects**
+  * Converts water sources to frosted ice (when adjacent to air or non-source water)
+  * Transforms lava into obsidian and cobblestone
+  * Creates snow layers on blocks
+  * Extinguishes fires
+
+### Mood System
+Your ghast companions now have dynamic personalities! Monitor their mood through the new mood bar while riding or looking at their face.
+
+Mood Influences:
+* **Projectile Usage** - Different projectiles affect mood differently
+* **Treats** - Feed various items to intentionally calm or anger your ghast
+* **Damage** - Taking damage can affect their mood
+* **Weather** - Ghasts enjoy and heal faster in the rain
+* **Time** - Mood neutralizes over time
+
+Mood Effects:
+* Angry ghasts fire more powerful projectiles
+* Enraged ghasts risk becoming hostile - calm them quickly!
+* Happy ghasts gain temporary speed boosts
+
+## Dependencies
+* Minecraft [1.21.8]
+* Neoforge
