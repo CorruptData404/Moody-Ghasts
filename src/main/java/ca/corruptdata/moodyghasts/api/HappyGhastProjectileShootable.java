@@ -12,7 +12,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public interface HappyGhastProjectileShootable {
-    float projectilePower = 0;
     int moodyghasts$getCooldown();
     boolean moodyghasts$tryShootFromGhast(Player player, HappyGhast happyGhast);
 
@@ -21,13 +20,12 @@ public interface HappyGhastProjectileShootable {
     }
     
     default void applySharedCooldown(Player player) {
-        int cooldown = moodyghasts$getCooldown();
         ItemCooldowns cooldownTracker = player.getCooldowns();
 
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
             ItemStack stack = player.getInventory().getItem(i);
             if (!stack.isEmpty() && stack.is(ModTags.Items.HAPPY_GHAST_PROJECTILES)) {
-                cooldownTracker.addCooldown(stack, cooldown);
+                cooldownTracker.addCooldown(stack, moodyghasts$getCooldown());
             }
         }
     }
