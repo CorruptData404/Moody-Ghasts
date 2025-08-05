@@ -47,6 +47,10 @@ public record MoodThresholds(
         final float[] prev = {0f};  // Using array to make it effectively final
         
         for (float value : values) {
+            if( value < 0f || value > 100f ) {
+                return DataResult.error(() ->
+                    "Thresholds must be between 0 and 100. Found value " + value);
+            }
             if (value < prev[0]) {
                 return DataResult.error(() -> 
                     "Thresholds must be in ascending order. Found value " + value + 
