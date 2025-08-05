@@ -1,9 +1,12 @@
 package ca.corruptdata.moodyghasts.mixin.entity;
 
+import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import ca.corruptdata.moodyghasts.api.HappyGhastAccessor;
 import ca.corruptdata.moodyghasts.api.HappyGhastProjectileShootable;
 import ca.corruptdata.moodyghasts.entity.projectile.GhastIceChargeEntity;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -19,11 +22,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.Map;
+
 @Mixin(HappyGhast.class)
 public class HappyGhastMixin implements HappyGhastAccessor {
     
     @Unique
-    private static final float INITIAL_MOOD = 60F;
+    private static final float INITIAL_MOOD = 40F;
+    @Unique
+    private static final float MIN_MOOD = 0.0f;
+    @Unique
+    private static final float MAX_MOOD = 100.0f;
     @Unique
     private int moodyghasts$shootChargeTime = 0;
     @Unique
@@ -45,67 +54,64 @@ public class HappyGhastMixin implements HappyGhastAccessor {
         builder.define(MOOD, INITIAL_MOOD);
     }
 
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void onTick(CallbackInfo ci) {
+        HappyGhast ghast = (HappyGhast)(Object)this;
 
-
-@Unique
-@Override
-public boolean moodyghasts$beginShooting(Player player, HappyGhastProjectileShootable projectileItem, float baseVelocity) {
-    HappyGhast ghast = (HappyGhast)(Object)this;
-    
-    if (!ghast.level().isClientSide) {
-        if (moodyghasts$shootChargeTime == 0) { // Only start if not already charging
-            moodyghasts$setShooting(true);
-            moodyghasts$shootChargeTime = 1; // Start charging
-            moodyghasts$shootingPlayer = player;
-            moodyghasts$currentProjectileItem = projectileItem;
-            moodyghasts$baseVelocity = baseVelocity;
-            return true;
+        if(!ghast.level().isClientSide() && moodyghasts$isShooting()){
+            if(ghast.getControllingPassenger() == moodyghasts$shootingPlayer && !(moodyghasts$shootChargeTime > 20)){
+                moodyghasts$shootChargeTime++;
+            }
+            else
+            {
+                moodyghasts$setShooting(false);
+                moodyghasts$shootChargeTime = 0;
+                moodyghasts$shootingPlayer = null;
+                moodyghasts$currentProjectileItem = null;
+            }
         }
     }
-    return false;
-}
 
-@Inject(method = "tick", at = @At("TAIL"))
-private void onTick(CallbackInfo ci) {
-    HappyGhast ghast = (HappyGhast)(Object)this;
+    @Inject(method = "tickRidden", at = @At("TAIL"))
+    private void onTickRidden(Player player, Vec3 vec3, CallbackInfo ci) {
+        if (!moodyghasts$isShooting()) return;
 
-    if(!ghast.level().isClientSide() && moodyghasts$isShooting()){
-        if(ghast.getControllingPassenger() == moodyghasts$shootingPlayer && !(moodyghasts$shootChargeTime > 20)){
-            moodyghasts$shootChargeTime++;
+        HappyGhast ghast = (HappyGhast)(Object)this;
+
+        if (moodyghasts$shootChargeTime == 10) {
+            ghast.level().levelEvent(null, 1015, ghast.blockPosition(), 0);
         }
-        else
-        {
+
+        if (moodyghasts$shootChargeTime == 20) {
+                if (moodyghasts$currentProjectileItem instanceof IceChargeItem) {
+                    moodyghasts$shootCharge(player, ghast,
+                        new GhastIceChargeEntity(player, ghast.level(), moodyghasts$getMood()),
+                            moodyghasts$baseVelocity);
+                }
+            // TODO: Implement other projectile types
             moodyghasts$setShooting(false);
             moodyghasts$shootChargeTime = 0;
             moodyghasts$shootingPlayer = null;
             moodyghasts$currentProjectileItem = null;
         }
     }
-}
 
-@Inject(method = "tickRidden", at = @At("TAIL"))
-private void onTickRidden(Player player, Vec3 vec3, CallbackInfo ci) {
-    if (!moodyghasts$isShooting()) return;
+    @Unique
+    public boolean moodyghasts$beginShooting(Player player, HappyGhastProjectileShootable projectileItem, float baseVelocity) {
+        HappyGhast ghast = (HappyGhast)(Object)this;
 
-    HappyGhast ghast = (HappyGhast)(Object)this;
-
-    if (moodyghasts$shootChargeTime == 10) {
-        ghast.level().levelEvent(null, 1015, ghast.blockPosition(), 0);
-    }
-
-    if (moodyghasts$shootChargeTime == 20) {
-            if (moodyghasts$currentProjectileItem instanceof IceChargeItem) {
-                moodyghasts$shootCharge(player, ghast, 
-                    new GhastIceChargeEntity(player, ghast.level(), moodyghasts$getMood()),
-                        moodyghasts$baseVelocity);
+        if (!ghast.level().isClientSide) {
+            if (moodyghasts$shootChargeTime == 0) { // Only start if not already charging
+                moodyghasts$setShooting(true);
+                moodyghasts$shootChargeTime = 1; // Start charging
+                moodyghasts$shootingPlayer = player;
+                moodyghasts$currentProjectileItem = projectileItem;
+                moodyghasts$baseVelocity = baseVelocity;
+                return true;
             }
-        // TODO: Implement other projectile types
-        moodyghasts$setShooting(false);
-        moodyghasts$shootChargeTime = 0;
-        moodyghasts$shootingPlayer = null;
-        moodyghasts$currentProjectileItem = null;
+        }
+        return false;
     }
-}
 
     @Unique
     private void moodyghasts$shootCharge(Player player, HappyGhast ghast, AbstractHurtingProjectile projectile, float baseVelocity) {
@@ -133,13 +139,42 @@ private void onTickRidden(Player player, Vec3 vec3, CallbackInfo ci) {
         serverLevel.addFreshEntity(projectile);
     }
 
-    @Override
+    @Unique
+    private void moodyghasts$addParticlesAroundSelf(ParticleOptions particleOption)
+    {
+        HappyGhast ghast = (HappyGhast)(Object)this;
+        for (int i = 0; i < 10; i++) {
+            double d0 = ghast.getRandom().nextGaussian() * 0.02;
+            double d1 = ghast.getRandom().nextGaussian() * 0.02;
+            double d2 = ghast.getRandom().nextGaussian() * 0.02;
+            ghast.level().addParticle(particleOption, ghast.getRandomX(1.0), ghast.getRandomY() + 1.0, ghast.getRandomZ(1.0), d0, d1, d2);
+        }
+    }
+
+
+    @Unique
+    public boolean moodyghasts$wouldCrossMoodThreshold(float delta) {
+        float currentMood = moodyghasts$getMood();
+        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
+
+        Map<String, Float> thresholds = MoodThresholdsManager.getCurrentInstance().getMoodMap();
+
+        // Check if the mood change would cross any of the threshold boundaries
+        return thresholds.values().stream()
+                .anyMatch(threshold ->
+                        (currentMood <= threshold && newMood > threshold) ||
+                                (currentMood > threshold && newMood <= threshold));
+    }
+
+
+
+    @Unique
     public boolean moodyghasts$isShooting() {
         HappyGhast ghast = (HappyGhast)(Object)this;
         return ghast.getEntityData().get(IS_SHOOTING);
     }
 
-    @Override
+    @Unique
     public float moodyghasts$getMood() {
         HappyGhast ghast = (HappyGhast)(Object)this;
         return ghast.getEntityData().get(MOOD);
@@ -147,14 +182,26 @@ private void onTickRidden(Player player, Vec3 vec3, CallbackInfo ci) {
 
     @Unique
     private void moodyghasts$setMood(float mood) {
-        HappyGhast ghast = (HappyGhast)(Object)this;
-        ghast.getEntityData().set(MOOD, Mth.clamp(mood, 0.0f, 100.0f));
+        moodyghasts$adjustMood(mood - moodyghasts$getMood());
     }
 
+    /**
+     * Adjusts the mood of the Happy Ghast by the given delta.
+     * Mood ranges from 0 (happiest) to 100 (angriest).
+     * Will show particles when crossing mood thresholds.
+     * @param delta The amount to adjust the mood by (positive = angrier, negative = happier)
+     */
     @Unique
     public void moodyghasts$adjustMood(float delta) {
+
+        if (moodyghasts$wouldCrossMoodThreshold(delta)) {
+            moodyghasts$addParticlesAroundSelf(delta > 0 ?
+                    ParticleTypes.ANGRY_VILLAGER :
+                    ParticleTypes.HAPPY_VILLAGER);
+        }
+
         HappyGhast ghast = (HappyGhast)(Object)this;
-        ghast.getEntityData().set(MOOD, Mth.clamp(moodyghasts$getMood() + delta, 0.0f, 100.0f));
+        ghast.getEntityData().set(MOOD, Mth.clamp(moodyghasts$getMood() + delta, MIN_MOOD, MAX_MOOD));
     }
 
     @Unique

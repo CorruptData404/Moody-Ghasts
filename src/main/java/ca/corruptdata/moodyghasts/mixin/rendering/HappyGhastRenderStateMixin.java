@@ -12,22 +12,22 @@ public class HappyGhastRenderStateMixin implements HappyGhastRenderStateAccessor
     @Unique
     public float moodyghasts$mood = 0.6F;
 
-    @Override
+    @Unique
     public boolean isMoodyghasts$isShooting() {
         return moodyghasts$isShooting;
     }
 
-    @Override
+    @Unique
     public float getMoodyghasts$mood() {
         return moodyghasts$mood;
     }
 
-    @Override
+    @Unique
     public void setMoodyghasts$isShooting(boolean moodyghasts$isShooting) {
         this.moodyghasts$isShooting = moodyghasts$isShooting;
     }
 
-    @Override
+    @Unique
     public void setMoodyghasts$mood(float moodyghasts$mood) {
         this.moodyghasts$mood = moodyghasts$mood;
     }

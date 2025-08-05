@@ -1,0 +1,9 @@
+
+{
+  "excited": 20.0,
+  "happy": 40.0,
+  "neutral": 60.0,
+  "sad": 70.0,
+  "angry": 80.0,
+  "enraged": 100.0
+}

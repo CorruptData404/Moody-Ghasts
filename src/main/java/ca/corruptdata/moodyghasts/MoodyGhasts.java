@@ -3,6 +3,8 @@ package ca.corruptdata.moodyghasts;
 import ca.corruptdata.moodyghasts.client.renderer.IceChargeRenderer;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
+import ca.corruptdata.moodyghasts.util.MoodThresholds;
+import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.api.distmarker.Dist;
@@ -17,6 +19,8 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.registries.datamaps.DataMapType;
+import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixins;
 
@@ -42,6 +46,9 @@ public class MoodyGhasts {
         modEventBus.addListener(this::commonSetup);
         // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
+
+        modEventBus.addListener(this::registerDataMaps);
+
         // Register our mod's ModConfigSpec so that FML can create and load the config file for us
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
@@ -57,10 +64,17 @@ public class MoodyGhasts {
         }
     }
 
+private void registerDataMaps(RegisterDataMapTypesEvent event) {
+    event.register(DataMapType.builder(MoodThresholds.ID, MoodThresholdsManager.REGISTRY_KEY, MoodThresholds.CODEC)
+            .synced(MoodThresholds.CODEC, true)
+            .build());
+}
+
+
     // You can use SubscribeEvent and let the Event Bus discover methods to call
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
-        // Server starting code here
+        MoodThresholdsManager.updateThresholds(event.getServer().registryAccess());
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent

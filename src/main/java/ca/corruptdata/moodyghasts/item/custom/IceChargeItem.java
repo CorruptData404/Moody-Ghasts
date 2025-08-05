@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 public class IceChargeItem extends HappyGhastProjectileItem implements ProjectileItem {
     public static final float PROJECTILE_SHOOT_POWER = 1.5F;
     public static final int HAPPYGHAST_COOLDOWN = 40; //2 seconds
-    public static final int PLAYER_COOLDOWN = 20; //1 second
+    public static final int PLAYER_COOLDOWN = 10;
 
     public IceChargeItem(Properties properties) {
         super(properties,HAPPYGHAST_COOLDOWN);

@@ -1,5 +1,7 @@
 package ca.corruptdata.moodyghasts.mixin.rendering;
 
+import ca.corruptdata.moodyghasts.util.MoodThresholds;
+import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.api.HappyGhastRenderStateAccessor;
 import ca.corruptdata.moodyghasts.api.HappyGhastAccessor;
@@ -46,12 +48,13 @@ public class HappyGhastRendererMixin {
             return GHAST_SHOOTING_LOCATION;
         }
         float mood = accessor.getMoodyghasts$mood();
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
 
-        if (mood <= 20f) return GHAST_EXCITED_LOCATION;
-        if (mood <= 40f) return GHAST_LOCATION;
-        if (mood <= 60f) return GHAST_NEUTRAL_LOCATION;
-        if (mood <= 70f) return GHAST_SAD_LOCATION;
-        if (mood <= 80f) return GHAST_ANGRY_LOCATION;
+        if (mood <= thresholds.getMoodValue("excited")) return GHAST_EXCITED_LOCATION;
+        if (mood <= thresholds.getMoodValue("happy")) return GHAST_LOCATION;
+        if (mood <= thresholds.getMoodValue("neutral")) return GHAST_NEUTRAL_LOCATION;
+        if (mood <= thresholds.getMoodValue("sad")) return GHAST_SAD_LOCATION;
+        if (mood <= thresholds.getMoodValue("angry")) return GHAST_ANGRY_LOCATION;
         return GHAST_ENRAGED_LOCATION;
     }
 
