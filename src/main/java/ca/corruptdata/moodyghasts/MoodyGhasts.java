@@ -1,6 +1,7 @@
 package ca.corruptdata.moodyghasts;
 
 import ca.corruptdata.moodyghasts.client.renderer.IceChargeRenderer;
+import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
 import ca.corruptdata.moodyghasts.util.MoodThresholds;
@@ -40,6 +41,7 @@ public class MoodyGhasts {
         // Register the commonSetup method for modloading
         Mixins.addConfiguration(MIXIN_CONFIG);
 
+        ModDataComponentTypes.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
 
@@ -59,16 +61,20 @@ public class MoodyGhasts {
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if(event.getTabKey() == CreativeModeTabs.INGREDIENTS) {
+        if(event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES || event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(ModItems.ICE_CHARGE);
+        }
+        if(event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+            event.accept(ModItems.SPICY_COOKIE);
+            event.accept(ModItems.FROSTED_COOKIE);
         }
     }
 
-private void registerDataMaps(RegisterDataMapTypesEvent event) {
-    event.register(DataMapType.builder(MoodThresholds.ID, MoodThresholdsManager.REGISTRY_KEY, MoodThresholds.CODEC)
-            .synced(MoodThresholds.CODEC, true)
-            .build());
-}
+    private void registerDataMaps(RegisterDataMapTypesEvent event) {
+        event.register(DataMapType.builder(MoodThresholds.ID, MoodThresholdsManager.REGISTRY_KEY, MoodThresholds.CODEC)
+                .synced(MoodThresholds.CODEC, true)
+                .build());
+    }
 
 
     // You can use SubscribeEvent and let the Event Bus discover methods to call

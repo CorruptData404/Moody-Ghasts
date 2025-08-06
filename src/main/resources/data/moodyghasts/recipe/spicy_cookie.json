@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "food",
+  "ingredients": [
+    "minecraft:blaze_powder",
+    "minecraft:cookie",
+    "minecraft:cookie",
+    "minecraft:cookie",
+    "minecraft:cookie",
+    "minecraft:cookie",
+    "minecraft:cookie",
+    "minecraft:cookie",
+    "minecraft:cookie"
+  ],
+  "result": {
+    "count": 8,
+    "id": "moodyghasts:spicy_cookie"
+  }
+}

@@ -16,7 +16,7 @@ public interface HappyGhastProjectileShootable {
     boolean moodyghasts$tryShootFromGhast(Player player, HappyGhast happyGhast);
 
     default InteractionResult moodyghasts$onNonMountedUse(Level level, Player player, InteractionHand hand, ItemStack itemstack){
-        return null;
+        return InteractionResult.PASS;
     }
     
     default void applySharedCooldown(Player player) {

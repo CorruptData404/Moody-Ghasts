@@ -1,26 +1,36 @@
 package ca.corruptdata.moodyghasts.mixin.entity;
 
+import ca.corruptdata.moodyghasts.api.HappyGhastTreat;
+import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import ca.corruptdata.moodyghasts.api.HappyGhastAccessor;
 import ca.corruptdata.moodyghasts.api.HappyGhastProjectileShootable;
 import ca.corruptdata.moodyghasts.entity.projectile.GhastIceChargeEntity;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
 
@@ -208,5 +218,40 @@ public class HappyGhastMixin implements HappyGhastAccessor {
     private void moodyghasts$setShooting(boolean shooting) {
         HappyGhast ghast = (HappyGhast)(Object)this;
         ghast.getEntityData().set(IS_SHOOTING, shooting);
+    }
+    @Unique
+    public InteractionResult moodyghasts$feed(ItemStack treat) {
+            HappyGhast ghast = (HappyGhast)(Object)this;
+
+            //FIXME: NullPointerException every time called. Every treat should have this component.
+            //float moodDelta = treat.get(ModDataComponentTypes.MOOD_DELTA);
+
+            //for testing only makes angrier
+            float moodDelta = 10;
+
+            // Apply the mood change
+            moodyghasts$adjustMood(moodDelta);
+            
+            // Play eating sound and spawn particles
+            ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(), 
+                    SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
+
+            //TODO: Not use addParticlesAroundSelf and make particles appear around mouth
+            moodyghasts$addParticlesAroundSelf(new ItemParticleOption(ParticleTypes.ITEM, treat));
+        
+        return InteractionResult.SUCCESS;
+    }
+
+    @Inject(method = "mobInteract", at = @At("HEAD"), cancellable = true)
+    private void onMobInteract(Player p_416280_, InteractionHand p_416599_, CallbackInfoReturnable<InteractionResult> cir) {
+        ItemStack stack = p_416280_.getItemInHand(p_416599_);
+        if (stack.getItem() instanceof HappyGhastTreat) {
+            InteractionResult result = moodyghasts$feed(stack);
+            if (result == InteractionResult.SUCCESS)
+            {
+                stack.consume(1, p_416280_);
+            }
+            cir.setReturnValue(result);
+        }
     }
 }
