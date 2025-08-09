@@ -33,7 +33,9 @@ public class IceChargeItem extends Item implements ProjectileItem {
         if (level instanceof ServerLevel serverlevel) {
             // Create and shoot the projectile
             Projectile.spawnProjectileFromRotation(
-                (p_level, p_shooter, p_projectile) -> new IceChargeEntity(player, level),
+                (p_level, p_shooter, p_projectile) -> new IceChargeEntity(
+                    player, level, player.position().x(), player.getEyePosition().y(), player.position().z()
+                ),
                 serverlevel,
                 itemstack,
                 player,
@@ -44,18 +46,17 @@ public class IceChargeItem extends Item implements ProjectileItem {
 
             player.getCooldowns().addCooldown(itemstack, PLAYER_COOLDOWN);
 
-            //TODO: Custom Ice Charge throw sound
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.WIND_CHARGE_THROW, SoundSource.NEUTRAL, 0.5F,
                 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
             );
-        
+    
             player.awardStat(Stats.ITEM_USED.get(this));
             itemstack.consume(1, player);
             return InteractionResult.SUCCESS;
-        }
-        return InteractionResult.PASS;
     }
+    return InteractionResult.PASS;
+}
 
     @Override
     public IceChargeEntity asProjectile(Level level, Position pos, ItemStack stack, Direction dir) {

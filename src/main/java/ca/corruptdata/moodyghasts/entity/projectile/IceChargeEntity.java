@@ -16,9 +16,10 @@ public class IceChargeEntity extends AbstractIceChargeEntity {
         super(type, world);
     }
 
-    // Player-thrown constructor
-    public IceChargeEntity(LivingEntity shooter, Level level) {
+
+    public IceChargeEntity(LivingEntity shooter, Level level, double x, double y, double z) {
         super(ModEntities.ICE_CHARGE.get(), shooter, Vec3.ZERO, level);
+        this.setPos(x, y, z);
     }
 
     // Movement-specific constructor
@@ -27,7 +28,6 @@ public class IceChargeEntity extends AbstractIceChargeEntity {
         this.setPos(x, y, z);
         this.setDeltaMovement(movement);
     }
-
     @Override
     protected int getEffectRadius() {
         return EFFECT_RADIUS;

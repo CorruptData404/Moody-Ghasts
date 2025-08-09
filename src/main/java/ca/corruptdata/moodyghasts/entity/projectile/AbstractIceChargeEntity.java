@@ -152,7 +152,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
         if (!this.level().isClientSide && entityHit.getEntity() instanceof LivingEntity target) {
 
             if (target.isOnFire()) {
-                target.clearFire();
+                target.extinguishFire();
                 applyIceEffects(target.blockPosition(), (ServerLevel) this.level());
                 return;
             }
