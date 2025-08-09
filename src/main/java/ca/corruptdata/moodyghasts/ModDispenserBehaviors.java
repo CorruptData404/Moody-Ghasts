@@ -1,6 +1,6 @@
 package ca.corruptdata.moodyghasts;
 
-import ca.corruptdata.moodyghasts.entity.projectile.PlayerIceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.IceChargeEntity;
 import ca.corruptdata.moodyghasts.item.ModItems;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
@@ -19,7 +19,7 @@ public class ModDispenserBehaviors {
                 Position position = DispenserBlock.getDispensePosition(source);
                 Direction direction = source.state().getValue(DispenserBlock.FACING);
                 
-                PlayerIceChargeEntity iceCharge = ModItems.ICE_CHARGE.get().asProjectile(
+                IceChargeEntity iceCharge = ModItems.ICE_CHARGE.get().asProjectile(
                     level,
                     position,
                     stack,

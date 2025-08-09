@@ -1,7 +1,7 @@
 package ca.corruptdata.moodyghasts.entity;
 
+import ca.corruptdata.moodyghasts.entity.projectile.IceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.GhastIceChargeEntity;
-import ca.corruptdata.moodyghasts.entity.projectile.PlayerIceChargeEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -16,13 +16,13 @@ public class ModEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES =
             DeferredRegister.create(Registries.ENTITY_TYPE, MoodyGhasts.MOD_ID);
 
-    public static final DeferredHolder<EntityType<?>, EntityType<PlayerIceChargeEntity>> PLAYER_ICE_CHARGE = ENTITIES.register("player_ice_charge", () -> {
+    public static final DeferredHolder<EntityType<?>, EntityType<IceChargeEntity>> ICE_CHARGE = ENTITIES.register("ice_charge", () -> {
         ResourceKey<EntityType<?>> key = ResourceKey.create(
                 Registries.ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "player_ice_charge")
+                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge")
         );
         return EntityType.Builder
-                .<PlayerIceChargeEntity>of(PlayerIceChargeEntity::new, MobCategory.MISC)
+                .<IceChargeEntity>of(IceChargeEntity::new, MobCategory.MISC)
                 .sized(0.5F, 0.5F)
                 .clientTrackingRange(8)
                 .updateInterval(10)

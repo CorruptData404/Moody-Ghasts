@@ -50,13 +50,9 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
         super(type, world);
     }
 
-    // Constructor 2
-    public AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity shooter, Level world) {
-        super(type,
-                shooter.getX(), shooter.getY() + shooter.getEyeHeight() - 0.1,
-                shooter.getZ(),
-                world);
-        this.setOwner(shooter);
+    // Movement vector constructor with owner
+    protected AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity owner, Vec3 movement, Level level) {
+        super(type, owner, movement, level);
     }
 
     @Override

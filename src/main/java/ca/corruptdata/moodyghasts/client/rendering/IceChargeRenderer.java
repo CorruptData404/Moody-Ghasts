@@ -1,4 +1,4 @@
-package ca.corruptdata.moodyghasts.client.renderer;
+package ca.corruptdata.moodyghasts.client.rendering;
 
 import ca.corruptdata.moodyghasts.entity.projectile.AbstractIceChargeEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;

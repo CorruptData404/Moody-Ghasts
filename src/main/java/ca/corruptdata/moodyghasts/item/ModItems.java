@@ -5,6 +5,8 @@ import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.item.custom.FrostedCookieItem;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
 import ca.corruptdata.moodyghasts.item.custom.SpicyCookieItem;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -19,25 +21,22 @@ public class ModItems {
             new Item.Properties()
     );
 
-    public static final DeferredItem<SpicyCookieItem> SPICY_COOKIE = ITEMS.registerItem(
-        "spicy_cookie",
-        properties -> {
-            SpicyCookieItem item = new SpicyCookieItem(properties);
-            item.getDefaultInstance().set(ModDataComponentTypes.MOOD_DELTA, 10.0f);
-            return item;
-        },
-        new Item.Properties()
+    public static final DeferredItem<FrostedCookieItem> FROSTED_COOKIE = ITEMS.register("frosted_cookie",
+            registryName -> new FrostedCookieItem(
+                    new Item.Properties()
+                            .setId(ResourceKey.create(Registries.ITEM, registryName))
+                            .component(ModDataComponentTypes.MOOD_DELTA.get(), -10.0f)
+            )
     );
 
-    public static final DeferredItem<FrostedCookieItem> FROSTED_COOKIE = ITEMS.registerItem(
-        "frosted_cookie",
-        properties -> {
-            FrostedCookieItem item = new FrostedCookieItem(properties);
-            item.getDefaultInstance().set(ModDataComponentTypes.MOOD_DELTA, -10.0f);
-            return item;
-        },
-        new Item.Properties()
+    public static final DeferredItem<SpicyCookieItem> SPICY_COOKIE = ITEMS.register("spicy_cookie",
+            registryName -> new SpicyCookieItem(
+                    new Item.Properties()
+                            .setId(ResourceKey.create(Registries.ITEM, registryName))
+                            .component(ModDataComponentTypes.MOOD_DELTA.get(), 10.0f)
+            )
     );
+
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

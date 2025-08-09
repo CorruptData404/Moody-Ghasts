@@ -4,6 +4,7 @@ import ca.corruptdata.moodyghasts.entity.ModEntities;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class GhastIceChargeEntity extends AbstractIceChargeEntity {
     private static final int BASE_DAMAGE = 3;
@@ -20,8 +21,8 @@ public class GhastIceChargeEntity extends AbstractIceChargeEntity {
     }
 
     // Ghast-thrown constructor with rage level
-    public GhastIceChargeEntity(LivingEntity shooter, Level level, float mood) {
-        super(ModEntities.GHAST_ICE_CHARGE.get(), shooter, level);
+    public GhastIceChargeEntity(LivingEntity shooter, Level level, Vec3 movement, float mood) {
+        super(ModEntities.GHAST_ICE_CHARGE.get(), shooter, movement, level);
         this.mood = mood;
     }
 

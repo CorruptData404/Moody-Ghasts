@@ -1,12 +1,18 @@
 package ca.corruptdata.moodyghasts;
 
-import ca.corruptdata.moodyghasts.client.renderer.IceChargeRenderer;
+import ca.corruptdata.moodyghasts.attachment.ModAttachments;
+import ca.corruptdata.moodyghasts.client.rendering.IceChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
+import ca.corruptdata.moodyghasts.client.rendering.happyghast.MoodGhastRenderer;
 import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
+import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
 import ca.corruptdata.moodyghasts.util.MoodThresholds;
 import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import com.mojang.logging.LogUtils;
+import net.minecraft.client.renderer.entity.HappyGhastRenderer;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -18,6 +24,8 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
@@ -42,8 +50,11 @@ public class MoodyGhasts {
         Mixins.addConfiguration(MIXIN_CONFIG);
 
         ModDataComponentTypes.register(modEventBus);
+        ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
+        NeoForge.EVENT_BUS.register(new HappyGhastHandler());
+
 
         modEventBus.addListener(this::commonSetup);
         // Register the item to a creative tab
@@ -93,8 +104,21 @@ public class MoodyGhasts {
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(ModEntities.PLAYER_ICE_CHARGE.get(), IceChargeRenderer::new);
+            event.registerEntityRenderer(ModEntities.ICE_CHARGE.get(), IceChargeRenderer::new);
             event.registerEntityRenderer(ModEntities.GHAST_ICE_CHARGE.get(), IceChargeRenderer::new);
+            event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodGhastRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
+            event.registerEntityModifier(
+                    HappyGhastRenderer.class,
+                    (entity, state) -> state.setRenderData(
+                            RenderStateKeys.MOOD, entity.getData(ModAttachments.MOOD)));
+            event.registerEntityModifier(
+                    HappyGhastRenderer.class,
+                    (entity, state) -> state.setRenderData(
+                            RenderStateKeys.IS_CHARGING, entity.getData(ModAttachments.IS_CHARGING)));
         }
     }
 }

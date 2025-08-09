@@ -33,14 +33,13 @@ Your ghast companions now have dynamic personalities! Monitor their mood through
 
 Mood Influences:
 * **Projectile Usage** - Different projectiles affect mood differently
-* **Treats** - Feed various items to intentionally calm or anger your ghast
-* **Damage** - Taking damage can affect their mood
-* **Weather** - Ghasts enjoy and heal faster in the rain
+* **Treats** - Feed cookies to intentionally calm or anger your ghast
+* **Damage/Healing** - Recieving Damage or Healing can affect their mood
 * **Time** - Mood neutralizes over time
 
 Mood Effects:
 * Angry ghasts fire more powerful projectiles
-* Enraged ghasts risk becoming hostile - calm them quickly!
+* Enraged ghasts cry and risk becoming hostile - calm them quickly!
 * Happy ghasts gain temporary speed boosts
 
 ## Dependencies
