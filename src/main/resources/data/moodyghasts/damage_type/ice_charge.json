@@ -1,0 +1,7 @@
+{
+  "message_id": "moodyghasts.ice_charge",
+  "scaling": "never",
+  "exhaustion": 0.1,
+  "effects": "freezing",
+  "death_message_type": "default"
+}

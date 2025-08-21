@@ -12,6 +12,7 @@ import ca.corruptdata.moodyghasts.util.MoodThresholds;
 import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
+import net.minecraft.client.renderer.entity.WindChargeRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.api.distmarker.Dist;
@@ -31,23 +32,20 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import org.slf4j.Logger;
-import org.spongepowered.asm.mixin.Mixins;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
+
 @Mod(MoodyGhasts.MOD_ID)
 public class MoodyGhasts {
     // Define mod id in a common place for everything to reference
     public static final String MOD_ID = "moodyghasts";
     // Directly reference a slf4j logger
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final String MIXIN_CONFIG = "moodyghasts.mixins.json";
 
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public MoodyGhasts(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
-        Mixins.addConfiguration(MIXIN_CONFIG);
 
         ModDataComponentTypes.register(modEventBus);
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
@@ -105,8 +103,10 @@ public class MoodyGhasts {
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.ICE_CHARGE.get(), IceChargeRenderer::new);
-            event.registerEntityRenderer(ModEntities.GHAST_ICE_CHARGE.get(), IceChargeRenderer::new);
+            event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), IceChargeRenderer::new);
+            event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), WindChargeRenderer::new);
             event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodGhastRenderer::new);
+
         }
 
         @SubscribeEvent

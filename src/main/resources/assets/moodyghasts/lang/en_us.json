@@ -1,5 +1,8 @@
 {
   "item.moodyghasts.ice_charge": "Ice Charge",
   "item.moodyghasts.spicy_cookie": "Spicy Cookie",
-  "item.moodyghasts.frosted_cookie": "Frosted Cookie"
+  "item.moodyghasts.frosted_cookie": "Frosted Cookie",
+  "death.attack.moodyghasts.ice_charge": "%1$s was flash frozen",
+  "death.attack.moodyghasts.ice_charge.player": "%1$s was iced by %2$s",
+  "death.attack.moodyghasts.ice_charge.item": "%1$s was iced by %2$s"
 }

@@ -1,8 +1,11 @@
 package ca.corruptdata.moodyghasts.util;
 
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 
@@ -13,5 +16,10 @@ public class ModTags {
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, name));
         }
+    }
+
+    public static class Entities{
+        public static final TagKey<EntityType<?>> FREEZE_IMMUNE =
+                TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.withDefaultNamespace("freeze_immune_entity_types"));
     }
 }

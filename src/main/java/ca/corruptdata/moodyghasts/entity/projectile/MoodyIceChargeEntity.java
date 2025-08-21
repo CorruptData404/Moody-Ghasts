@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class GhastIceChargeEntity extends AbstractIceChargeEntity {
+public class MoodyIceChargeEntity extends AbstractIceChargeEntity {
     private static final int BASE_DAMAGE = 3;
     private static final int BASE_EFFECT_RADIUS = 3;
     //TODO: Define multipliers and rage level
@@ -15,14 +15,14 @@ public class GhastIceChargeEntity extends AbstractIceChargeEntity {
     private final float mood;
 
     // Factory constructor for registration
-    public GhastIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, Level world) {
+    public MoodyIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, Level world) {
         super(type, world);
         this.mood = 0;
     }
 
     // Ghast-thrown constructor with rage level
-    public GhastIceChargeEntity(LivingEntity shooter, Level level, Vec3 movement, float mood) {
-        super(ModEntities.GHAST_ICE_CHARGE.get(), shooter, movement, level);
+    public MoodyIceChargeEntity(Level level, LivingEntity shooter, Vec3 movement, float mood) {
+        super(ModEntities.MOODY_ICE_CHARGE.get(), shooter, movement, level);
         this.mood = mood;
     }
 

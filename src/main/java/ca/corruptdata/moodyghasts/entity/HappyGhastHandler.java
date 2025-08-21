@@ -6,6 +6,7 @@ import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.entity.projectile.GhastIceChargeEntity;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
 import ca.corruptdata.moodyghasts.util.ModTags;
+import ca.corruptdata.moodyghasts.util.MoodThresholds;
 import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
@@ -16,7 +17,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.LargeFireball;
 import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -29,9 +32,9 @@ public class HappyGhastHandler {
     private static final float MIN_MOOD = 0.0f;
     private static final float MAX_MOOD = 100.0f;
     //Should always be Negative
-    private static final int HEALED_MOOD_MULTIPLIER = -2;
+    private static final float HEALED_MOOD_MULTIPLIER = -2f;
     //Should always be Positive
-    private static final int DAMAGED_MOOD_MULTIPLIER = 2;
+    private static final float DAMAGED_MOOD_MULTIPLIER = 2f;
 
     @SubscribeEvent
     public void chargingShoot(EntityTickEvent.Post event) {
@@ -132,8 +135,11 @@ public class HappyGhastHandler {
     }
 
     private void shootCharge(Player player, HappyGhast ghast, Item projectileItem) {
+        Level level = ghast.level();
         Vec3 spawnPos = calculateSpawnPosition(ghast);
         Vec3 movement = calculateMovementVector(player);
+        float mood = ghast.getData(ModAttachments.MOOD);
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
         AbstractHurtingProjectile projectile = null;
 
         if (projectileItem instanceof IceChargeItem) {
@@ -142,8 +148,8 @@ public class HappyGhastHandler {
 
         assert projectile != null;
         projectile.setPos(spawnPos);
-        ghast.level().levelEvent(null, 1016, ghast.blockPosition(), 0);
-        ghast.level().addFreshEntity(projectile);
+        level.levelEvent(null, 1016, ghast.blockPosition(), 0);
+        level.addFreshEntity(projectile);
     }
 
 
@@ -215,11 +221,11 @@ public class HappyGhastHandler {
     }
 
     private void addParticlesAroundSelf(HappyGhast ghast, ParticleOptions particleOption) {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 15; i++) {
             double d0 = ghast.getRandom().nextGaussian() * 0.02;
             double d1 = ghast.getRandom().nextGaussian() * 0.02;
             double d2 = ghast.getRandom().nextGaussian() * 0.02;
-            ghast.level().addParticle(particleOption, ghast.getRandomX(2.0), ghast.getRandomY() + 1.0, ghast.getRandomZ(1.0), d0, d1, d2);
+            ghast.level().addParticle(particleOption, ghast.getRandomX(3.0), ghast.getRandomY() + 1.0, ghast.getRandomZ(1.0), d0, d1, d2);
         }
     }
 

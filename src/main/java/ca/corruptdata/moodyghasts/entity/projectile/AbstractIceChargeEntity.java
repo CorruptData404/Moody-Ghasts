@@ -1,20 +1,23 @@
 package ca.corruptdata.moodyghasts.entity.projectile;
 
-import ca.corruptdata.moodyghasts.api.IceChargeConvertible;
+import ca.corruptdata.moodyghasts.MoodyGhasts;
+import ca.corruptdata.moodyghasts.util.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.monster.Blaze;
-import net.minecraft.world.entity.monster.EnderMan;
-import net.minecraft.world.entity.monster.Strider;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
@@ -41,6 +44,10 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     protected abstract int getDamage();
     private final Set<BlockPos> recentlyConverted = Collections.newSetFromMap(new WeakHashMap<>());
     private static final int CONVERSION_TIMEOUT = 2; // ticks
+    private static final ResourceKey<DamageType> ICECHARGE_DAMAGE =
+            ResourceKey.create(Registries.DAMAGE_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
+    protected LivingEntity owner = null;
 
 
 
@@ -53,6 +60,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     // Movement vector constructor with owner
     protected AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity owner, Vec3 movement, Level level) {
         super(type, owner, movement, level);
+        this.owner = owner;
     }
 
     @Override
@@ -157,21 +165,20 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
                 return;
             }
 
-            boolean isWaterVulnerable = target instanceof Blaze ||
-                    target instanceof Strider ||
-                    target instanceof EnderMan;
+            if(target.getType().is(ModTags.Entities.FREEZE_IMMUNE)) return;
 
-            //TODO: Make custom damageSource iceCharge
+            DamageSource iceDamage = new DamageSource(
+                    registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ICECHARGE_DAMAGE),
+                    this,
+                    owner);
+
             if (this.level().dimension() == Level.NETHER) {
-                if (isWaterVulnerable) {
-                    target.hurtServer((ServerLevel) this.level(), this.damageSources().freeze(), getDamage() * 2);
+                if (target.isSensitiveToWater()) {
+                    target.hurtServer((ServerLevel) this.level(), iceDamage, getDamage() * 2);
                 }
             }
             else {
-                if (target instanceof IceChargeConvertible convertible) {
-                    convertible.moodyghasts$startIceChargeConversion();
-                }
-                target.hurtServer((ServerLevel) this.level(), this.damageSources().freeze(), getDamage());
+                target.hurtServer((ServerLevel) this.level(), iceDamage, getDamage());
                 target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 2));
                 target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 100, 2));
             }

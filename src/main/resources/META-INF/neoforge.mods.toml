@@ -28,8 +28,8 @@ description='''${mod_description}'''
 #- Contributor2 for code reviews
 #''' #optional
 
-[[mixins]]
-config="${mod_id}.mixins.json"
+#[[mixins]]
+#config="${mod_id}.mixins.json"
 
 # Access Transformers allow you to modify the access level of classes, methods, and fields
 #[[accessTransformers]]
