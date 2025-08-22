@@ -2,6 +2,7 @@ package ca.corruptdata.moodyghasts;
 
 import ca.corruptdata.moodyghasts.attachment.ModAttachments;
 import ca.corruptdata.moodyghasts.client.rendering.IceChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
 import ca.corruptdata.moodyghasts.client.rendering.happyghast.MoodGhastRenderer;
 import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
@@ -12,7 +13,6 @@ import ca.corruptdata.moodyghasts.util.MoodThresholds;
 import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
-import net.minecraft.client.renderer.entity.WindChargeRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.api.distmarker.Dist;
@@ -104,7 +104,7 @@ public class MoodyGhasts {
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.ICE_CHARGE.get(), IceChargeRenderer::new);
             event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), IceChargeRenderer::new);
-            event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), WindChargeRenderer::new);
+            event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), MoodyWindChargeRenderer::new);
             event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodGhastRenderer::new);
 
         }

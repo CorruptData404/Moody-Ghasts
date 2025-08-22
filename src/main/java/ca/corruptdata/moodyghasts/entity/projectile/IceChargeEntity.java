@@ -9,7 +9,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class IceChargeEntity extends AbstractIceChargeEntity {
     private static final int EFFECT_RADIUS = 3;
-    private static final int DAMAGE = 3;
+    private static final float DAMAGE = 3;
 
     // Factory constructor for registration
     public IceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, Level world) {
@@ -33,7 +33,7 @@ public class IceChargeEntity extends AbstractIceChargeEntity {
         return EFFECT_RADIUS;
     }
     @Override
-    protected int getDamage() {
+    protected float getDamage() {
         return DAMAGE;
     }
 

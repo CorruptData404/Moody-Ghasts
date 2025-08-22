@@ -3,7 +3,8 @@ package ca.corruptdata.moodyghasts.entity;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.attachment.ModAttachments;
 import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
-import ca.corruptdata.moodyghasts.entity.projectile.GhastIceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.MoodyWindChargeEntity;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
 import ca.corruptdata.moodyghasts.util.ModTags;
 import ca.corruptdata.moodyghasts.util.MoodThresholds;
@@ -126,24 +127,50 @@ public class HappyGhastHandler {
 
     private void shoot(Player player, HappyGhast ghast, Item projectileItem) {
         applySharedCooldown(player,projectileItem);
+        float mood = ghast.getData(ModAttachments.MOOD);
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+
+        float moodMultiplier;
+        if (mood <= thresholds.getMoodValue("excited"))      moodMultiplier = 0.6F;      // -40% power
+        else if (mood <= thresholds.getMoodValue("happy"))   moodMultiplier = 0.8F;      // -20% power
+        else if (mood <= thresholds.getMoodValue("neutral")) moodMultiplier = 1.0F;      // baseline
+        else if (mood <= thresholds.getMoodValue("sad"))     moodMultiplier = 1.3F;      // +30% power
+        else if (mood <= thresholds.getMoodValue("angry"))   moodMultiplier = 1.6F;      // +60% power
+        else                                                 moodMultiplier = 2.0F;      // +100% power (enraged)
+
         if (projectileItem instanceof IceChargeItem
                 || projectileItem instanceof WindChargeItem
                 || projectileItem instanceof FireChargeItem) {
-            shootCharge(player, ghast, projectileItem);
+            shootCharge(player, ghast, projectileItem, moodMultiplier);
         }
 
     }
 
-    private void shootCharge(Player player, HappyGhast ghast, Item projectileItem) {
+    private void shootCharge(Player player, HappyGhast ghast, Item projectileItem, float moodMultiplier) {
         Level level = ghast.level();
         Vec3 spawnPos = calculateSpawnPosition(ghast);
         Vec3 movement = calculateMovementVector(player);
-        float mood = ghast.getData(ModAttachments.MOOD);
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
         AbstractHurtingProjectile projectile = null;
 
         if (projectileItem instanceof IceChargeItem) {
-            projectile = new GhastIceChargeEntity(player, ghast.level(), movement, ghast.getData(ModAttachments.MOOD));
+            ProjectileScaling scaling = ProjectileScaling.ICE;
+            int radius = (int) (scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier());
+            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
+            MoodyGhasts.LOGGER.info("Ice Charge Radius: {}, Strength: {}", radius, strength);
+            projectile = new MoodyIceChargeEntity(level, player, movement, radius, strength);
+        }
+        else if (projectileItem instanceof WindChargeItem) {
+            ProjectileScaling scaling = ProjectileScaling.WIND;
+            float radius = scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier();
+            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
+            MoodyGhasts.LOGGER.info("Wind Charge Radius: {}, Strength: {}", radius, strength);
+            projectile = new MoodyWindChargeEntity(level, player, movement, radius, strength);
+        }
+        else if (projectileItem instanceof FireChargeItem) {
+            ProjectileScaling scaling = ProjectileScaling.FIRE;
+            int explosionPower = Math.round(scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier());
+            MoodyGhasts.LOGGER.info("FireBall Power: {}", explosionPower);
+            projectile = new LargeFireball(level, player, movement, explosionPower);
         }
 
         assert projectile != null;
@@ -225,11 +252,35 @@ public class HappyGhastHandler {
             double d0 = ghast.getRandom().nextGaussian() * 0.02;
             double d1 = ghast.getRandom().nextGaussian() * 0.02;
             double d2 = ghast.getRandom().nextGaussian() * 0.02;
-            ghast.level().addParticle(particleOption, ghast.getRandomX(3.0), ghast.getRandomY() + 1.0, ghast.getRandomZ(1.0), d0, d1, d2);
+            ghast.level().addParticle(particleOption, ghast.getRandomX(1.0), ghast.getRandomY() + 1.0, ghast.getRandomZ(1.0), d0, d1, d2);
         }
     }
 
     private void addParticlesAroundMouth(HappyGhast ghast, ParticleOptions particleOption) {
         // TODO: Implement mouth-specific particle spawning
     }
+
+    public record ProjectileScaling(float baseRadius, float baseStrength, float moodMultiplier) {
+        // Ice Charge
+        public static final ProjectileScaling ICE = new ProjectileScaling(
+                4.5F,   // baseRadius
+                4.0F,   // baseStrength
+                0.7F    // moodMultiplier
+        );
+
+        // Wind Charge
+        public static final ProjectileScaling WIND = new ProjectileScaling(
+                1.8F,   // baseRadius (vanilla is 1.2)
+                1.8F,   // baseStrength (vanilla is 1.22)
+                0.9F    // moodMultiplier
+        );
+
+        // Fire Charge
+        public static final ProjectileScaling FIRE = new ProjectileScaling(
+                1.5F,   // baseRadius (vanilla is 1.0)
+                1.5F,   // baseStrength (vanilla is 1.0)
+                1.0F    // moodMultiplier
+        );
+    }
+
 }

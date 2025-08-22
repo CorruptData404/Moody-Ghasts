@@ -41,7 +41,7 @@ import java.util.WeakHashMap;
 public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile implements ItemSupplier {
 
     protected abstract int getEffectRadius();
-    protected abstract int getDamage();
+    protected abstract float getDamage();
     private final Set<BlockPos> recentlyConverted = Collections.newSetFromMap(new WeakHashMap<>());
     private static final int CONVERSION_TIMEOUT = 2; // ticks
     private static final ResourceKey<DamageType> ICECHARGE_DAMAGE =
