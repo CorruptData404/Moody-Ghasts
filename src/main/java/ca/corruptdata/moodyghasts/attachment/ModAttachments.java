@@ -14,6 +14,23 @@ public class ModAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = 
         DeferredRegister.create(NeoForgeRegistries.ATTACHMENT_TYPES, MoodyGhasts.MOD_ID);
 
+
+    public static final Supplier<AttachmentType<Integer>> SNOWBALL_COUNT = ATTACHMENT_TYPES.register(
+            "snowball_count",
+            () -> AttachmentType.builder(() -> 0)
+                    .serialize(Codec.INT.fieldOf("snowball_count"))
+                    .sync(ByteBufCodecs.INT)
+                    .build()
+    );
+
+    public static final Supplier<AttachmentType<Integer>> NEXT_SNOWBALL_DELAY = ATTACHMENT_TYPES.register(
+            "next_snowball_delay",
+            () -> AttachmentType.builder(() -> 0)
+                    .serialize(Codec.INT.fieldOf("next_snowball_delay"))
+                    .sync(ByteBufCodecs.INT)
+                    .build()
+    );
+
     public static final Supplier<AttachmentType<Float>> MOOD = ATTACHMENT_TYPES.register(
         "mood",
         () -> AttachmentType.builder(() -> 40.0f) // INITIAL_MOOD
@@ -28,6 +45,14 @@ public class ModAttachments {
             .serialize(Codec.BOOL.fieldOf("is_charging"))
             .sync(ByteBufCodecs.BOOL)
             .build()
+    );
+
+    public static final Supplier<AttachmentType<Boolean>> IS_SHOOTING_BARRAGE = ATTACHMENT_TYPES.register(
+            "is_shooting_barrage",
+            () -> AttachmentType.builder(() -> false)
+                    .serialize(Codec.BOOL.fieldOf("is_shooting_barrage"))
+                    .sync(ByteBufCodecs.BOOL)
+                    .build()
     );
 
     public static final Supplier<AttachmentType<Integer>> CHARGE_TIME = ATTACHMENT_TYPES.register(

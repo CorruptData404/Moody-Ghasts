@@ -119,6 +119,10 @@ public class MoodyGhasts {
                     HappyGhastRenderer.class,
                     (entity, state) -> state.setRenderData(
                             RenderStateKeys.IS_CHARGING, entity.getData(ModAttachments.IS_CHARGING)));
+            event.registerEntityModifier(
+                    HappyGhastRenderer.class,
+                    (entity, state) -> state.setRenderData(
+                            RenderStateKeys.IS_SHOOTING_BARRAGE, entity.getData(ModAttachments.IS_SHOOTING_BARRAGE)));
         }
     }
 }

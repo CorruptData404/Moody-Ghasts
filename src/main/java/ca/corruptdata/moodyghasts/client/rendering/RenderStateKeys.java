@@ -11,4 +11,7 @@ public class RenderStateKeys {
 
     public static final ContextKey<Boolean> IS_CHARGING = new ContextKey<>(
             ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_charging"));
+
+    public static final ContextKey<Boolean> IS_SHOOTING_BARRAGE = new ContextKey<>(
+            ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_shooting_barrage"));
 }

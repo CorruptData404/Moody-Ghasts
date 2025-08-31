@@ -25,7 +25,8 @@ public class MoodGhastRenderer extends HappyGhastRenderer {
     public ResourceLocation getTextureLocation(HappyGhastRenderState renderState) {
 
         if (renderState.isBaby) super.getTextureLocation(renderState);
-        if (renderState.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING)) return GHAST_SHOOTING_LOCATION;
+        if (renderState.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING) ||
+                renderState.getRenderDataOrThrow(RenderStateKeys.IS_SHOOTING_BARRAGE)) return GHAST_SHOOTING_LOCATION;
 
 
         float mood = renderState.getRenderDataOrThrow(RenderStateKeys.MOOD);
