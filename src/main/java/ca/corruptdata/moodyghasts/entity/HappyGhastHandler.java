@@ -12,6 +12,7 @@ import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -278,6 +279,9 @@ public class HappyGhastHandler {
                 SoundEvents.SNOWBALL_THROW, SoundSource.NEUTRAL, 0.5F,
                 0.4F / (ghast.level().getRandom().nextFloat() * 0.4F + 0.8F));
 
+        // Adjust mood
+        adjustMood(ghast, -0.25F);
+
         // Update counters
         ghast.setData(ModAttachments.SNOWBALL_COUNT, snowballsLeft - 1);
         ghast.setData(ModAttachments.NEXT_SNOWBALL_DELAY, delay);
@@ -303,14 +307,7 @@ public class HappyGhastHandler {
     //TODO: Make eating take time like a player
     private void handleFeed(HappyGhast ghast, ItemStack treat) {
         float moodDelta = treat.getOrDefault(ModDataComponentTypes.MOOD_DELTA, 0F);
-        float currentMood = ghast.getData(ModAttachments.MOOD);
         
-        if (wouldCrossMoodThreshold(currentMood, moodDelta)) {
-            addParticlesAroundSelf(ghast, moodDelta > 0 ?
-                    ParticleTypes.ANGRY_VILLAGER :
-                    ParticleTypes.HAPPY_VILLAGER);
-        }
-
         adjustMood(ghast, moodDelta);
         
         ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
@@ -323,7 +320,7 @@ public class HappyGhastHandler {
     private void adjustMood(HappyGhast ghast, float delta) {
         float currentMood = ghast.getData(ModAttachments.MOOD);
         if (wouldCrossMoodThreshold(currentMood, delta)) {
-            addParticlesAroundSelf(ghast, delta > 0 ?
+            addParticlesAroundSelf(ghast, delta > 0F ?
                     ParticleTypes.ANGRY_VILLAGER :
                     ParticleTypes.HAPPY_VILLAGER);
         }
@@ -353,11 +350,21 @@ public class HappyGhastHandler {
     }
 
     private void addParticlesAroundSelf(HappyGhast ghast, ParticleOptions particleOption) {
-        for (int i = 0; i < 15; i++) {
-            double d0 = ghast.getRandom().nextGaussian() * 0.02;
-            double d1 = ghast.getRandom().nextGaussian() * 0.02;
-            double d2 = ghast.getRandom().nextGaussian() * 0.02;
-            ghast.level().addParticle(particleOption, ghast.getRandomX(1.0), ghast.getRandomY() + 1.0, ghast.getRandomZ(1.0), d0, d1, d2);
+        if (ghast.level() instanceof ServerLevel serverLevel) {
+            for (int i = 0; i < 15; i++) {
+                double d0 = ghast.getRandom().nextGaussian() * 0.02;
+                double d1 = ghast.getRandom().nextGaussian() * 0.02;
+                double d2 = ghast.getRandom().nextGaussian() * 0.02;
+                serverLevel.sendParticles(
+                    particleOption,
+                    ghast.getRandomX(1.0),
+                    ghast.getRandomY() + 1.0,
+                    ghast.getRandomZ(1.0),
+                    1, // particle count
+                    d0, d1, d2, // velocity
+                    0.0 // speed
+                );
+            }
         }
     }
 
