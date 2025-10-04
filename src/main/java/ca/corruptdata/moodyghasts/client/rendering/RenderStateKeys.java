@@ -9,9 +9,9 @@ public class RenderStateKeys {
     public static final ContextKey<Float> MOOD = new ContextKey<>(
             ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "mood"));
 
-    public static final ContextKey<Boolean> IS_CHARGING = new ContextKey<>(
-            ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_charging"));
+    public static final ContextKey<Boolean> IS_PREPARING_PROJECTILE = new ContextKey<>(
+            ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_preparing_projectile"));
 
-    public static final ContextKey<Boolean> IS_SHOOTING_BARRAGE = new ContextKey<>(
-            ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_shooting_barrage"));
+    public static final ContextKey<Boolean> IS_SNOWBALL_BARRAGE = new ContextKey<>(
+            ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_snowball_barrage"));
 }

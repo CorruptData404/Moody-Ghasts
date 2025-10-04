@@ -41,108 +41,151 @@ public class HappyGhastHandler {
     //Should always be Positive
     private static final float DAMAGED_MOOD_MULTIPLIER = 2f;
 
+
     @SubscribeEvent
-    public void chargingShoot(EntityTickEvent.Post event) {
+    private void onRiderShoot(PlayerInteractEvent.RightClickItem event) {
+        ItemStack projectileItem = event.getItemStack();
+        if (!projectileItem.is(ModTags.Items.HAPPY_GHAST_PROJECTILES)) return;
+        Player player = event.getEntity();
+        if (!(player.getVehicle() instanceof HappyGhast ghast)) return;
+        if (player != ghast.getControllingPassenger()) return;
+        event.setCanceled(true);
+        if (isBusy(ghast)) return;
+
+        ghast.setData(ModAttachments.IS_PREPARING_PROJECTILE, true);
+        ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 1); // Start charging
+        ghast.setData(ModAttachments.CURRENT_PROJECTILE, projectileItem.getItem());
+        ghast.setData(ModAttachments.PROJECTILE_OWNER, player);
+        if(!player.getAbilities().instabuild) {
+            if (projectileItem.getItem() == Items.POWDER_SNOW_BUCKET) {
+                projectileItem.shrink(1);
+                ItemStack emptyBucket = new ItemStack(Items.BUCKET);
+                if (projectileItem.isEmpty()) {
+                    player.getInventory().add(emptyBucket);
+                } else {
+                    // If the stack wasn't empty, give them a bucket
+                    if (!player.getInventory().add(emptyBucket)) {
+                        // If inventory is full, drop the bucket in the world
+                        player.drop(emptyBucket, false);
+                    }
+                }
+            } else {
+                projectileItem.shrink(1);
+            }
+        }
+    }
+
+    @SubscribeEvent
+    private void chargingShoot(EntityTickEvent.Post event) {
 
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.level().isClientSide) return;
         if (ghast.isBaby()) return;
-        if (!ghast.getData(ModAttachments.IS_CHARGING)) return;
+        if (!ghast.getData(ModAttachments.IS_PREPARING_PROJECTILE)) return;
 
-        int chargeTime = ghast.getData(ModAttachments.CHARGE_TIME);
+        int chargeTime = ghast.getData(ModAttachments.PROJECTILE_CHARGE_TICK);
         Player player = (Player) ghast.getControllingPassenger();
 
-        if(player == ghast.getData(ModAttachments.SHOOTING_PLAYER) && !(chargeTime > 20)){
-            ghast.setData(ModAttachments.CHARGE_TIME, chargeTime + 1);
+        if(player == ghast.getData(ModAttachments.PROJECTILE_OWNER) && !(chargeTime > 20)){
+            ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, chargeTime + 1);
         }
         else
         {
-            ghast.setData(ModAttachments.IS_CHARGING,false);
-            ghast.setData(ModAttachments.CHARGE_TIME, 0);
+            ghast.setData(ModAttachments.IS_PREPARING_PROJECTILE,false);
+            ghast.setData(ModAttachments.CURRENT_PROJECTILE, Items.AIR);
+            ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 0);
         }
 
         if(chargeTime == 10){
             ghast.level().levelEvent(ghast, 1015, ghast.blockPosition(), 0);
         }
         else if(chargeTime == 20){
-            shoot(player, ghast, ghast.getData(ModAttachments.PROJECTILE_ITEM));
-            ghast.setData(ModAttachments.IS_CHARGING,false);
-            ghast.setData(ModAttachments.CHARGE_TIME, 0);
+            shoot(player, ghast, ghast.getData(ModAttachments.CURRENT_PROJECTILE));
+            ghast.setData(ModAttachments.IS_PREPARING_PROJECTILE,false);
+            ghast.setData(ModAttachments.CURRENT_PROJECTILE, Items.AIR);
+            ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 0);
         }
     }
 
-
     @SubscribeEvent
-    public void onRiderShoot(PlayerInteractEvent.RightClickItem event) {
-        ItemStack projectileItem = event.getItemStack();
-        if (!projectileItem.is(ModTags.Items.HAPPY_GHAST_PROJECTILES)) return;
-        Player player = event.getEntity();
-        if (!(player.getVehicle() instanceof HappyGhast ghast)) return;
-        if (player != ghast.getControllingPassenger()) return;
-
-        if (!(ghast.getData(ModAttachments.IS_CHARGING) || ghast.getData(ModAttachments.IS_SHOOTING_BARRAGE))) { // Only start if not already charging or shooting
-            ghast.setData(ModAttachments.IS_CHARGING, true);
-            ghast.setData(ModAttachments.CHARGE_TIME, 1); // Start charging
-            ghast.setData(ModAttachments.PROJECTILE_ITEM, projectileItem.getItem());
-            ghast.setData(ModAttachments.SHOOTING_PLAYER, player);
-            if(!player.getAbilities().instabuild) {
-                if (projectileItem.getItem() == Items.POWDER_SNOW_BUCKET) {
-                    projectileItem.shrink(1);
-                    ItemStack emptyBucket = new ItemStack(Items.BUCKET);
-                    if (projectileItem.isEmpty()) {
-                        player.getInventory().add(emptyBucket);
-                    } else {
-                        // If the stack wasn't empty, give them a bucket
-                        if (!player.getInventory().add(emptyBucket)) {
-                            // If inventory is full, drop the bucket in the world
-                            player.drop(emptyBucket, false);
-                        }
-                    }
-                } else {
-                    projectileItem.shrink(1);
-                }
-            }
-        }
-        event.setCanceled(true);
-    }
-
-    @SubscribeEvent
-    public void onRiderFeed(PlayerInteractEvent.RightClickItem event) {
+    private void onRiderFeed(PlayerInteractEvent.RightClickItem event) {
         ItemStack stack = event.getItemStack();
         if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
         if (!(event.getEntity().getVehicle() instanceof HappyGhast ghast)) return;
         if (event.getEntity() != ghast.getControllingPassenger()) return;
-        if (ghast.getData(ModAttachments.IS_CHARGING) || ghast.getData(ModAttachments.IS_SHOOTING_BARRAGE)) return;
-        
         event.setCanceled(true);
-        handleFeed(ghast, stack);
-        stack.consume(1, event.getEntity());
+        if (isBusy(ghast)) return;
+
+        ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
+        ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
+
+        handleItemConsumption(event.getEntity(), stack);
 
     }
 
     @SubscribeEvent
-    public void onInteractFeed(PlayerInteractEvent.EntityInteract event) {
+    private void onInteractFeed(PlayerInteractEvent.EntityInteract event) {
         ItemStack stack = event.getItemStack();
         if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
         if (!(event.getTarget() instanceof HappyGhast ghast)) return;
         if (ghast.isBaby()) return;
-        if (ghast.getData(ModAttachments.IS_CHARGING) || ghast.getData(ModAttachments.IS_SHOOTING_BARRAGE)) return;
-        
+        if (isBusy(ghast)) return;
+
         event.setCancellationResult(InteractionResult.SUCCESS);
         event.setCanceled(true);
-        
-        handleFeed(ghast, stack);
-        stack.consume(1, event.getEntity());
+
+        ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
+        ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
+
+        handleItemConsumption(event.getEntity(), stack);
     }
 
     @SubscribeEvent
-    public void onHeal(LivingHealEvent event) {
+    private void tickEating(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
+        if (ghast.level().isClientSide) return;
+        if (ghast.isBaby()) return;
+        if (!ghast.getData(ModAttachments.IS_CONSUMING_FOOD)) return;
+
+        int consumeTime = ghast.getData(ModAttachments.FOOD_CONSUME_TICKS);
+        ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, consumeTime + 1);
+
+        // Every 4 ticks, play eating sound + particles
+        if (consumeTime % 4 == 0) {
+            ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+                    SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
+
+            addParticlesAroundSelf(ghast, new ItemParticleOption(
+                    ParticleTypes.ITEM,
+                    ghast.getData(ModAttachments.CURRENT_FOOD).getDefaultInstance()
+            ));
+        }
+
+        // Finish eating
+        if (consumeTime >= 32) {
+            float moodDelta = ghast.getData(ModAttachments.CURRENT_FOOD)
+                    .getDefaultInstance()
+                    .getOrDefault(ModDataComponentTypes.MOOD_DELTA, 0F);
+
+            adjustMood(ghast, moodDelta);
+
+            ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+                    SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 1.0F, 1.0F);
+
+            ghast.setData(ModAttachments.IS_CONSUMING_FOOD, false);
+            ghast.setData(ModAttachments.CURRENT_FOOD, Items.AIR);
+            ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, 0);
+        }
+    }
+
+    @SubscribeEvent
+    private void onHeal(LivingHealEvent event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.isBaby()) return;
         adjustMood(ghast, event.getAmount() * HEALED_MOOD_MULTIPLIER);
     }
     @SubscribeEvent
-    public void onDamage(LivingDamageEvent.Post event) {
+    private void onDamage(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.isBaby()) return;
         adjustMood(ghast, event.getNewDamage() * DAMAGED_MOOD_MULTIPLIER);
@@ -151,15 +194,7 @@ public class HappyGhastHandler {
     private void shoot(Player player, HappyGhast ghast, Item projectileItem) {
         applySharedCooldown(player,projectileItem);
         float mood = ghast.getData(ModAttachments.MOOD);
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
-
-        float moodMultiplier;
-        if (mood <= thresholds.getMoodValue("excited"))      moodMultiplier = 0.6F;      // -40% power
-        else if (mood <= thresholds.getMoodValue("happy"))   moodMultiplier = 0.8F;      // -20% power
-        else if (mood <= thresholds.getMoodValue("neutral")) moodMultiplier = 1.0F;      // baseline
-        else if (mood <= thresholds.getMoodValue("sad"))     moodMultiplier = 1.3F;      // +30% power
-        else if (mood <= thresholds.getMoodValue("angry"))   moodMultiplier = 1.6F;      // +60% power
-        else                                                 moodMultiplier = 2.0F;      // +100% power (enraged)
+        float moodMultiplier = getMoodMultiplier(mood);
 
         if (projectileItem instanceof IceChargeItem
                 || projectileItem instanceof WindChargeItem
@@ -170,11 +205,24 @@ public class HappyGhastHandler {
         }
     }
 
+    private static float getMoodMultiplier(float mood) {
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+
+        float moodMultiplier;
+        if (mood <= thresholds.getMoodValue("excited"))      moodMultiplier = 0.6F;      // -40% power
+        else if (mood <= thresholds.getMoodValue("happy"))   moodMultiplier = 0.8F;      // -20% power
+        else if (mood <= thresholds.getMoodValue("neutral")) moodMultiplier = 1.0F;      // baseline
+        else if (mood <= thresholds.getMoodValue("sad"))     moodMultiplier = 1.3F;      // +30% power
+        else if (mood <= thresholds.getMoodValue("angry"))   moodMultiplier = 1.6F;      // +60% power
+        else                                                 moodMultiplier = 2.0F;      // +100% power (enraged)
+        return moodMultiplier;
+    }
+
     private void shootCharge(Player player, HappyGhast ghast, Item projectileItem, float moodMultiplier) {
         Level level = ghast.level();
         Vec3 spawnPos = calculateSpawnPosition(ghast);
         Vec3 movement = calculateMovementVector(player);
-        AbstractHurtingProjectile projectile = null;
+        AbstractHurtingProjectile projectile;
 
         if (projectileItem instanceof IceChargeItem) {
             ProjectileScaling scaling = ProjectileScaling.ICE;
@@ -196,8 +244,11 @@ public class HappyGhastHandler {
             MoodyGhasts.LOGGER.info("FireBall Power: {}", explosionPower);
             projectile = new LargeFireball(level, player, movement, explosionPower);
         }
+        else {
+            MoodyGhasts.LOGGER.error("Invalid projectile item: {}", projectileItem);
+            throw new IllegalArgumentException("Unknown projectile item: " + projectileItem);
+        }
 
-        assert projectile != null;
         projectile.setPos(spawnPos);
         level.levelEvent(null, 1016, ghast.blockPosition(), 0);
         level.addFreshEntity(projectile);
@@ -206,29 +257,27 @@ public class HappyGhastHandler {
     private void shootBarrage(HappyGhast ghast, float moodMultiplier) {
         int totalSnowballs = (int) (BASE_SNOWBALL_COUNT * moodMultiplier);
 
-        ghast.setData(ModAttachments.SNOWBALL_COUNT, totalSnowballs);
-        ghast.setData(ModAttachments.IS_SHOOTING_BARRAGE, true);
-        ghast.setData(ModAttachments.NEXT_SNOWBALL_DELAY, 0);
+        ghast.setData(ModAttachments.SNOWBALLS_LEFT, totalSnowballs);
+        ghast.setData(ModAttachments.IS_SNOWBALL_BARRAGE, true);
+        ghast.setData(ModAttachments.SNOWBALL_COOLDOWN, 0);
     }
 
     @SubscribeEvent
-    public void onGhastTick(EntityTickEvent.Post event) {
+    private void onBarrageTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.level().isClientSide) return;
-        if (!ghast.getData(ModAttachments.IS_SHOOTING_BARRAGE)) return;
-
-
+        if (!ghast.getData(ModAttachments.IS_SNOWBALL_BARRAGE)) return;
         if (!(ghast.getControllingPassenger() instanceof Player player)) {
-            ghast.setData(ModAttachments.IS_SHOOTING_BARRAGE, false);
-            ghast.setData(ModAttachments.SNOWBALL_COUNT, 0);
+            ghast.setData(ModAttachments.IS_SNOWBALL_BARRAGE, false);
+            ghast.setData(ModAttachments.SNOWBALLS_LEFT, 0);
             return;
         }
 
-        int snowballsLeft = ghast.getData(ModAttachments.SNOWBALL_COUNT);
-        int nextDelay = ghast.getData(ModAttachments.NEXT_SNOWBALL_DELAY);
+        int snowballsLeft = ghast.getData(ModAttachments.SNOWBALLS_LEFT);
+        int nextDelay = ghast.getData(ModAttachments.SNOWBALL_COOLDOWN);
 
         if (snowballsLeft <= 0) {
-            ghast.setData(ModAttachments.IS_SHOOTING_BARRAGE, false);
+            ghast.setData(ModAttachments.IS_SNOWBALL_BARRAGE, false);
             return;
         }
 
@@ -242,7 +291,7 @@ public class HappyGhastHandler {
 
         // Check if should shoot this tick
         if (nextDelay > 0) {
-            ghast.setData(ModAttachments.NEXT_SNOWBALL_DELAY, nextDelay - 1);
+            ghast.setData(ModAttachments.SNOWBALL_COOLDOWN, nextDelay - 1);
             return;
         }
 
@@ -283,8 +332,8 @@ public class HappyGhastHandler {
         adjustMood(ghast, -0.25F);
 
         // Update counters
-        ghast.setData(ModAttachments.SNOWBALL_COUNT, snowballsLeft - 1);
-        ghast.setData(ModAttachments.NEXT_SNOWBALL_DELAY, delay);
+        ghast.setData(ModAttachments.SNOWBALLS_LEFT, snowballsLeft - 1);
+        ghast.setData(ModAttachments.SNOWBALL_COOLDOWN, delay);
 
     }
 
@@ -304,18 +353,6 @@ public class HappyGhastHandler {
         return Vec3.directionFromRotation(clampedPitch, player.getYRot());
     }
 
-    //TODO: Make eating take time like a player
-    private void handleFeed(HappyGhast ghast, ItemStack treat) {
-        float moodDelta = treat.getOrDefault(ModDataComponentTypes.MOOD_DELTA, 0F);
-        
-        adjustMood(ghast, moodDelta);
-        
-        ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
-                SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 1.0F, 1.0F);
-
-        //TODO: Change to AroundMouth once implemented
-        addParticlesAroundSelf(ghast, new ItemParticleOption(ParticleTypes.ITEM, treat));
-    }
 
     private void adjustMood(HappyGhast ghast, float delta) {
         float currentMood = ghast.getData(ModAttachments.MOOD);
@@ -326,6 +363,22 @@ public class HappyGhastHandler {
         }
         MoodyGhasts.LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD));
         ghast.setData(ModAttachments.MOOD, Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD));
+    }
+
+    private void handleItemConsumption(Player player, ItemStack stack) {
+        if (player.getAbilities().instabuild) return; // creative mode, no change
+
+        Item item = stack.getItem();
+        ItemStack container = item.getCraftingRemainder(stack); // vanilla method to get returned container
+
+        stack.shrink(1); // consume one of the stack
+
+        if (!container.isEmpty()) {
+            if (!player.getInventory().add(container)) {
+                // drop if inventory full
+                player.drop(container, false);
+            }
+        }
     }
 
     private void applySharedCooldown(Player player, Item projectileItem) {
@@ -370,6 +423,12 @@ public class HappyGhastHandler {
 
     private void addParticlesAroundMouth(HappyGhast ghast, ParticleOptions particleOption) {
         // TODO: Implement mouth-specific particle spawning
+    }
+        
+    private boolean isBusy(HappyGhast ghast){
+        return ghast.getData(ModAttachments.IS_PREPARING_PROJECTILE)
+                || ghast.getData(ModAttachments.IS_SNOWBALL_BARRAGE)
+                || ghast.getData(ModAttachments.IS_CONSUMING_FOOD);
     }
 
     public record ProjectileScaling(float baseRadius, float baseStrength, float moodMultiplier) {
