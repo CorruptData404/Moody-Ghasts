@@ -1,13 +1,13 @@
-package ca.corruptdata.moodyghasts.util;
+package ca.corruptdata.moodyghasts.moodutil;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MoodThresholdsManager {
-    private static final Logger LOGGER = LoggerFactory.getLogger("moodyghasts");
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final ResourceKey<Registry<MoodThresholds>> REGISTRY_KEY = ResourceKey.createRegistryKey(MoodThresholds.ID);
 
     private static MoodThresholds currentThresholds = MoodThresholds.DEFAULT;
@@ -23,5 +23,6 @@ public class MoodThresholdsManager {
             LOGGER.warn("No mood thresholds found in registry, using defaults");
             currentThresholds = MoodThresholds.DEFAULT;
         }
+        LOGGER.info("Loaded mood thresholds: {}", currentThresholds.getMap());
     }
 }

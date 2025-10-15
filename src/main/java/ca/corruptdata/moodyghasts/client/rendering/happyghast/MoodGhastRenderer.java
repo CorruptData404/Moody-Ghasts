@@ -2,41 +2,59 @@ package ca.corruptdata.moodyghasts.client.rendering.happyghast;
 
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
-import ca.corruptdata.moodyghasts.util.MoodThresholds;
-import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
+import ca.corruptdata.moodyghasts.moodutil.Mood;
+import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
+import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.client.renderer.entity.state.HappyGhastRenderState;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class MoodGhastRenderer extends HappyGhastRenderer {
-    private static final ResourceLocation GHAST_SHOOTING_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_shooting.png");
-    private static final ResourceLocation GHAST_EXCITED_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_excited.png");
-    private static final ResourceLocation GHAST_NEUTRAL_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_neutral.png");
-    private static final ResourceLocation GHAST_SAD_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_sad.png");
-    private static final ResourceLocation GHAST_ANGRY_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_angry.png");
-    private static final ResourceLocation GHAST_ENRAGED_LOCATION = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,"textures/entity/happyghast/ghast_enraged.png");
+
+    private static final ResourceLocation GHAST_SHOOTING_TEXTURE =
+            ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,
+                    "textures/entity/happyghast/ghast_shooting.png");
+
+    private static final Map<Mood, ResourceLocation> GHAST_MOOD_TEXTURES =
+            Arrays.stream(Mood.values())
+                    .collect(Collectors.toMap(
+                            mood -> mood,
+                            mood -> ResourceLocation.fromNamespaceAndPath(
+                                    MoodyGhasts.MOD_ID,
+                                    "textures/entity/happyghast/ghast_" + mood.id() + ".png"
+                            )
+                    ));
 
     public MoodGhastRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(HappyGhastRenderState renderState) {
+    public @NotNull ResourceLocation getTextureLocation(HappyGhastRenderState renderState) {
+        if (renderState.isBaby)
+            return super.getTextureLocation(renderState);
 
-        if (renderState.isBaby) super.getTextureLocation(renderState);
-        if (renderState.getRenderDataOrThrow(RenderStateKeys.IS_PREPARING_PROJECTILE) ||
-                renderState.getRenderDataOrThrow(RenderStateKeys.IS_SNOWBALL_BARRAGE)) return GHAST_SHOOTING_LOCATION;
+        if (renderState.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING) ||
+                renderState.getRenderDataOrThrow(RenderStateKeys.IS_SNOWBALL_BARRAGE))
+            return GHAST_SHOOTING_TEXTURE;
 
-
-        float mood = renderState.getRenderDataOrThrow(RenderStateKeys.MOOD);
+        float moodValue = renderState.getRenderDataOrThrow(RenderStateKeys.MOOD);
         MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
 
-        if (mood <= thresholds.getMoodValue("excited")) return GHAST_EXCITED_LOCATION;
-        else if (mood <= thresholds.getMoodValue("happy")) return super.getTextureLocation(renderState);
-        else if (mood <= thresholds.getMoodValue("neutral")) return GHAST_NEUTRAL_LOCATION;
-        else if (mood <= thresholds.getMoodValue("sad")) return GHAST_SAD_LOCATION;
-        else if (mood <= thresholds.getMoodValue("angry")) return GHAST_ANGRY_LOCATION;
-        else return GHAST_ENRAGED_LOCATION;
+        for (Mood mood : Mood.values()) {
+            if (moodValue <= thresholds.get(mood)) {
+                // "happy" intentionally falls back to default vanilla texture
+                if (mood == Mood.HAPPY) return super.getTextureLocation(renderState);
+                return GHAST_MOOD_TEXTURES.get(mood);
+            }
+        }
+        // default to enraged texture if above all thresholds
+        return GHAST_MOOD_TEXTURES.get(Mood.ENRAGED);
     }
 }

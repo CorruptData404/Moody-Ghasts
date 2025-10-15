@@ -1,6 +1,5 @@
-package ca.corruptdata.moodyghasts.attachment;
+package ca.corruptdata.moodyghasts;
 
-import ca.corruptdata.moodyghasts.MoodyGhasts;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.Item;
@@ -22,10 +21,10 @@ public class ModAttachments {
             .build()
     );
 
-    public static final Supplier<AttachmentType<Boolean>> IS_PREPARING_PROJECTILE = ATTACHMENT_TYPES.register(
-        "is_preparing_projectile",
+    public static final Supplier<AttachmentType<Boolean>> IS_CHARGING = ATTACHMENT_TYPES.register(
+        "is_charging",
         () -> AttachmentType.builder(() -> false)
-            .serialize(Codec.BOOL.fieldOf("is_preparing_projectile"))
+            .serialize(Codec.BOOL.fieldOf("is_charging"))
             .sync(ByteBufCodecs.BOOL)
             .build()
     );

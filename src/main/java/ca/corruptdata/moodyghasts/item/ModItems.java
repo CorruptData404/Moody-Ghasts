@@ -25,7 +25,7 @@ public class ModItems {
             registryName -> new FrostedCookieItem(
                     new Item.Properties()
                             .setId(ResourceKey.create(Registries.ITEM, registryName))
-                            .component(ModDataComponentTypes.MOOD_DELTA.get(), -10.0f)
+                            .component(ModDataComponentTypes.MOOD_DELTA.get(), -5.0f)
             )
     );
 
@@ -33,7 +33,7 @@ public class ModItems {
             registryName -> new SpicyCookieItem(
                     new Item.Properties()
                             .setId(ResourceKey.create(Registries.ITEM, registryName))
-                            .component(ModDataComponentTypes.MOOD_DELTA.get(), 10.0f)
+                            .component(ModDataComponentTypes.MOOD_DELTA.get(), 5.0f)
             )
     );
 

@@ -1,6 +1,5 @@
 package ca.corruptdata.moodyghasts;
 
-import ca.corruptdata.moodyghasts.attachment.ModAttachments;
 import ca.corruptdata.moodyghasts.client.rendering.IceChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
@@ -9,8 +8,8 @@ import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
-import ca.corruptdata.moodyghasts.util.MoodThresholds;
-import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
+import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
+import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.world.entity.EntityType;
@@ -28,7 +27,6 @@ import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import org.slf4j.Logger;
@@ -68,7 +66,6 @@ public class MoodyGhasts {
         event.enqueueWork(ModDispenserBehaviors::register);
     }
 
-    // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if(event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES || event.getTabKey() == CreativeModeTabs.COMBAT) {
             event.accept(ModItems.ICE_CHARGE);
@@ -85,13 +82,16 @@ public class MoodyGhasts {
                 .build());
     }
 
+//TODO: This crashes. Need to Figure out how/when to call updateThresholds properly
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        MoodThresholdsManager.updateThresholds(event.getServer().registryAccess());
-    }
-
+//    @EventBusSubscriber(modid = MoodyGhasts.MOD_ID)
+//    public static class ServerEvents {
+//
+//        @SubscribeEvent
+//        public static void onServerStarted(ServerStartedEvent event) {
+//            MoodThresholdsManager.updateThresholds(event.getServer().registryAccess());
+//        }
+//    }
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT)
     public static class ClientModEvents {
@@ -118,7 +118,7 @@ public class MoodyGhasts {
             event.registerEntityModifier(
                     HappyGhastRenderer.class,
                     (entity, state) -> state.setRenderData(
-                            RenderStateKeys.IS_PREPARING_PROJECTILE, entity.getData(ModAttachments.IS_PREPARING_PROJECTILE)));
+                            RenderStateKeys.IS_CHARGING, entity.getData(ModAttachments.IS_CHARGING)));
             event.registerEntityModifier(
                     HappyGhastRenderer.class,
                     (entity, state) -> state.setRenderData(

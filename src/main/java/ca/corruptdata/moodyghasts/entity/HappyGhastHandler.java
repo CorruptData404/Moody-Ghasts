@@ -1,14 +1,15 @@
 package ca.corruptdata.moodyghasts.entity;
 
-import ca.corruptdata.moodyghasts.MoodyGhasts;
-import ca.corruptdata.moodyghasts.attachment.ModAttachments;
+import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyWindChargeEntity;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
-import ca.corruptdata.moodyghasts.util.ModTags;
-import ca.corruptdata.moodyghasts.util.MoodThresholds;
-import ca.corruptdata.moodyghasts.util.MoodThresholdsManager;
+import ca.corruptdata.moodyghasts.ModTags;
+import ca.corruptdata.moodyghasts.moodutil.Mood;
+import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
+import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -31,8 +32,11 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.projectile.Snowball;
+import org.slf4j.Logger;
 
 public class HappyGhastHandler {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private static final float MIN_MOOD = 0.0f;
     private static final float MAX_MOOD = 100.0f;
     private static final int BASE_SNOWBALL_COUNT = 50;
@@ -52,27 +56,12 @@ public class HappyGhastHandler {
         event.setCanceled(true);
         if (isBusy(ghast)) return;
 
-        ghast.setData(ModAttachments.IS_PREPARING_PROJECTILE, true);
+        ghast.setData(ModAttachments.IS_CHARGING, true);
         ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 1); // Start charging
         ghast.setData(ModAttachments.CURRENT_PROJECTILE, projectileItem.getItem());
         ghast.setData(ModAttachments.PROJECTILE_OWNER, player);
-        if(!player.getAbilities().instabuild) {
-            if (projectileItem.getItem() == Items.POWDER_SNOW_BUCKET) {
-                projectileItem.shrink(1);
-                ItemStack emptyBucket = new ItemStack(Items.BUCKET);
-                if (projectileItem.isEmpty()) {
-                    player.getInventory().add(emptyBucket);
-                } else {
-                    // If the stack wasn't empty, give them a bucket
-                    if (!player.getInventory().add(emptyBucket)) {
-                        // If inventory is full, drop the bucket in the world
-                        player.drop(emptyBucket, false);
-                    }
-                }
-            } else {
-                projectileItem.shrink(1);
-            }
-        }
+
+        handleItemConsumption(event.getEntity(), projectileItem);
     }
 
     @SubscribeEvent
@@ -81,7 +70,7 @@ public class HappyGhastHandler {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.level().isClientSide) return;
         if (ghast.isBaby()) return;
-        if (!ghast.getData(ModAttachments.IS_PREPARING_PROJECTILE)) return;
+        if (!ghast.getData(ModAttachments.IS_CHARGING)) return;
 
         int chargeTime = ghast.getData(ModAttachments.PROJECTILE_CHARGE_TICK);
         Player player = (Player) ghast.getControllingPassenger();
@@ -91,7 +80,7 @@ public class HappyGhastHandler {
         }
         else
         {
-            ghast.setData(ModAttachments.IS_PREPARING_PROJECTILE,false);
+            ghast.setData(ModAttachments.IS_CHARGING,false);
             ghast.setData(ModAttachments.CURRENT_PROJECTILE, Items.AIR);
             ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 0);
         }
@@ -101,7 +90,7 @@ public class HappyGhastHandler {
         }
         else if(chargeTime == 20){
             shoot(player, ghast, ghast.getData(ModAttachments.CURRENT_PROJECTILE));
-            ghast.setData(ModAttachments.IS_PREPARING_PROJECTILE,false);
+            ghast.setData(ModAttachments.IS_CHARGING,false);
             ghast.setData(ModAttachments.CURRENT_PROJECTILE, Items.AIR);
             ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 0);
         }
@@ -207,15 +196,15 @@ public class HappyGhastHandler {
 
     private static float getMoodMultiplier(float mood) {
         MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+        float[] multipliers = {0.6F, 0.8F, 1.0F, 1.3F, 1.6F, 2.0F}; // ordered to match Mood.values()
 
-        float moodMultiplier;
-        if (mood <= thresholds.getMoodValue("excited"))      moodMultiplier = 0.6F;      // -40% power
-        else if (mood <= thresholds.getMoodValue("happy"))   moodMultiplier = 0.8F;      // -20% power
-        else if (mood <= thresholds.getMoodValue("neutral")) moodMultiplier = 1.0F;      // baseline
-        else if (mood <= thresholds.getMoodValue("sad"))     moodMultiplier = 1.3F;      // +30% power
-        else if (mood <= thresholds.getMoodValue("angry"))   moodMultiplier = 1.6F;      // +60% power
-        else                                                 moodMultiplier = 2.0F;      // +100% power (enraged)
-        return moodMultiplier;
+        Mood[] moods = Mood.values();
+        for (int i = 0; i < moods.length; i++) {
+            if (mood <= thresholds.get(moods[i])) {
+                return multipliers[i];
+            }
+        }
+        return 2.0F; // fallback if above all thresholds
     }
 
     private void shootCharge(Player player, HappyGhast ghast, Item projectileItem, float moodMultiplier) {
@@ -228,24 +217,24 @@ public class HappyGhastHandler {
             ProjectileScaling scaling = ProjectileScaling.ICE;
             int radius = (int) (scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier());
             float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
-            MoodyGhasts.LOGGER.info("Ice Charge Radius: {}, Strength: {}", radius, strength);
+            LOGGER.info("Ice Charge Radius: {}, Strength: {}", radius, strength);
             projectile = new MoodyIceChargeEntity(level, player, movement, radius, strength);
         }
         else if (projectileItem instanceof WindChargeItem) {
             ProjectileScaling scaling = ProjectileScaling.WIND;
             float radius = scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier();
             float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
-            MoodyGhasts.LOGGER.info("Wind Charge Radius: {}, Strength: {}", radius, strength);
+            LOGGER.info("Wind Charge Radius: {}, Strength: {}", radius, strength);
             projectile = new MoodyWindChargeEntity(level, player, movement, radius, strength);
         }
         else if (projectileItem instanceof FireChargeItem) {
             ProjectileScaling scaling = ProjectileScaling.FIRE;
             int explosionPower = Math.round(scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier());
-            MoodyGhasts.LOGGER.info("FireBall Power: {}", explosionPower);
+            LOGGER.info("FireBall Power: {}", explosionPower);
             projectile = new LargeFireball(level, player, movement, explosionPower);
         }
         else {
-            MoodyGhasts.LOGGER.error("Invalid projectile item: {}", projectileItem);
+            LOGGER.error("Invalid projectile item: {}", projectileItem);
             throw new IllegalArgumentException("Unknown projectile item: " + projectileItem);
         }
 
@@ -356,27 +345,35 @@ public class HappyGhastHandler {
 
     private void adjustMood(HappyGhast ghast, float delta) {
         float currentMood = ghast.getData(ModAttachments.MOOD);
-        if (wouldCrossMoodThreshold(currentMood, delta)) {
-            addParticlesAroundSelf(ghast, delta > 0F ?
-                    ParticleTypes.ANGRY_VILLAGER :
-                    ParticleTypes.HAPPY_VILLAGER);
-        }
-        MoodyGhasts.LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD));
-        ghast.setData(ModAttachments.MOOD, Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD));
+
+        ParticleOptions particle = delta > 0F ? ParticleTypes.ANGRY_VILLAGER : ParticleTypes.HAPPY_VILLAGER;
+        if (wouldCrossMoodThreshold(currentMood, delta)) addParticlesAroundSelf(ghast, particle);
+
+        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
+        LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, newMood);
+        ghast.setData(ModAttachments.MOOD, newMood);
     }
 
+    //TODO: Still does not work correctly with bucket items
     private void handleItemConsumption(Player player, ItemStack stack) {
         if (player.getAbilities().instabuild) return; // creative mode, no change
 
         Item item = stack.getItem();
-        ItemStack container = item.getCraftingRemainder(stack); // vanilla method to get returned container
+        ItemStack result;
 
-        stack.shrink(1); // consume one of the stack
+        if (item instanceof BucketItem) {
+            // Get the empty bucket BEFORE shrinking
+            result = BucketItem.getEmptySuccessItem(stack, player);
+        } else {
+            result = item.getCraftingRemainder(stack);
+        }
 
-        if (!container.isEmpty()) {
-            if (!player.getInventory().add(container)) {
-                // drop if inventory full
-                player.drop(container, false);
+        stack.shrink(1);
+
+        // Give the player the resulting item (empty bucket or remainder)
+        if (!result.isEmpty()) {
+            if (!player.getInventory().add(result)) {
+                player.drop(result, false); // drop if inventory full
             }
         }
     }
@@ -396,10 +393,16 @@ public class HappyGhastHandler {
 
     private boolean wouldCrossMoodThreshold(float currentMood, float delta) {
         float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
-        return MoodThresholdsManager.getCurrentInstance().getMoodMap().values().stream()
-                .anyMatch(threshold ->
-                        (currentMood <= threshold && newMood > threshold) ||
-                        (currentMood > threshold && newMood <= threshold));
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+
+        for (Mood mood : Mood.values()) {
+            float threshold = thresholds.get(mood);
+            if ((currentMood <= threshold && newMood > threshold) ||
+                    (currentMood > threshold && newMood <= threshold)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void addParticlesAroundSelf(HappyGhast ghast, ParticleOptions particleOption) {
@@ -426,7 +429,7 @@ public class HappyGhastHandler {
     }
         
     private boolean isBusy(HappyGhast ghast){
-        return ghast.getData(ModAttachments.IS_PREPARING_PROJECTILE)
+        return ghast.getData(ModAttachments.IS_CHARGING)
                 || ghast.getData(ModAttachments.IS_SNOWBALL_BARRAGE)
                 || ghast.getData(ModAttachments.IS_CONSUMING_FOOD);
     }

@@ -1,13 +1,11 @@
-package ca.corruptdata.moodyghasts.util;
+package ca.corruptdata.moodyghasts;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.data.tags.EntityTypeTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
-import ca.corruptdata.moodyghasts.MoodyGhasts;
 
 public class ModTags {
     public static class Items {
