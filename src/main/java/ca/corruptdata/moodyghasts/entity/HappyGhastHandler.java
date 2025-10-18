@@ -18,6 +18,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
@@ -34,6 +37,8 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.projectile.Snowball;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
+
 public class HappyGhastHandler {
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -44,10 +49,14 @@ public class HappyGhastHandler {
     private static final float HEALED_MOOD_MULTIPLIER = -2f;
     //Should always be Positive
     private static final float DAMAGED_MOOD_MULTIPLIER = 2f;
+    private static final int CRASH_OUT_TICK = 400;
 
 
+    // ============================================================
+    // Event Handlers - Player Interactions
+    // ============================================================
     @SubscribeEvent
-    private void onRiderShoot(PlayerInteractEvent.RightClickItem event) {
+    private void onRiderUseProjectile(PlayerInteractEvent.RightClickItem event) {
         ItemStack projectileItem = event.getItemStack();
         if (!projectileItem.is(ModTags.Items.HAPPY_GHAST_PROJECTILES)) return;
         Player player = event.getEntity();
@@ -61,11 +70,49 @@ public class HappyGhastHandler {
         ghast.setData(ModAttachments.CURRENT_PROJECTILE, projectileItem.getItem());
         ghast.setData(ModAttachments.PROJECTILE_OWNER, player);
 
-        handleItemConsumption(event.getEntity(), projectileItem);
+        consumePlayerItem(event.getEntity(), projectileItem);
     }
 
     @SubscribeEvent
-    private void chargingShoot(EntityTickEvent.Post event) {
+    private void onRiderFeed(PlayerInteractEvent.RightClickItem event) {
+        ItemStack stack = event.getItemStack();
+        if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
+        if (!(event.getEntity().getVehicle() instanceof HappyGhast ghast)) return;
+        if (event.getEntity() != ghast.getControllingPassenger()) return;
+        event.setCanceled(true);
+        if (isBusy(ghast)) return;
+
+        ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
+        ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
+
+        consumePlayerItem(event.getEntity(), stack);
+
+    }
+
+    @SubscribeEvent
+    private void onInteractFeed(PlayerInteractEvent.EntityInteract event) {
+        ItemStack stack = event.getItemStack();
+        if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
+        if (!(event.getTarget() instanceof HappyGhast ghast)) return;
+        if (ghast.isBaby()) return;
+        if (isBusy(ghast)) return;
+
+        event.setCancellationResult(InteractionResult.SUCCESS);
+        event.setCanceled(true);
+
+        ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
+        ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
+
+        consumePlayerItem(event.getEntity(), stack);
+    }
+
+    // ============================================================
+    // Event Handlers - Tick Updates
+    // ============================================================
+
+
+    @SubscribeEvent
+    private void onChargeTick(EntityTickEvent.Post event) {
 
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.level().isClientSide) return;
@@ -94,161 +141,6 @@ public class HappyGhastHandler {
             ghast.setData(ModAttachments.CURRENT_PROJECTILE, Items.AIR);
             ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 0);
         }
-    }
-
-    @SubscribeEvent
-    private void onRiderFeed(PlayerInteractEvent.RightClickItem event) {
-        ItemStack stack = event.getItemStack();
-        if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
-        if (!(event.getEntity().getVehicle() instanceof HappyGhast ghast)) return;
-        if (event.getEntity() != ghast.getControllingPassenger()) return;
-        event.setCanceled(true);
-        if (isBusy(ghast)) return;
-
-        ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
-        ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
-
-        handleItemConsumption(event.getEntity(), stack);
-
-    }
-
-    @SubscribeEvent
-    private void onInteractFeed(PlayerInteractEvent.EntityInteract event) {
-        ItemStack stack = event.getItemStack();
-        if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
-        if (!(event.getTarget() instanceof HappyGhast ghast)) return;
-        if (ghast.isBaby()) return;
-        if (isBusy(ghast)) return;
-
-        event.setCancellationResult(InteractionResult.SUCCESS);
-        event.setCanceled(true);
-
-        ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
-        ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
-
-        handleItemConsumption(event.getEntity(), stack);
-    }
-
-    @SubscribeEvent
-    private void tickEating(EntityTickEvent.Post event) {
-        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.level().isClientSide) return;
-        if (ghast.isBaby()) return;
-        if (!ghast.getData(ModAttachments.IS_CONSUMING_FOOD)) return;
-
-        int consumeTime = ghast.getData(ModAttachments.FOOD_CONSUME_TICKS);
-        ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, consumeTime + 1);
-
-        // Every 4 ticks, play eating sound + particles
-        if (consumeTime % 4 == 0) {
-            ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
-                    SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
-
-            addParticlesAroundSelf(ghast, new ItemParticleOption(
-                    ParticleTypes.ITEM,
-                    ghast.getData(ModAttachments.CURRENT_FOOD).getDefaultInstance()
-            ));
-        }
-
-        // Finish eating
-        if (consumeTime >= 32) {
-            float moodDelta = ghast.getData(ModAttachments.CURRENT_FOOD)
-                    .getDefaultInstance()
-                    .getOrDefault(ModDataComponentTypes.MOOD_DELTA, 0F);
-
-            adjustMood(ghast, moodDelta);
-
-            ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
-                    SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 1.0F, 1.0F);
-
-            ghast.setData(ModAttachments.IS_CONSUMING_FOOD, false);
-            ghast.setData(ModAttachments.CURRENT_FOOD, Items.AIR);
-            ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, 0);
-        }
-    }
-
-    @SubscribeEvent
-    private void onHeal(LivingHealEvent event) {
-        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.isBaby()) return;
-        adjustMood(ghast, event.getAmount() * HEALED_MOOD_MULTIPLIER);
-    }
-    @SubscribeEvent
-    private void onDamage(LivingDamageEvent.Post event) {
-        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.isBaby()) return;
-        adjustMood(ghast, event.getNewDamage() * DAMAGED_MOOD_MULTIPLIER);
-    }
-
-    private void shoot(Player player, HappyGhast ghast, Item projectileItem) {
-        applySharedCooldown(player,projectileItem);
-        float mood = ghast.getData(ModAttachments.MOOD);
-        float moodMultiplier = getMoodMultiplier(mood);
-
-        if (projectileItem instanceof IceChargeItem
-                || projectileItem instanceof WindChargeItem
-                || projectileItem instanceof FireChargeItem) {
-            shootCharge(player, ghast, projectileItem, moodMultiplier);
-        } else if (projectileItem == Items.POWDER_SNOW_BUCKET) {
-            shootBarrage(ghast, moodMultiplier);
-        }
-    }
-
-    private static float getMoodMultiplier(float mood) {
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
-        float[] multipliers = {0.6F, 0.8F, 1.0F, 1.3F, 1.6F, 2.0F}; // ordered to match Mood.values()
-
-        Mood[] moods = Mood.values();
-        for (int i = 0; i < moods.length; i++) {
-            if (mood <= thresholds.get(moods[i])) {
-                return multipliers[i];
-            }
-        }
-        return 2.0F; // fallback if above all thresholds
-    }
-
-    private void shootCharge(Player player, HappyGhast ghast, Item projectileItem, float moodMultiplier) {
-        Level level = ghast.level();
-        Vec3 spawnPos = calculateSpawnPosition(ghast);
-        Vec3 movement = calculateMovementVector(player);
-        AbstractHurtingProjectile projectile;
-
-        if (projectileItem instanceof IceChargeItem) {
-            ProjectileScaling scaling = ProjectileScaling.ICE;
-            int radius = (int) (scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier());
-            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
-            LOGGER.info("Ice Charge Radius: {}, Strength: {}", radius, strength);
-            projectile = new MoodyIceChargeEntity(level, player, movement, radius, strength);
-        }
-        else if (projectileItem instanceof WindChargeItem) {
-            ProjectileScaling scaling = ProjectileScaling.WIND;
-            float radius = scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier();
-            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
-            LOGGER.info("Wind Charge Radius: {}, Strength: {}", radius, strength);
-            projectile = new MoodyWindChargeEntity(level, player, movement, radius, strength);
-        }
-        else if (projectileItem instanceof FireChargeItem) {
-            ProjectileScaling scaling = ProjectileScaling.FIRE;
-            int explosionPower = Math.round(scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier());
-            LOGGER.info("FireBall Power: {}", explosionPower);
-            projectile = new LargeFireball(level, player, movement, explosionPower);
-        }
-        else {
-            LOGGER.error("Invalid projectile item: {}", projectileItem);
-            throw new IllegalArgumentException("Unknown projectile item: " + projectileItem);
-        }
-
-        projectile.setPos(spawnPos);
-        level.levelEvent(null, 1016, ghast.blockPosition(), 0);
-        level.addFreshEntity(projectile);
-    }
-
-    private void shootBarrage(HappyGhast ghast, float moodMultiplier) {
-        int totalSnowballs = (int) (BASE_SNOWBALL_COUNT * moodMultiplier);
-
-        ghast.setData(ModAttachments.SNOWBALLS_LEFT, totalSnowballs);
-        ghast.setData(ModAttachments.IS_SNOWBALL_BARRAGE, true);
-        ghast.setData(ModAttachments.SNOWBALL_COOLDOWN, 0);
     }
 
     @SubscribeEvent
@@ -285,7 +177,7 @@ public class HappyGhastHandler {
         }
 
         // Calculate spawn position
-        Vec3 spawnPos = calculateSpawnPosition(ghast);
+        Vec3 spawnPos = getProjectileSpawnPos(ghast);
 
         // Create snowball
         Snowball snowball = new Snowball(ghast.level(), spawnPos.x(), spawnPos.y(), spawnPos.z(),
@@ -293,7 +185,7 @@ public class HappyGhastHandler {
         snowball.setOwner(player);
 
         // Calculate base direction vector
-        Vec3 direction = calculateMovementVector(player);
+        Vec3 direction = getPlayerAimVector(player);
 
         float spread = 0.11485f;
         RandomSource random = ghast.getRandom();
@@ -326,8 +218,250 @@ public class HappyGhastHandler {
 
     }
 
+    @SubscribeEvent
+    private void onEatingTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
+        if (ghast.level().isClientSide) return;
+        if (ghast.isBaby()) return;
+        if (!ghast.getData(ModAttachments.IS_CONSUMING_FOOD)) return;
 
-    private Vec3 calculateSpawnPosition(HappyGhast ghast) {
+        int consumeTime = ghast.getData(ModAttachments.FOOD_CONSUME_TICKS);
+        ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, consumeTime + 1);
+
+        // Every 4 ticks, play eating sound and particles
+        if (consumeTime % 4 == 0) {
+            ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+                    SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
+
+            spawnSurroundParticles(ghast, new ItemParticleOption(
+                    ParticleTypes.ITEM,
+                    ghast.getData(ModAttachments.CURRENT_FOOD).getDefaultInstance()
+            ));
+        }
+
+        // Finish eating
+        if (consumeTime >= 32) {
+            float moodDelta = ghast.getData(ModAttachments.CURRENT_FOOD)
+                    .getDefaultInstance()
+                    .getOrDefault(ModDataComponentTypes.MOOD_DELTA, 0F);
+
+            adjustMood(ghast, moodDelta);
+
+            ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+                    SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 1.0F, 1.0F);
+
+            ghast.setData(ModAttachments.IS_CONSUMING_FOOD, false);
+            ghast.setData(ModAttachments.CURRENT_FOOD, Items.AIR);
+            ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, 0);
+        }
+    }
+
+    @SubscribeEvent
+    private void onCrashOutTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
+        if (ghast.level().isClientSide) return;
+        if (ghast.isBaby()) return;
+
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+        float mood = ghast.getData(ModAttachments.MOOD);
+
+        if (mood > thresholds.get(Mood.ANGRY)) {
+            int enragedTicks = ghast.getData(ModAttachments.ENRAGED_TICKS) + 1;
+            ghast.setData(ModAttachments.ENRAGED_TICKS, enragedTicks);
+
+            if (enragedTicks >= CRASH_OUT_TICK) {
+                if (!net.neoforged.neoforge.event.EventHooks.canLivingConvert(ghast, EntityType.GHAST, t -> {}))
+                    return;
+
+                ServerLevel serverLevel = (ServerLevel) ghast.level();
+
+
+                // Dismount all riders with short slow falling
+                for (Entity passenger : new ArrayList<>(ghast.getPassengers())) {
+                    if (passenger instanceof LivingEntity living) {
+                        living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0)); // 10 seconds
+                    }
+                    passenger.stopRiding();
+                }
+
+                // Drop harness if equipped
+                ItemStack harness = ghast.getItemBySlot(EquipmentSlot.BODY);
+                if (!harness.isEmpty()) {
+                    ghast.spawnAtLocation(serverLevel, harness);
+                    ghast.setItemSlot(EquipmentSlot.BODY, ItemStack.EMPTY);
+                }
+
+                // Drop 0–4 ghast tears
+                int tearCount = serverLevel.random.nextInt(5);
+                if (tearCount > 0) {
+                    ItemStack tears = new ItemStack(Items.GHAST_TEAR, tearCount);
+                    ghast.spawnAtLocation(serverLevel, tears);
+                }
+
+                // Convert to hostile ghast
+                ghast.convertTo(EntityType.GHAST, ConversionParams.single(ghast, false, true), newGhast -> {
+                    net.neoforged.neoforge.event.EventHooks.onLivingConvert(ghast, newGhast);
+
+                    if (!ghast.isSilent()) {
+                        serverLevel.playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+                                SoundEvents.GHAST_HURT, SoundSource.HOSTILE, 1.0F, 1.0F);
+                    }
+                });
+            }
+        } else {
+            ghast.setData(ModAttachments.ENRAGED_TICKS, 0);
+        }
+    }
+
+    // ============================================================
+    // Event Handlers - Health based Mood Adjustments
+    // ============================================================
+
+    @SubscribeEvent
+    private void onHeal(LivingHealEvent event) {
+        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
+        if (ghast.isBaby()) return;
+        adjustMood(ghast, event.getAmount() * HEALED_MOOD_MULTIPLIER);
+    }
+    @SubscribeEvent
+    private void onDamage(LivingDamageEvent.Post event) {
+        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
+        if (ghast.isBaby()) return;
+        adjustMood(ghast, event.getNewDamage() * DAMAGED_MOOD_MULTIPLIER);
+    }
+
+    // ============================================================
+    // Shooting Logic
+    // ============================================================
+
+    private void shoot(Player player, HappyGhast ghast, Item projectileItem) {
+        applySharedCooldown(player,projectileItem);
+        float mood = ghast.getData(ModAttachments.MOOD);
+        float moodMultiplier = calculateMoodMultiplier(mood);
+
+        if (projectileItem instanceof IceChargeItem
+                || projectileItem instanceof WindChargeItem
+                || projectileItem instanceof FireChargeItem) {
+            shootChargeProjectile(player, ghast, projectileItem, moodMultiplier);
+        } else if (projectileItem == Items.POWDER_SNOW_BUCKET) {
+            int totalSnowballs = (int) (BASE_SNOWBALL_COUNT * moodMultiplier);
+
+            ghast.setData(ModAttachments.SNOWBALLS_LEFT, totalSnowballs);
+            ghast.setData(ModAttachments.IS_SNOWBALL_BARRAGE, true);
+            ghast.setData(ModAttachments.SNOWBALL_COOLDOWN, 0);
+        }
+    }
+
+    private static float calculateMoodMultiplier(float mood) {
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+        float[] multipliers = {0.6F, 0.8F, 1.0F, 1.3F, 1.6F, 2.0F}; // ordered to match Mood.values()
+
+        Mood[] moods = Mood.values();
+        for (int i = 0; i < moods.length; i++) {
+            if (mood <= thresholds.get(moods[i])) {
+                return multipliers[i];
+            }
+        }
+        return 2.0F; // fallback if above all thresholds
+    }
+
+    private void shootChargeProjectile(Player player, HappyGhast ghast, Item projectileItem, float moodMultiplier) {
+        Level level = ghast.level();
+        Vec3 spawnPos = getProjectileSpawnPos(ghast);
+        Vec3 movement = getPlayerAimVector(player);
+        AbstractHurtingProjectile projectile;
+
+        if (projectileItem instanceof IceChargeItem) {
+            ProjectileScaling scaling = ProjectileScaling.ICE;
+            int radius = (int) (scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier());
+            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
+            LOGGER.info("Ice Charge Radius: {}, Strength: {}", radius, strength);
+            projectile = new MoodyIceChargeEntity(level, player, movement, radius, strength);
+        }
+        else if (projectileItem instanceof WindChargeItem) {
+            ProjectileScaling scaling = ProjectileScaling.WIND;
+            float radius = scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier();
+            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
+            LOGGER.info("Wind Charge Radius: {}, Strength: {}", radius, strength);
+            projectile = new MoodyWindChargeEntity(level, player, movement, radius, strength);
+        }
+        else if (projectileItem instanceof FireChargeItem) {
+            ProjectileScaling scaling = ProjectileScaling.FIRE;
+            int explosionPower = Math.round(scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier());
+            LOGGER.info("FireBall Power: {}", explosionPower);
+            projectile = new LargeFireball(level, player, movement, explosionPower);
+        }
+        else {
+            LOGGER.error("Invalid projectile item: {}", projectileItem);
+            throw new IllegalArgumentException("Unknown projectile item: " + projectileItem);
+        }
+
+        projectile.setPos(spawnPos);
+        level.levelEvent(null, 1016, ghast.blockPosition(), 0);
+        level.addFreshEntity(projectile);
+    }
+
+    // ============================================================
+    // Mood Logic
+    // ============================================================
+
+    private void adjustMood(HappyGhast ghast, float delta) {
+        float currentMood = ghast.getData(ModAttachments.MOOD);
+
+        ParticleOptions particle = delta > 0F ? ParticleTypes.ANGRY_VILLAGER : ParticleTypes.HAPPY_VILLAGER;
+        if (wouldCrossMoodThreshold(currentMood, delta)) spawnSurroundParticles(ghast, particle);
+
+        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
+        LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, newMood);
+        ghast.setData(ModAttachments.MOOD, newMood);
+    }
+
+    private boolean wouldCrossMoodThreshold(float currentMood, float delta) {
+        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+
+        for (Mood mood : Mood.values()) {
+            float threshold = thresholds.get(mood);
+            if ((currentMood <= threshold && newMood > threshold) ||
+                    (currentMood > threshold && newMood <= threshold)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // ============================================================
+    // Particle Effects
+    // ============================================================
+
+    private void spawnSurroundParticles(HappyGhast ghast, ParticleOptions particleOption) {
+        if (ghast.level() instanceof ServerLevel serverLevel) {
+            for (int i = 0; i < 15; i++) {
+                double d0 = ghast.getRandom().nextGaussian() * 0.02;
+                double d1 = ghast.getRandom().nextGaussian() * 0.02;
+                double d2 = ghast.getRandom().nextGaussian() * 0.02;
+                serverLevel.sendParticles(
+                        particleOption,
+                        ghast.getRandomX(1.0),
+                        ghast.getRandomY() + 1.0,
+                        ghast.getRandomZ(1.0),
+                        1, // particle count
+                        d0, d1, d2, // velocity
+                        0.0 // speed
+                );
+            }
+        }
+    }
+
+    private void spawnMouthParticles(HappyGhast ghast, ParticleOptions particleOption) {
+        // TODO: Implement mouth-specific particle spawning
+    }
+
+    // ============================================================
+    // Utility
+    // ============================================================
+
+    private Vec3 getProjectileSpawnPos(HappyGhast ghast) {
         Vec3 viewVec = ghast.getViewVector(1.0F);  // Get ghast's view direction
         return new Vec3(
                 ghast.getX() + viewVec.x * 4.0,  // Offset X by 4 blocks in ghast's facing direction
@@ -336,26 +470,14 @@ public class HappyGhastHandler {
         );
     }
 
-    private Vec3 calculateMovementVector(Player player) {
+    private Vec3 getPlayerAimVector(Player player) {
         //TODO: Consider remove/change the - 4 offset
         float clampedPitch = Mth.clamp(player.getXRot() - 4, -60f, 60f);
         return Vec3.directionFromRotation(clampedPitch, player.getYRot());
     }
 
-
-    private void adjustMood(HappyGhast ghast, float delta) {
-        float currentMood = ghast.getData(ModAttachments.MOOD);
-
-        ParticleOptions particle = delta > 0F ? ParticleTypes.ANGRY_VILLAGER : ParticleTypes.HAPPY_VILLAGER;
-        if (wouldCrossMoodThreshold(currentMood, delta)) addParticlesAroundSelf(ghast, particle);
-
-        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
-        LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, newMood);
-        ghast.setData(ModAttachments.MOOD, newMood);
-    }
-
     //TODO: Still does not work correctly with bucket items
-    private void handleItemConsumption(Player player, ItemStack stack) {
+    private void consumePlayerItem(Player player, ItemStack stack) {
         if (player.getAbilities().instabuild) return; // creative mode, no change
 
         Item item = stack.getItem();
@@ -389,43 +511,6 @@ public class HappyGhastHandler {
                 cooldownTracker.addCooldown(stack, 40);
             }
         }
-    }
-
-    private boolean wouldCrossMoodThreshold(float currentMood, float delta) {
-        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
-
-        for (Mood mood : Mood.values()) {
-            float threshold = thresholds.get(mood);
-            if ((currentMood <= threshold && newMood > threshold) ||
-                    (currentMood > threshold && newMood <= threshold)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void addParticlesAroundSelf(HappyGhast ghast, ParticleOptions particleOption) {
-        if (ghast.level() instanceof ServerLevel serverLevel) {
-            for (int i = 0; i < 15; i++) {
-                double d0 = ghast.getRandom().nextGaussian() * 0.02;
-                double d1 = ghast.getRandom().nextGaussian() * 0.02;
-                double d2 = ghast.getRandom().nextGaussian() * 0.02;
-                serverLevel.sendParticles(
-                    particleOption,
-                    ghast.getRandomX(1.0),
-                    ghast.getRandomY() + 1.0,
-                    ghast.getRandomZ(1.0),
-                    1, // particle count
-                    d0, d1, d2, // velocity
-                    0.0 // speed
-                );
-            }
-        }
-    }
-
-    private void addParticlesAroundMouth(HappyGhast ghast, ParticleOptions particleOption) {
-        // TODO: Implement mouth-specific particle spawning
     }
         
     private boolean isBusy(HappyGhast ghast){
