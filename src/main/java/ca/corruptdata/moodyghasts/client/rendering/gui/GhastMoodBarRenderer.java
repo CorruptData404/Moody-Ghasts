@@ -2,6 +2,7 @@ package ca.corruptdata.moodyghasts.client.rendering.gui;
 
 import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
+import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import ca.corruptdata.moodyghasts.moodutil.Mood;
 import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
 import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
@@ -11,6 +12,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -50,21 +53,38 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
     private final Minecraft minecraft;
     private final HappyGhast happyGhast;
     private final MoodThresholds thresholds;
+    private final RandomSource random;
 
     public GhastMoodBarRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
         this.happyGhast = (HappyGhast) Objects.requireNonNull(minecraft.player).getVehicle();
         this.thresholds = MoodThresholdsManager.getCurrentInstance();
+        this.random = minecraft.player.getRandom();
     }
 
     @Override
     public void renderBackground(GuiGraphics graphics, DeltaTracker deltaTracker) {
-        if (this.happyGhast == null || this.minecraft.player == null) return;
-
         int left = this.left(this.minecraft.getWindow());
         int top = this.top(this.minecraft.getWindow());
 
-        // --- Get the ghast’s current mood (client-side synced attachment) ---
+        // --- Apply shake and red glow if ghast is enraged ---
+        int enragedTicks = happyGhast.getData(ModAttachments.ENRAGED_TICKS);
+        if (enragedTicks > 0) {
+            float enragedProgress = Mth.clamp((float) enragedTicks / HappyGhastHandler.CRASH_OUT_TICK, 0f, 1f);
+            float maxShake = 3.0f; // maximum pixels in x and y
+            float intensity = enragedProgress * maxShake;
+
+            float jitterX = (random.nextFloat() - 0.5f) * 2f * intensity;
+            float jitterY = (random.nextFloat() - 0.5f) * 2f * intensity;
+
+            left += (int) jitterX;
+            top  += (int) jitterY;
+
+            int glowAlpha = (int) (255 * enragedProgress); // 0–255, proportional to rage progress
+            graphics.fill(left - 1, top - 1, left + BAR_WIDTH + 1, top + BAR_HEIGHT + 1, 0xFF0000 | (glowAlpha << 24));
+        }
+
+
         float moodValue = this.happyGhast.getData(ModAttachments.MOOD); // 0–100 range
 
         float prevThreshold = 0f;

@@ -49,7 +49,7 @@ public class HappyGhastHandler {
     private static final float HEALED_MOOD_MULTIPLIER = -2f;
     //Should always be Positive
     private static final float DAMAGED_MOOD_MULTIPLIER = 2f;
-    private static final int CRASH_OUT_TICK = 400;
+    public static final int CRASH_OUT_TICK = 400;
 
 
     // ============================================================
