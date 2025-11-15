@@ -4,6 +4,7 @@ import ca.corruptdata.moodyghasts.MoodyGhasts;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -28,6 +29,25 @@ public record MoodThresholds(EnumMap<Mood, Float> thresholds) {
     public float get(Mood mood) {
         return thresholds.get(mood);
     }
+
+    public Mood getMoodFromValue(float moodValue) {
+        // Clamp the value between 0 and 100
+        float clampedValue = Mth.clamp(moodValue, 0.0f, 100.0f);
+
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+
+        // Check thresholds in reverse order (from highest to lowest)
+        // This ensures we get the correct mood level when the value is exactly at a threshold
+        for (Mood mood : Mood.values()) {
+            if (clampedValue <= thresholds.get(mood)) {
+                return mood;
+            }
+        }
+
+        // If somehow above all thresholds, return the highest mood (ENRAGED)
+        return Mood.ENRAGED;
+    }
+
 
     /** Returns a copy of the map */
     public Map<Mood, Float> getMap() {

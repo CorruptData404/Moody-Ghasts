@@ -1,6 +1,7 @@
 package ca.corruptdata.moodyghasts.entity;
 
 import ca.corruptdata.moodyghasts.ModAttachments;
+import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyWindChargeEntity;
@@ -13,6 +14,7 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,6 +23,9 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
@@ -44,6 +49,8 @@ public class HappyGhastHandler {
 
     private static final float MIN_MOOD = 0.0f;
     private static final float MAX_MOOD = 100.0f;
+    public static final float BASE_MOOD = 35.0f;
+    private static final float MOOD_STABILIZE_DELTA = 0.2f;
     private static final int BASE_SNOWBALL_COUNT = 50;
     //Should always be Negative
     private static final float HEALED_MOOD_MULTIPLIER = -2f;
@@ -51,10 +58,17 @@ public class HappyGhastHandler {
     private static final float DAMAGED_MOOD_MULTIPLIER = 2f;
     public static final int CRASH_OUT_TICK = 400;
 
+    private static final AttributeModifier excitedSpeedModifier = new AttributeModifier(
+            ResourceLocation.fromNamespaceAndPath("moodyghasts", "excited_speed_modifier"),
+            0.05,
+            AttributeModifier.Operation.ADD_VALUE
+    );
+
 
     // ============================================================
     // Event Handlers - Player Interactions
     // ============================================================
+
     @SubscribeEvent
     private void onRiderUseProjectile(PlayerInteractEvent.RightClickItem event) {
         ItemStack projectileItem = event.getItemStack();
@@ -233,7 +247,7 @@ public class HappyGhastHandler {
             ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                     SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
 
-            spawnSurroundParticles(ghast, new ItemParticleOption(
+            spawnMouthParticles(ghast, new ItemParticleOption(
                     ParticleTypes.ITEM,
                     ghast.getData(ModAttachments.CURRENT_FOOD).getDefaultInstance()
             ));
@@ -257,6 +271,49 @@ public class HappyGhastHandler {
     }
 
     @SubscribeEvent
+    private void onExcitedTick(EntityTickEvent.Post event){
+        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
+        if (ghast.level().isClientSide) return;
+        if (ghast.isBaby()) return;
+
+        AttributeInstance speedAttribute = ghast.getAttribute(Attributes.FLYING_SPEED);
+        assert speedAttribute != null;
+
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+        float mood = ghast.getData(ModAttachments.MOOD);
+
+        if(!speedAttribute.hasModifier(excitedSpeedModifier.id()))
+        {
+            if(thresholds.getMoodFromValue(mood) == Mood.EXCITED){
+                speedAttribute.addTransientModifier(excitedSpeedModifier);
+            }
+        }
+        else if (thresholds.getMoodFromValue(mood) != Mood.EXCITED)
+        {
+            speedAttribute.removeModifier(excitedSpeedModifier);
+        }
+    }
+
+    @SubscribeEvent
+    private void onStabilizeMoodTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
+        if (ghast.level().isClientSide) return;
+        if (ghast.isBaby()) return;
+
+        float mood = ghast.getData(ModAttachments.MOOD);
+
+        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+
+        // Base chance is 1 in 100, but 1 in 10 when excited
+        int randomThreshold = thresholds.getMoodFromValue(mood) == Mood.EXCITED ? 10 : 100;
+        if (ghast.level().getRandom().nextInt(randomThreshold) != 0) return;
+
+        float adjustment = mood < BASE_MOOD ? MOOD_STABILIZE_DELTA : MOOD_STABILIZE_DELTA * -1;
+
+        adjustMood(ghast, adjustment);
+    }
+
+    @SubscribeEvent
     private void onCrashOutTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.level().isClientSide) return;
@@ -265,7 +322,7 @@ public class HappyGhastHandler {
         MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
         float mood = ghast.getData(ModAttachments.MOOD);
 
-        if (mood > thresholds.get(Mood.ANGRY)) {
+        if (thresholds.getMoodFromValue(mood) == Mood.ENRAGED) {
             int enragedTicks = ghast.getData(ModAttachments.ENRAGED_TICKS) + 1;
             ghast.setData(ModAttachments.ENRAGED_TICKS, enragedTicks);
 
@@ -454,7 +511,28 @@ public class HappyGhastHandler {
     }
 
     private void spawnMouthParticles(HappyGhast ghast, ParticleOptions particleOption) {
-        // TODO: Implement mouth-specific particle spawning
+        if (ghast.level() instanceof ServerLevel serverLevel) {
+            Vec3 viewVec = ghast.getViewVector(1.0F);
+            Vec3 mouthPos = new Vec3(
+                    ghast.getX() + viewVec.x * 2.7,
+                    ghast.getEyeY() - 1.5,
+                    ghast.getZ() + viewVec.z * 2.7
+            );
+            for (int i = 0; i < 8; i++) {
+                double d0 = ghast.getRandom().nextGaussian() * 0.02; // small horizontal spread
+                double d1 = -0.1; // consistent downward velocity
+                double d2 = ghast.getRandom().nextGaussian() * 0.02; // small horizontal spread
+                serverLevel.sendParticles(
+                        particleOption,
+                        mouthPos.x,
+                        mouthPos.y,
+                        mouthPos.z,
+                        1, // particle count
+                        d0, d1, d2, // velocity
+                        0.1 // slight speed variation
+                );
+            }
+        }
     }
 
     // ============================================================

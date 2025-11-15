@@ -179,8 +179,8 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             }
             else {
                 target.hurtServer((ServerLevel) this.level(), iceDamage, getDamage());
-                target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 2));
-                target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 100, 2));
+                target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 2));
+                target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 60, 2));
             }
 
             // Create ice effects around the hit entity

@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts;
 
+import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.Item;
@@ -15,7 +16,7 @@ public class ModAttachments {
 
     public static final Supplier<AttachmentType<Float>> MOOD = ATTACHMENT_TYPES.register(
             "mood",
-            () -> AttachmentType.builder(() -> 40.0f) // INITIAL_MOOD
+            () -> AttachmentType.builder(() -> HappyGhastHandler.BASE_MOOD) // INITIAL_MOOD
                 .serialize(Codec.FLOAT.fieldOf("mood"))
                 .sync(ByteBufCodecs.FLOAT)
                 .build()
