@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -428,29 +429,31 @@ public class HappyGhastHandler {
         Vec3 movement = getPlayerAimVector(player);
         AbstractHurtingProjectile projectile;
 
-        if (projectileItem instanceof IceChargeItem) {
-            ProjectileScaling scaling = ProjectileScaling.ICE;
-            int radius = (int) (scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier());
-            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
-            LOGGER.info("Ice Charge Radius: {}, Strength: {}", radius, strength);
-            projectile = new MoodyIceChargeEntity(level, player, movement, radius, strength);
-        }
-        else if (projectileItem instanceof WindChargeItem) {
-            ProjectileScaling scaling = ProjectileScaling.WIND;
-            float radius = scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier();
-            float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
-            LOGGER.info("Wind Charge Radius: {}, Strength: {}", radius, strength);
-            projectile = new MoodyWindChargeEntity(level, player, movement, radius, strength);
-        }
-        else if (projectileItem instanceof FireChargeItem) {
-            ProjectileScaling scaling = ProjectileScaling.FIRE;
-            int explosionPower = Math.round(scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier());
-            LOGGER.info("FireBall Power: {}", explosionPower);
-            projectile = new LargeFireball(level, player, movement, explosionPower);
-        }
-        else {
-            LOGGER.error("Invalid projectile item: {}", projectileItem);
-            throw new IllegalArgumentException("Unknown projectile item: " + projectileItem);
+        switch (projectileItem) {
+            case IceChargeItem iceChargeItem -> {
+                ProjectileScaling scaling = ProjectileScaling.ICE;
+                int radius = (int) (scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier());
+                float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
+                LOGGER.info("Ice Charge Radius: {}, Strength: {}", radius, strength);
+                projectile = new MoodyIceChargeEntity(level, player, movement, radius, strength);
+            }
+            case WindChargeItem windChargeItem -> {
+                ProjectileScaling scaling = ProjectileScaling.WIND;
+                float radius = scaling.baseRadius() * moodMultiplier * scaling.moodMultiplier();
+                float strength = scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier();
+                LOGGER.info("Wind Charge Radius: {}, Strength: {}", radius, strength);
+                projectile = new MoodyWindChargeEntity(level, player, movement, radius, strength);
+            }
+            case FireChargeItem fireChargeItem -> {
+                ProjectileScaling scaling = ProjectileScaling.FIRE;
+                int explosionPower = Math.round(scaling.baseStrength() * moodMultiplier * scaling.moodMultiplier());
+                LOGGER.info("FireBall Power: {}", explosionPower);
+                projectile = new LargeFireball(level, player, movement, explosionPower);
+            }
+            case null, default -> {
+                LOGGER.error("Invalid projectile item: {}", projectileItem);
+                throw new IllegalArgumentException("Unknown projectile item: " + projectileItem);
+            }
         }
 
         projectile.setPos(spawnPos);
@@ -556,6 +559,7 @@ public class HappyGhastHandler {
 
     //TODO: Still does not work correctly with bucket items
     private void consumePlayerItem(Player player, ItemStack stack) {
+        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         if (player.getAbilities().instabuild) return; // creative mode, no change
 
         Item item = stack.getItem();

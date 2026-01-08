@@ -3,10 +3,11 @@
   "category": "misc",
   "ingredients": [
     "minecraft:snowball",
-    "minecraft:packed_ice"
+    "minecraft:ice",
+    "minecraft:gunpowder"
   ],
   "result": {
-    "count": 4,
+    "count": 3,
     "id": "moodyghasts:ice_charge"
   }
 }

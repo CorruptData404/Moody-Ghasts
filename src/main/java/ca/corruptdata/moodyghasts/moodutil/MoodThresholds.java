@@ -11,7 +11,7 @@ import java.util.Map;
 
 public record MoodThresholds(EnumMap<Mood, Float> thresholds) {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "data/moodyghasts/mood_thresholds.json");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "mood_thresholds");
 
     public static final MoodThresholds DEFAULT;
     static {

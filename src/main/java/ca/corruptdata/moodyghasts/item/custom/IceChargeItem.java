@@ -33,29 +33,27 @@ public class IceChargeItem extends Item implements ProjectileItem {
         if (level instanceof ServerLevel serverlevel) {
             // Create and shoot the projectile
             Projectile.spawnProjectileFromRotation(
-                (p_level, p_shooter, p_projectile) -> new IceChargeEntity(
-                    player, level, player.position().x(), player.getEyePosition().y(), player.position().z()
-                ),
-                serverlevel,
-                itemstack,
-                player,
-                0.0F,
-                PLAYER_PROJECTILE_SHOOT_POWER,
-                1.0F
+                    (p_level, p_shooter, p_projectile) -> new IceChargeEntity(
+                            player, level, player.position().x(), player.getEyePosition().y(), player.position().z()
+                    ),
+                    serverlevel,
+                    itemstack,
+                    player,
+                    0.0F,
+                    PLAYER_PROJECTILE_SHOOT_POWER,
+                    1.0F
             );
+        }
 
-            player.getCooldowns().addCooldown(itemstack, PLAYER_COOLDOWN);
-
-            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.WIND_CHARGE_THROW, SoundSource.NEUTRAL, 0.5F,
                 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
-            );
-    
-            player.awardStat(Stats.ITEM_USED.get(this));
-            itemstack.consume(1, player);
-            return InteractionResult.SUCCESS;
-    }
-    return InteractionResult.PASS;
+        );
+
+        player.getCooldowns().addCooldown(itemstack, PLAYER_COOLDOWN);
+        player.awardStat(Stats.ITEM_USED.get(this));
+        itemstack.consume(1, player);
+        return InteractionResult.SUCCESS;
 }
 
     @Override

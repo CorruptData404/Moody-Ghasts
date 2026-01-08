@@ -217,7 +217,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     private boolean shouldTriggerInFluid(BlockPos pos) {
         Level level = this.level();
 
-        // Check if we're actually in a fluid
+        // Check if actually in a fluid
         if (level.getFluidState(pos).isEmpty()) {
             return false;
         }
@@ -227,7 +227,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             BlockPos adjacentPos = pos.relative(dir);
             BlockState adjacentState = level.getBlockState(adjacentPos);
 
-            // If we find a non-solid block that isn't a fluid source, return true
+            // If a non-solid block that isn't a fluid source, return true
             if (adjacentState.getCollisionShape(level, adjacentPos).isEmpty() &&
                     !(adjacentState.is(Blocks.WATER) && adjacentState.getFluidState().isSource()) &&
                     !(adjacentState.is(Blocks.LAVA) && adjacentState.getFluidState().isSource())) {
