@@ -4,11 +4,12 @@ import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
 import ca.corruptdata.moodyghasts.moodutil.Mood;
 import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
-import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.client.renderer.entity.state.HappyGhastRenderState;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -45,16 +46,15 @@ public class MoodGhastRenderer extends HappyGhastRenderer {
             return GHAST_SHOOTING_TEXTURE;
 
         float moodValue = renderState.getRenderDataOrThrow(RenderStateKeys.MOOD);
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
-
-        for (Mood mood : Mood.values()) {
-            if (moodValue <= thresholds.get(mood)) {
-                // "happy" intentionally falls back to default vanilla texture
-                if (mood == Mood.HAPPY) return super.getTextureLocation(renderState);
-                return GHAST_MOOD_TEXTURES.get(mood);
-            }
-        }
-        // default to enraged texture if above all thresholds
-        return GHAST_MOOD_TEXTURES.get(Mood.ENRAGED);
+        Holder<EntityType<?>> holder = EntityType.HAPPY_GHAST.builtInRegistryHolder();
+        MoodThresholds thresholds = holder.getData(MoodThresholds.MOOD_THRESHOLDS);
+        assert thresholds != null;
+        
+        Mood mood = thresholds.getMoodFromValue(moodValue);
+        
+        // "happy" intentionally falls back to default vanilla texture
+        if (mood == Mood.HAPPY) return super.getTextureLocation(renderState);
+        
+        return GHAST_MOOD_TEXTURES.get(mood);
     }
 }

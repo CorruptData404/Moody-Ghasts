@@ -1,0 +1,11 @@
+{
+  "values": {
+    "minecraft:happy_ghast": {
+      "excited": 10.0,
+      "happy": 30.0,
+      "neutral": 50.0,
+      "sad": 70.0,
+      "angry": 90.0
+    }
+  }
+}

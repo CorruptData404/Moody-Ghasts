@@ -15,10 +15,4 @@ public enum Mood {
     public String id() {
         return name().toLowerCase(Locale.ROOT);
     }
-
-    /** Codec for Minecraft serialization */
-    public static final Codec<Mood> CODEC = Codec.STRING.xmap(
-            s -> Mood.valueOf(s.toUpperCase(Locale.ROOT)),
-            Mood::name
-    );
 }

@@ -3,82 +3,79 @@ package ca.corruptdata.moodyghasts.moodutil;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import net.minecraft.world.entity.EntityType;
+import net.neoforged.neoforge.registries.datamaps.DataMapType;
 
-import java.util.EnumMap;
-import java.util.Map;
+public record MoodThresholds(
+        float excited,
+        float happy,
+        float neutral,
+        float sad,
+        float angry
+) {
+    // ============================================================
+    // Constants
+    // ============================================================
+    
+    public static final float MAX = 100f;
+    public static final float MIN = 0f;
+    private static final Codec<Float> PERCENT = Codec.floatRange(MIN, MAX);
 
-public record MoodThresholds(EnumMap<Mood, Float> thresholds) {
+    // ============================================================
+    // Codec Definition
+    // ============================================================
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "mood_thresholds");
+    public static final Codec<MoodThresholds> CODEC = RecordCodecBuilder.<MoodThresholds>create(inst -> inst.group(
+            PERCENT.fieldOf("excited").forGetter(MoodThresholds::excited),
+            PERCENT.fieldOf("happy").forGetter(MoodThresholds::happy),
+            PERCENT.fieldOf("neutral").forGetter(MoodThresholds::neutral),
+            PERCENT.fieldOf("sad").forGetter(MoodThresholds::sad),
+            PERCENT.fieldOf("angry").forGetter(MoodThresholds::angry)
+    ).apply(inst, MoodThresholds::new)).validate(MoodThresholds::validate);
 
-    public static final MoodThresholds DEFAULT;
-    static {
-        EnumMap<Mood, Float> map = new EnumMap<>(Mood.class);
-        map.put(Mood.EXCITED, 20f);
-        map.put(Mood.HAPPY, 40f);
-        map.put(Mood.NEUTRAL, 60f);
-        map.put(Mood.SAD, 70f);
-        map.put(Mood.ANGRY, 80f);
-        map.put(Mood.ENRAGED, 100f);
-        DEFAULT = new MoodThresholds(map);
-    }
+    public static final DataMapType<EntityType<?>, MoodThresholds> MOOD_THRESHOLDS = DataMapType.builder(
+            ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "mood_thresholds"),
+            Registries.ENTITY_TYPE,
+            CODEC
+    ).synced(CODEC, false).build();
 
-    /** Simple getter */
-    public float get(Mood mood) {
-        return thresholds.get(mood);
-    }
+    // ============================================================
+    // Public Methods
+    // ============================================================
 
-    public Mood getMoodFromValue(float moodValue) {
-        // Clamp the value between 0 and 100
-        float clampedValue = Mth.clamp(moodValue, 0.0f, 100.0f);
-
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
-
-        // Check thresholds in reverse order (from highest to lowest)
-        // This ensures we get the correct mood level when the value is exactly at a threshold
-        for (Mood mood : Mood.values()) {
-            if (clampedValue <= thresholds.get(mood)) {
-                return mood;
-            }
-        }
-
-        // If somehow above all thresholds, return the highest mood (ENRAGED)
+    public Mood getMoodFromValue(float value) {
+        if (value <= excited()) return Mood.EXCITED;
+        if (value <= happy())   return Mood.HAPPY;
+        if (value <= neutral()) return Mood.NEUTRAL;
+        if (value <= sad())     return Mood.SAD;
+        if (value <= angry())   return Mood.ANGRY;
         return Mood.ENRAGED;
     }
 
+    // ============================================================
+    // Private Methods
+    // ============================================================
 
-    /** Returns a copy of the map */
-    public Map<Mood, Float> getMap() {
-        return new EnumMap<>(thresholds);
-    }
-
-    /** Validate thresholds: all 0–100 and ascending */
     private DataResult<MoodThresholds> validate() {
         float prev = 0f;
-        for (Mood mood : Mood.values()) {
-            float current = thresholds.get(mood); // auto-unboxed, cannot be null
-            float last = prev;
+        float[] values = { excited, happy, neutral, sad, angry };
+        Mood[] moods = Mood.values();
 
-            if (current < 0f || current > 100f) {
-                return DataResult.error(() -> "Threshold for " + mood + " must be 0–100, found " + current);
-            }
+        for (int i = 0; i < values.length; i++) {
+            float current = values[i];
             if (current < prev) {
-                return DataResult.error(() -> "Thresholds must be ascending. Found " + current + " after " + last);
+                float finalPrev = prev;
+                int finalI = i;
+                return DataResult.error(() ->
+                        "Mood thresholds must be ascending. " +
+                                moods[finalI] + " (" + current + ") < previous (" + finalPrev + ")"
+                );
             }
-
             prev = current;
         }
         return DataResult.success(this);
     }
-
-    /** Codec: serializes EnumMap<Mood, Float> with automatic validation */
-    public static final Codec<MoodThresholds> CODEC =
-            Codec.unboundedMap(Mood.CODEC, Codec.FLOAT)
-                    .xmap(
-                            map -> new MoodThresholds(new EnumMap<>(map)),
-                            MoodThresholds::getMap
-                    )
-                    .flatXmap(MoodThresholds::validate, DataResult::success);
 }

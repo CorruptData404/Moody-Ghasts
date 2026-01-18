@@ -9,7 +9,6 @@ import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
 import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
-import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.world.entity.EntityType;
@@ -77,21 +76,9 @@ public class MoodyGhasts {
     }
 
     private void registerDataMaps(RegisterDataMapTypesEvent event) {
-        event.register(DataMapType.builder(MoodThresholds.ID, MoodThresholdsManager.REGISTRY_KEY, MoodThresholds.CODEC)
-                .synced(MoodThresholds.CODEC, true)
-                .build());
+        event.register(MoodThresholds.MOOD_THRESHOLDS);
     }
 
-//TODO: This crashes. Need to Figure out how/when to call updateThresholds properly
-
-//    @EventBusSubscriber(modid = MoodyGhasts.MOD_ID)
-//    public static class ServerEvents {
-//
-//        @SubscribeEvent
-//        public static void onServerStarted(ServerStartedEvent event) {
-//            MoodThresholdsManager.updateThresholds(event.getServer().registryAccess());
-//        }
-//    }
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT)
     public static class ClientModEvents {

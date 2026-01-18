@@ -5,7 +5,6 @@ import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import ca.corruptdata.moodyghasts.moodutil.Mood;
 import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
-import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,6 +13,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -58,7 +58,7 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
     public GhastMoodBarRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
         this.happyGhast = (HappyGhast) Objects.requireNonNull(minecraft.player).getVehicle();
-        this.thresholds = MoodThresholdsManager.getCurrentInstance();
+        this.thresholds = EntityType.HAPPY_GHAST.builtInRegistryHolder().getData(MoodThresholds.MOOD_THRESHOLDS);
         this.random = minecraft.player.getRandom();
     }
 
@@ -71,7 +71,7 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
         int enragedTicks = happyGhast.getData(ModAttachments.ENRAGED_TICKS);
         if (enragedTicks > 0) {
             float enragedProgress = Mth.clamp((float) enragedTicks / HappyGhastHandler.CRASH_OUT_TICK, 0f, 1f);
-            float maxShake = 3.0f; // maximum pixels in x and y
+            float maxShake = 3.0f;
             float intensity = enragedProgress * maxShake;
 
             float jitterX = (random.nextFloat() - 0.5f) * 2f * intensity;
@@ -80,64 +80,60 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
             left += (int) jitterX;
             top  += (int) jitterY;
 
-            int glowAlpha = (int) (255 * enragedProgress); // 0–255, proportional to rage progress
+            int glowAlpha = (int) (255 * enragedProgress);
             graphics.fill(left - 1, top - 1, left + BAR_WIDTH + 1, top + BAR_HEIGHT + 1, 0xFF0000 | (glowAlpha << 24));
         }
 
+        float moodValue = this.happyGhast.getData(ModAttachments.MOOD);
 
-        float moodValue = this.happyGhast.getData(ModAttachments.MOOD); // 0–100 range
+        // Draw background sections
+        drawMoodSection(graphics, left, top, 0, thresholds.excited(), Mood.EXCITED, moodValue);
+        drawMoodSection(graphics, left, top, thresholds.excited(), thresholds.happy(), Mood.HAPPY, moodValue);
+        drawMoodSection(graphics, left, top, thresholds.happy(), thresholds.neutral(), Mood.NEUTRAL, moodValue);
+        drawMoodSection(graphics, left, top, thresholds.neutral(), thresholds.sad(), Mood.SAD, moodValue);
+        drawMoodSection(graphics, left, top, thresholds.sad(), thresholds.angry(), Mood.ANGRY, moodValue);
+        drawMoodSection(graphics, left, top, thresholds.angry(), MoodThresholds.MAX, Mood.ENRAGED, moodValue);
+    }
 
-        float prevThreshold = 0f;
-        Mood[] moods = Mood.values();
+    private void drawMoodSection(GuiGraphics graphics, int left, int top, float startThreshold, float endThreshold,
+                                 Mood mood, float moodValue) {
+        int startPixel = (int) Math.floor((startThreshold / MoodThresholds.MAX) * BAR_WIDTH);
+        int endPixel = (int) Math.ceil((endThreshold / MoodThresholds.MAX) * BAR_WIDTH);
+        int sectionWidth = endPixel - startPixel;
 
-        for (int i = 0; i < moods.length; i++) {
-            Mood mood = moods[i];
-            float currentThreshold = this.thresholds.get(mood); // 0–100 range
+        if (sectionWidth <= 0) return;
 
-            // Convert thresholds to pixel coordinates
-            int startPixel = (int) Math.floor((prevThreshold / 100f) * BAR_WIDTH);
-            int endPixel   = (int) Math.ceil((currentThreshold / 100f) * BAR_WIDTH);
-            if (i == moods.length - 1) endPixel = BAR_WIDTH;
-            int sectionWidth = endPixel - startPixel;
-            if (sectionWidth <= 0) {
-                prevThreshold = currentThreshold;
-                continue;
+        // Draw background
+        ResourceLocation bgTexture = MOOD_BACKGROUND_TEXTURES.get(mood);
+        graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                bgTexture,
+                left + startPixel,
+                top,
+                (float) startPixel, 0.0f,
+                sectionWidth, BAR_HEIGHT,
+                BAR_WIDTH, BAR_HEIGHT
+        );
+
+        // Draw progress overlay if needed
+        if (moodValue > startThreshold) {
+            float fillPercentInSection = (moodValue >= endThreshold)
+                    ? 1.0f
+                    : (moodValue - startThreshold) / (endThreshold - startThreshold);
+
+            int filledPixels = (int) (sectionWidth * fillPercentInSection);
+            if (filledPixels > 0) {
+                ResourceLocation fillTexture = MOOD_PROGRESS_TEXTURES.get(mood);
+                graphics.blit(
+                        RenderPipelines.GUI_TEXTURED,
+                        fillTexture,
+                        left + startPixel,
+                        top,
+                        (float) startPixel, 0.0f,
+                        filledPixels, BAR_HEIGHT,
+                        BAR_WIDTH, BAR_HEIGHT
+                );
             }
-
-            // --- Draw background texture ---
-            ResourceLocation bgTexture = MOOD_BACKGROUND_TEXTURES.get(mood);
-            graphics.blit(
-                    RenderPipelines.GUI_TEXTURED,
-                    bgTexture,
-                    left + startPixel,
-                    top,
-                    (float) startPixel, 0.0f,
-                    sectionWidth, BAR_HEIGHT,
-                    BAR_WIDTH, BAR_HEIGHT
-            );
-
-            // --- Draw progress overlay ---
-            if (moodValue > prevThreshold) {
-                float fillPercentInSection = (moodValue >= currentThreshold)
-                        ? 1.0f
-                        : (moodValue - prevThreshold) / (currentThreshold - prevThreshold);
-
-                int filledPixels = (int) (sectionWidth * fillPercentInSection);
-                if (filledPixels > 0) {
-                    ResourceLocation fillTexture = MOOD_PROGRESS_TEXTURES.get(mood);
-                    graphics.blit(
-                            RenderPipelines.GUI_TEXTURED,
-                            fillTexture,
-                            left + startPixel,
-                            top,
-                            (float) startPixel, 0.0f,
-                            filledPixels, BAR_HEIGHT,
-                            BAR_WIDTH, BAR_HEIGHT
-                    );
-                }
-            }
-
-            prevThreshold = currentThreshold;
         }
     }
 

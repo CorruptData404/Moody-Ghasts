@@ -1,7 +1,6 @@
 package ca.corruptdata.moodyghasts.entity;
 
 import ca.corruptdata.moodyghasts.ModAttachments;
-import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyWindChargeEntity;
@@ -9,8 +8,8 @@ import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
 import ca.corruptdata.moodyghasts.ModTags;
 import ca.corruptdata.moodyghasts.moodutil.Mood;
 import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
-import ca.corruptdata.moodyghasts.moodutil.MoodThresholdsManager;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -48,8 +47,6 @@ import java.util.ArrayList;
 public class HappyGhastHandler {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private static final float MIN_MOOD = 0.0f;
-    private static final float MAX_MOOD = 100.0f;
     public static final float BASE_MOOD = 35.0f;
     private static final float MOOD_STABILIZE_DELTA = 0.2f;
     private static final int BASE_SNOWBALL_COUNT = 50;
@@ -159,7 +156,7 @@ public class HappyGhastHandler {
     }
 
     @SubscribeEvent
-    private void onBarrageTick(EntityTickEvent.Post event) {
+    private void onSnowBarrageTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.level().isClientSide) return;
         if (!ghast.getData(ModAttachments.IS_SNOWBALL_BARRAGE)) return;
@@ -280,7 +277,7 @@ public class HappyGhastHandler {
         AttributeInstance speedAttribute = ghast.getAttribute(Attributes.FLYING_SPEED);
         assert speedAttribute != null;
 
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
+        MoodThresholds thresholds = getMoodThresholds();
         float mood = ghast.getData(ModAttachments.MOOD);
 
         if(!speedAttribute.hasModifier(excitedSpeedModifier.id()))
@@ -303,11 +300,9 @@ public class HappyGhastHandler {
 
         float mood = ghast.getData(ModAttachments.MOOD);
 
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
-
         // Base chance is 1 in 100, but 1 in 10 when excited
-        int randomThreshold = thresholds.getMoodFromValue(mood) == Mood.EXCITED ? 10 : 100;
-        if (ghast.level().getRandom().nextInt(randomThreshold) != 0) return;
+        int randomChance = getMoodThresholds().getMoodFromValue(mood) == Mood.EXCITED ? 10 : 100;
+        if (ghast.level().getRandom().nextInt(randomChance) != 0) return;
 
         float adjustment = mood < BASE_MOOD ? MOOD_STABILIZE_DELTA : MOOD_STABILIZE_DELTA * -1;
 
@@ -320,10 +315,9 @@ public class HappyGhastHandler {
         if (ghast.level().isClientSide) return;
         if (ghast.isBaby()) return;
 
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
         float mood = ghast.getData(ModAttachments.MOOD);
 
-        if (thresholds.getMoodFromValue(mood) == Mood.ENRAGED) {
+        if (getMoodThresholds().getMoodFromValue(mood) == Mood.ENRAGED) {
             int enragedTicks = ghast.getData(ModAttachments.ENRAGED_TICKS) + 1;
             ghast.setData(ModAttachments.ENRAGED_TICKS, enragedTicks);
 
@@ -411,16 +405,9 @@ public class HappyGhastHandler {
     }
 
     private static float calculateMoodMultiplier(float mood) {
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
         float[] multipliers = {0.6F, 0.8F, 1.0F, 1.3F, 1.6F, 2.0F}; // ordered to match Mood.values()
-
-        Mood[] moods = Mood.values();
-        for (int i = 0; i < moods.length; i++) {
-            if (mood <= thresholds.get(moods[i])) {
-                return multipliers[i];
-            }
-        }
-        return 2.0F; // fallback if above all thresholds
+        Mood currentMood = getMoodThresholds().getMoodFromValue(mood);
+        return multipliers[currentMood.ordinal()];
     }
 
     private void shootChargeProjectile(Player player, HappyGhast ghast, Item projectileItem, float moodMultiplier) {
@@ -471,23 +458,18 @@ public class HappyGhastHandler {
         ParticleOptions particle = delta > 0F ? ParticleTypes.ANGRY_VILLAGER : ParticleTypes.HAPPY_VILLAGER;
         if (wouldCrossMoodThreshold(currentMood, delta)) spawnSurroundParticles(ghast, particle);
 
-        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
+        float newMood = Mth.clamp(currentMood + delta, MoodThresholds.MIN, MoodThresholds.MAX);
         LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, newMood);
         ghast.setData(ModAttachments.MOOD, newMood);
     }
 
     private boolean wouldCrossMoodThreshold(float currentMood, float delta) {
-        float newMood = Mth.clamp(currentMood + delta, MIN_MOOD, MAX_MOOD);
-        MoodThresholds thresholds = MoodThresholdsManager.getCurrentInstance();
-
-        for (Mood mood : Mood.values()) {
-            float threshold = thresholds.get(mood);
-            if ((currentMood <= threshold && newMood > threshold) ||
-                    (currentMood > threshold && newMood <= threshold)) {
-                return true;
-            }
-        }
-        return false;
+        float newMood = Mth.clamp(currentMood + delta, MoodThresholds.MIN, MoodThresholds.MAX);
+        MoodThresholds thresholds = getMoodThresholds();
+        Mood currentMoodEnum = thresholds.getMoodFromValue(currentMood);
+        Mood newMoodEnum = thresholds.getMoodFromValue(newMood);
+        
+        return currentMoodEnum != newMoodEnum;
     }
 
     // ============================================================
@@ -542,6 +524,12 @@ public class HappyGhastHandler {
     // Utility
     // ============================================================
 
+    private static MoodThresholds getMoodThresholds() {
+        Holder<EntityType<?>> holder = EntityType.HAPPY_GHAST.builtInRegistryHolder();
+        MoodThresholds thresholds = holder.getData(MoodThresholds.MOOD_THRESHOLDS);
+        assert thresholds != null;
+        return thresholds;
+    }
     private Vec3 getProjectileSpawnPos(HappyGhast ghast) {
         Vec3 viewVec = ghast.getViewVector(1.0F);  // Get ghast's view direction
         return new Vec3(
