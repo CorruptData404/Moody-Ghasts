@@ -1,7 +1,5 @@
 package ca.corruptdata.moodyghasts.moodutil;
 
-import com.mojang.serialization.Codec;
-
 import java.util.Locale;
 
 public enum Mood {

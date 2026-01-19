@@ -4,6 +4,7 @@ import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -17,17 +18,17 @@ public class ModAttachments {
     public static final Supplier<AttachmentType<Float>> MOOD = ATTACHMENT_TYPES.register(
             "mood",
             () -> AttachmentType.builder(() -> HappyGhastHandler.BASE_MOOD) // INITIAL_MOOD
-                .serialize(Codec.FLOAT.fieldOf("mood"))
-                .sync(ByteBufCodecs.FLOAT)
-                .build()
+                    .serialize(Codec.FLOAT.fieldOf("mood"))
+                    .sync(ByteBufCodecs.FLOAT)
+                    .build()
     );
 
     public static final Supplier<AttachmentType<Boolean>> IS_CHARGING = ATTACHMENT_TYPES.register(
             "is_charging",
             () -> AttachmentType.builder(() -> false)
-                .serialize(Codec.BOOL.fieldOf("is_charging"))
-                .sync(ByteBufCodecs.BOOL)
-                .build()
+                    .serialize(Codec.BOOL.fieldOf("is_charging"))
+                    .sync(ByteBufCodecs.BOOL)
+                    .build()
     );
 
     public static final Supplier<AttachmentType<Integer>> PROJECTILE_CHARGE_TICK = ATTACHMENT_TYPES.register(
@@ -69,17 +70,19 @@ public class ModAttachments {
 
     public static final Supplier<AttachmentType<Integer>> FOOD_CONSUME_TICKS = ATTACHMENT_TYPES.register(
             "food_consume_ticks",
-            () -> AttachmentType.builder(() -> 0).build()
+            () -> AttachmentType.builder(() -> 0)
+                    .serialize(Codec.INT.fieldOf("food_consume_ticks"))
+                    .build()
     );
 
     public static final Supplier<AttachmentType<Item>> CURRENT_FOOD = ATTACHMENT_TYPES.register(
             "current_food",
-            () -> AttachmentType.builder(() -> (Item) null).build()
+            () -> AttachmentType.builder(() -> Items.AIR).build()
     );
 
     public static final Supplier<AttachmentType<Item>> CURRENT_PROJECTILE = ATTACHMENT_TYPES.register(
             "current_projectile",
-            () -> AttachmentType.builder(() -> (Item) null).build()
+            () -> AttachmentType.builder(() -> Items.AIR).build()
     );
 
     public static final Supplier<AttachmentType<Object>> PROJECTILE_OWNER = ATTACHMENT_TYPES.register(
@@ -90,7 +93,8 @@ public class ModAttachments {
     public static final Supplier<AttachmentType<Integer>> ENRAGED_TICKS = ATTACHMENT_TYPES.register(
             "enraged_ticks",
             () -> AttachmentType.builder(() -> 0)
-                .sync(ByteBufCodecs.INT)
-                .build()
+                    .serialize(Codec.INT.fieldOf("enraged_ticks"))
+                    .sync(ByteBufCodecs.INT)
+                    .build()
     );
 }

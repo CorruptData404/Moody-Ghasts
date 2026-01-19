@@ -245,10 +245,14 @@ public class HappyGhastHandler {
             ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                     SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
 
-            spawnMouthParticles(ghast, new ItemParticleOption(
-                    ParticleTypes.ITEM,
-                    ghast.getData(ModAttachments.CURRENT_FOOD).getDefaultInstance()
-            ));
+            // TODO: make CURRENT_FOOD serialized so this isn't needed
+            // Prevents crash upon server restart while eating
+            if(ghast.getData(ModAttachments.CURRENT_FOOD) != Items.AIR) {
+                spawnMouthParticles(ghast, new ItemParticleOption(
+                        ParticleTypes.ITEM,
+                        ghast.getData(ModAttachments.CURRENT_FOOD).getDefaultInstance()
+                ));
+            }
         }
 
         // Finish eating
