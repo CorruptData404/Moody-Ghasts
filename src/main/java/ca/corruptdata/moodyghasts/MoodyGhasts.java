@@ -5,10 +5,11 @@ import ca.corruptdata.moodyghasts.client.rendering.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
 import ca.corruptdata.moodyghasts.client.rendering.happyghast.MoodGhastRenderer;
 import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
+import ca.corruptdata.moodyghasts.datamap.GhastMoodMap;
+import ca.corruptdata.moodyghasts.datamap.ItemPropertyMap;
 import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
-import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.world.entity.EntityType;
@@ -23,10 +24,11 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.RegisterSpriteSourcesEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import org.slf4j.Logger;
 
@@ -76,7 +78,7 @@ public class MoodyGhasts {
     }
 
     private void registerDataMaps(RegisterDataMapTypesEvent event) {
-        event.register(MoodThresholds.MOOD_THRESHOLDS);
+        event.register(GhastMoodMap.DATA_MAP);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
@@ -85,6 +87,10 @@ public class MoodyGhasts {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // Client setup code here
+        }
+        @SubscribeEvent
+        public static void onRegisterSpriteSourcesEvent(RegisterSpriteSourcesEvent event) {
+            GhastMoodMap.onResourceManagerReload(event);
         }
 
         @SubscribeEvent

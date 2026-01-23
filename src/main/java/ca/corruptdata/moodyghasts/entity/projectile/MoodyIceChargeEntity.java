@@ -8,7 +8,7 @@ import net.minecraft.world.phys.Vec3;
 
 public class MoodyIceChargeEntity extends AbstractIceChargeEntity {
     private float damage = 3;
-    private int radius = 3;
+    private float radius = 3;
 
     // Factory constructor for registration
     public MoodyIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, Level world) {
@@ -16,14 +16,14 @@ public class MoodyIceChargeEntity extends AbstractIceChargeEntity {
     }
 
     // Ghast-thrown constructor with rage level
-    public MoodyIceChargeEntity(Level level, LivingEntity shooter, Vec3 movement, int radius, float damage) {
+    public MoodyIceChargeEntity(Level level, LivingEntity shooter, Vec3 movement, float radius, float damage) {
         super(ModEntities.MOODY_ICE_CHARGE.get(), shooter, movement, level);
         this.damage = damage;
         this.radius = radius;
     }
 
     @Override
-    protected int getEffectRadius() {
+    protected float getEffectRadius() {
         return radius;
     }
 

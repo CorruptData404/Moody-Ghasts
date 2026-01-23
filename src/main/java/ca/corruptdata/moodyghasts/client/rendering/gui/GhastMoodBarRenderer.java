@@ -1,10 +1,7 @@
 package ca.corruptdata.moodyghasts.client.rendering.gui;
 
 import ca.corruptdata.moodyghasts.ModAttachments;
-import ca.corruptdata.moodyghasts.MoodyGhasts;
-import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
-import ca.corruptdata.moodyghasts.moodutil.Mood;
-import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
+import ca.corruptdata.moodyghasts.datamap.GhastMoodMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,48 +15,27 @@ import net.minecraft.world.entity.animal.HappyGhast;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 @OnlyIn(Dist.CLIENT)
 public class GhastMoodBarRenderer implements ContextualBarRenderer {
 
-    private static final Map<Mood, ResourceLocation> MOOD_BACKGROUND_TEXTURES =
-            Arrays.stream(Mood.values())
-                    .collect(Collectors.toMap(
-                            mood -> mood,
-                            mood -> ResourceLocation.fromNamespaceAndPath(
-                                    MoodyGhasts.MOD_ID,
-                                    "textures/gui/moodbackgroundbar/" + mood.id() + "_background.png"
-                            )
-                    ));
-
-    private static final Map<Mood, ResourceLocation> MOOD_PROGRESS_TEXTURES =
-            Arrays.stream(Mood.values())
-                    .collect(Collectors.toMap(
-                            mood -> mood,
-                            mood -> ResourceLocation.fromNamespaceAndPath(
-                                    MoodyGhasts.MOD_ID,
-                                    "textures/gui/moodprogressbar/" + mood.id() + "_progress.png"
-                            )
-                    ));
-
-    // Total size of the bar in pixels
-    private static final int BAR_WIDTH = 182;
-    private static final int BAR_HEIGHT = 5;
-
     private final Minecraft minecraft;
     private final HappyGhast happyGhast;
-    private final MoodThresholds thresholds;
+    private final GhastMoodMap thresholds;
     private final RandomSource random;
+    private final Map<String, ResourceLocation> moodBackgroundTextures;
+    private final Map<String, ResourceLocation> moodProgressTextures;
 
     public GhastMoodBarRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
         this.happyGhast = (HappyGhast) Objects.requireNonNull(minecraft.player).getVehicle();
-        this.thresholds = EntityType.HAPPY_GHAST.builtInRegistryHolder().getData(MoodThresholds.MOOD_THRESHOLDS);
+        this.thresholds = EntityType.HAPPY_GHAST.builtInRegistryHolder().getData(GhastMoodMap.DATA_MAP);
         this.random = minecraft.player.getRandom();
+
+        // Initialize texture maps based on available moods
+        this.moodBackgroundTextures = GhastMoodMap.getBackgroundTextures();
+        this.moodProgressTextures = GhastMoodMap.getProgressTextures();
     }
 
     @Override
@@ -67,55 +43,65 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
         int left = this.left(this.minecraft.getWindow());
         int top = this.top(this.minecraft.getWindow());
 
-        // --- Apply shake and red glow if ghast is enraged ---
-        int enragedTicks = happyGhast.getData(ModAttachments.ENRAGED_TICKS);
+        float moodValue = this.happyGhast.getData(ModAttachments.MOOD);
+
+        // Apply shake and glow effects if the current mood has a tantrumTick
+        int tantrumTick = thresholds.getMoodsTantrumTick(moodValue);
+        int enragedTicks = happyGhast.getData(ModAttachments.TANTRUM_TICKS);
         if (enragedTicks > 0) {
-            float enragedProgress = Mth.clamp((float) enragedTicks / HappyGhastHandler.CRASH_OUT_TICK, 0f, 1f);
+            float progress = Mth.clamp((float) enragedTicks / tantrumTick, 0f, 1f);
             float maxShake = 3.0f;
-            float intensity = enragedProgress * maxShake;
+            float intensity = progress * maxShake;
 
             float jitterX = (random.nextFloat() - 0.5f) * 2f * intensity;
             float jitterY = (random.nextFloat() - 0.5f) * 2f * intensity;
 
             left += (int) jitterX;
-            top  += (int) jitterY;
+            top += (int) jitterY;
 
-            int glowAlpha = (int) (255 * enragedProgress);
-            graphics.fill(left - 1, top - 1, left + BAR_WIDTH + 1, top + BAR_HEIGHT + 1, 0xFF0000 | (glowAlpha << 24));
+            int glowAlpha = (int) (255 * progress);
+            graphics.fill(left - 1, top - 1, left + WIDTH + 1, top + HEIGHT + 1,
+                    0xFF0000 | (glowAlpha << 24));
         }
 
-        float moodValue = this.happyGhast.getData(ModAttachments.MOOD);
+        // Sort mood states by threshold to ensure correct rendering order
+        List<Map.Entry<String, GhastMoodMap.GhastMoodState>> sortedMoods = thresholds.moodStates().entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.comparing(GhastMoodMap.GhastMoodState::threshold)))
+                .toList();
 
-        // Draw background sections
-        drawMoodSection(graphics, left, top, 0, thresholds.excited(), Mood.EXCITED, moodValue);
-        drawMoodSection(graphics, left, top, thresholds.excited(), thresholds.happy(), Mood.HAPPY, moodValue);
-        drawMoodSection(graphics, left, top, thresholds.happy(), thresholds.neutral(), Mood.NEUTRAL, moodValue);
-        drawMoodSection(graphics, left, top, thresholds.neutral(), thresholds.sad(), Mood.SAD, moodValue);
-        drawMoodSection(graphics, left, top, thresholds.sad(), thresholds.angry(), Mood.ANGRY, moodValue);
-        drawMoodSection(graphics, left, top, thresholds.angry(), MoodThresholds.MAX, Mood.ENRAGED, moodValue);
+        float prevThreshold = GhastMoodMap.MIN;
+        for (var entry : sortedMoods) {
+            String mood = entry.getKey();
+            float threshold = entry.getValue().threshold();
+            drawMoodSection(graphics, left, top, prevThreshold, threshold, mood, moodValue);
+            prevThreshold = threshold;
+        }
     }
 
-    private void drawMoodSection(GuiGraphics graphics, int left, int top, float startThreshold, float endThreshold,
-                                 Mood mood, float moodValue) {
-        int startPixel = (int) Math.floor((startThreshold / MoodThresholds.MAX) * BAR_WIDTH);
-        int endPixel = (int) Math.ceil((endThreshold / MoodThresholds.MAX) * BAR_WIDTH);
+    private void drawMoodSection(GuiGraphics graphics, int left, int top, float startThreshold,
+                               float endThreshold, String mood, float moodValue) {
+        int startPixel = (int) Math.floor(startThreshold * WIDTH);
+        int endPixel = (int) Math.ceil(endThreshold * WIDTH);
         int sectionWidth = endPixel - startPixel;
 
         if (sectionWidth <= 0) return;
 
-        // Draw background
-        ResourceLocation bgTexture = MOOD_BACKGROUND_TEXTURES.get(mood);
-        graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
-                bgTexture,
-                left + startPixel,
-                top,
-                (float) startPixel, 0.0f,
-                sectionWidth, BAR_HEIGHT,
-                BAR_WIDTH, BAR_HEIGHT
-        );
+        // Draw background if texture exists
+        ResourceLocation bgTexture = moodBackgroundTextures.get(mood);
+        if (bgTexture != null) {
+            graphics.blit(
+                    RenderPipelines.GUI_TEXTURED,
+                    bgTexture,
+                    left + startPixel,
+                    top,
+                    (float) startPixel, 0.0f,
+                    sectionWidth, HEIGHT,
+                    WIDTH, HEIGHT
+            );
+        }
 
-        // Draw progress overlay if needed
+        // Draw progress overlay if needed and texture exists
         if (moodValue > startThreshold) {
             float fillPercentInSection = (moodValue >= endThreshold)
                     ? 1.0f
@@ -123,16 +109,18 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
 
             int filledPixels = (int) (sectionWidth * fillPercentInSection);
             if (filledPixels > 0) {
-                ResourceLocation fillTexture = MOOD_PROGRESS_TEXTURES.get(mood);
-                graphics.blit(
-                        RenderPipelines.GUI_TEXTURED,
-                        fillTexture,
-                        left + startPixel,
-                        top,
-                        (float) startPixel, 0.0f,
-                        filledPixels, BAR_HEIGHT,
-                        BAR_WIDTH, BAR_HEIGHT
-                );
+                ResourceLocation fillTexture = moodProgressTextures.get(mood);
+                if (fillTexture != null) {
+                    graphics.blit(
+                            RenderPipelines.GUI_TEXTURED,
+                            fillTexture,
+                            left + startPixel,
+                            top,
+                            (float) startPixel, 0.0f,
+                            filledPixels, HEIGHT,
+                            WIDTH, HEIGHT
+                    );
+                }
             }
         }
     }

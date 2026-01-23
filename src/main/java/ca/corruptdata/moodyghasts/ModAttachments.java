@@ -90,10 +90,10 @@ public class ModAttachments {
             () -> AttachmentType.builder(() -> null).build()
     );
 
-    public static final Supplier<AttachmentType<Integer>> ENRAGED_TICKS = ATTACHMENT_TYPES.register(
-            "enraged_ticks",
+    public static final Supplier<AttachmentType<Integer>> TANTRUM_TICKS = ATTACHMENT_TYPES.register(
+            "tantrum_ticks",
             () -> AttachmentType.builder(() -> 0)
-                    .serialize(Codec.INT.fieldOf("enraged_ticks"))
+                    .serialize(Codec.INT.fieldOf("tantrum_ticks"))
                     .sync(ByteBufCodecs.INT)
                     .build()
     );

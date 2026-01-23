@@ -40,7 +40,7 @@ import java.util.WeakHashMap;
 
 public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile implements ItemSupplier {
 
-    protected abstract int getEffectRadius();
+    protected abstract float getEffectRadius();
     protected abstract float getDamage();
     private final Set<BlockPos> recentlyConverted = Collections.newSetFromMap(new WeakHashMap<>());
     private static final int CONVERSION_TIMEOUT = 2; // ticks
@@ -99,7 +99,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
 
             if (this.level() instanceof ServerLevel server) {
                 // Get base radius and adjust for Nether
-                int radius = getAdjustedRadius(server);
+                float radius = getAdjustedRadius(server);
 
                 // Get the appropriate particle type based on dimension
                 ParticleOptions particleType = server.dimension() == Level.NETHER ?
@@ -189,13 +189,13 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     }
 
 
-    protected int getAdjustedRadius(ServerLevel server) {
-        int baseRadius = getEffectRadius();
+    protected float getAdjustedRadius(ServerLevel server) {
+        float baseRadius = getEffectRadius();
         return server.dimension() == Level.NETHER ? baseRadius / 2 : baseRadius;
     }
 
     protected void applyIceEffects(BlockPos center, ServerLevel server) {
-        int radius = getAdjustedRadius(server);
+        int radius = (int) getAdjustedRadius(server);
         BlockPos.betweenClosedStream(
                         center.offset(-radius, -radius, -radius),
                         center.offset(radius, radius, radius)

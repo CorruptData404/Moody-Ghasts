@@ -1,0 +1,73 @@
+{
+  "values": {
+    "minecraft:happy_ghast": {
+      "excited": {
+        "threshold": 0.1,
+        "proj_multiplier": 0.0,
+        "speed_modifier": 0.05,
+        "regression": {
+          "chance_per_tick": 0.05,
+          "delta": 0.002
+        },
+        "background_bar_texture": "moodyghasts:textures/gui/moodbackgroundbar/excited_background.png",
+        "progress_bar_texture": "moodyghasts:textures/gui/moodprogressbar/excited_progress.png",
+        "ghast_texture": "moodyghasts:textures/entity/happyghast/ghast_excited.png"
+      },
+      "happy": {
+        "threshold": 0.3,
+        "proj_multiplier": 0.0,
+        "regression": {
+          "chance_per_tick": 0.01,
+          "delta": 0.002
+        },
+        "background_bar_texture": "moodyghasts:textures/gui/moodbackgroundbar/happy_background.png",
+        "progress_bar_texture": "moodyghasts:textures/gui/moodprogressbar/happy_progress.png"
+      },
+      "neutral": {
+        "threshold": 0.5,
+        "proj_multiplier": 0.0,
+        "regression": {
+          "chance_per_tick": 0.01,
+          "delta": 0.002
+        },
+        "background_bar_texture": "moodyghasts:textures/gui/moodbackgroundbar/neutral_background.png",
+        "progress_bar_texture": "moodyghasts:textures/gui/moodprogressbar/neutral_progress.png",
+        "ghast_texture": "moodyghasts:textures/entity/happyghast/ghast_neutral.png"
+      },
+      "sad": {
+        "threshold": 0.7,
+        "proj_multiplier": 0.0,
+        "regression": {
+          "chance_per_tick": 0.01,
+          "delta": 0.002
+        },
+        "background_bar_texture": "moodyghasts:textures/gui/moodbackgroundbar/sad_background.png",
+        "progress_bar_texture": "moodyghasts:textures/gui/moodprogressbar/sad_progress.png",
+        "ghast_texture": "moodyghasts:textures/entity/happyghast/ghast_sad.png"
+      },
+      "angry": {
+        "threshold": 0.9,
+        "proj_multiplier": 0.0,
+        "regression": {
+          "chance_per_tick": 0.01,
+          "delta": 0.002
+        },
+        "background_bar_texture": "moodyghasts:textures/gui/moodbackgroundbar/angry_background.png",
+        "progress_bar_texture": "moodyghasts:textures/gui/moodprogressbar/angry_progress.png",
+        "ghast_texture": "moodyghasts:textures/entity/happyghast/ghast_angry.png"
+      },
+      "enraged": {
+        "threshold": 1.0,
+        "proj_multiplier": 0.0,
+        "tantrum_tick": 400,
+        "regression": {
+          "chance_per_tick": 0.05,
+          "delta": 0.002
+        },
+        "background_bar_texture": "moodyghasts:textures/gui/moodbackgroundbar/enraged_background.png",
+        "progress_bar_texture": "moodyghasts:textures/gui/moodprogressbar/enraged_progress.png",
+        "ghast_texture": "moodyghasts:textures/entity/happyghast/ghast_enraged.png"
+      }
+    }
+  }
+}

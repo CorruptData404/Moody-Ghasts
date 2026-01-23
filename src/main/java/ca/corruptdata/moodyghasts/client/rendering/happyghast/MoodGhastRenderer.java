@@ -2,59 +2,52 @@ package ca.corruptdata.moodyghasts.client.rendering.happyghast;
 
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
-import ca.corruptdata.moodyghasts.moodutil.Mood;
-import ca.corruptdata.moodyghasts.moodutil.MoodThresholds;
+import ca.corruptdata.moodyghasts.datamap.GhastMoodMap;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.client.renderer.entity.state.HappyGhastRenderState;
-import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class MoodGhastRenderer extends HappyGhastRenderer {
 
+    // Default shooting texture
     private static final ResourceLocation GHAST_SHOOTING_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,
                     "textures/entity/happyghast/ghast_shooting.png");
-
-    private static final Map<Mood, ResourceLocation> GHAST_MOOD_TEXTURES =
-            Arrays.stream(Mood.values())
-                    .collect(Collectors.toMap(
-                            mood -> mood,
-                            mood -> ResourceLocation.fromNamespaceAndPath(
-                                    MoodyGhasts.MOD_ID,
-                                    "textures/entity/happyghast/ghast_" + mood.id() + ".png"
-                            )
-                    ));
 
     public MoodGhastRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 
     @Override
-    public @NotNull ResourceLocation getTextureLocation(HappyGhastRenderState renderState) {
-        if (renderState.isBaby)
-            return super.getTextureLocation(renderState);
+    public @NotNull ResourceLocation getTextureLocation(HappyGhastRenderState state) {
+        if (state.isBaby) return super.getTextureLocation(state);
 
-        if (renderState.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING) ||
-                renderState.getRenderDataOrThrow(RenderStateKeys.IS_SNOWBALL_BARRAGE))
+        if (state.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING)
+                || state.getRenderDataOrThrow(RenderStateKeys.IS_SNOWBALL_BARRAGE)) {
             return GHAST_SHOOTING_TEXTURE;
+        }
 
-        float moodValue = renderState.getRenderDataOrThrow(RenderStateKeys.MOOD);
-        Holder<EntityType<?>> holder = EntityType.HAPPY_GHAST.builtInRegistryHolder();
-        MoodThresholds thresholds = holder.getData(MoodThresholds.MOOD_THRESHOLDS);
-        assert thresholds != null;
-        
-        Mood mood = thresholds.getMoodFromValue(moodValue);
-        
-        // "happy" intentionally falls back to default vanilla texture
-        if (mood == Mood.HAPPY) return super.getTextureLocation(renderState);
-        
-        return GHAST_MOOD_TEXTURES.get(mood);
+        Map<String, ResourceLocation> textures = GhastMoodMap.getGhastTextures();
+        GhastMoodMap map = GhastMoodMap.get();
+        if (map == null) return super.getTextureLocation(state);
+
+        String mood = map.getMoodFromValue(state.getRenderDataOrThrow(RenderStateKeys.MOOD));
+
+        // Only fallback if JSON has ghastTexture as null
+        if (!textures.containsKey(mood)) {
+            return super.getTextureLocation(state);
+        }
+
+        // Let Minecraft log a missing texture if the file path is invalid
+        return textures.get(mood);
     }
 }
