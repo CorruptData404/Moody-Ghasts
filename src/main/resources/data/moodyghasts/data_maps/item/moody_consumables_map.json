@@ -1,0 +1,13 @@
+{
+  "values": {
+    "minecraft:snowball": {
+      "moodDelta": -0.010
+    },
+    "moodyghasts:frosted_cookie": {
+      "moodDelta": -0.035
+    },
+    "moodyghasts:spicy_cookie": {
+      "moodDelta": 0.035
+    }
+  }
+}

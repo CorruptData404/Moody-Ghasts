@@ -1,7 +1,6 @@
 package ca.corruptdata.moodyghasts.entity;
 
 import ca.corruptdata.moodyghasts.ModAttachments;
-import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.datamap.GhastMoodMap;
 import ca.corruptdata.moodyghasts.datamap.ItemPropertyMap;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
@@ -17,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -47,7 +47,7 @@ import java.util.Optional;
 public class HappyGhastHandler {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public static final float BASE_MOOD = 0.35f;
+    public static final float BASE_MOOD = 0.25f;
     //Should always be Negative
     private static final float HEALED_MOOD_MULTIPLIER = -0.02f;
     //Should always be Positive
@@ -85,9 +85,10 @@ public class HappyGhastHandler {
     @SubscribeEvent
     private void onRiderFeed(PlayerInteractEvent.RightClickItem event) {
         ItemStack stack = event.getItemStack();
-        if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
+        if (!stack.is(ItemTags.HAPPY_GHAST_FOOD)) return;
         if (!(event.getEntity().getVehicle() instanceof HappyGhast ghast)) return;
         if (event.getEntity() != ghast.getControllingPassenger()) return;
+        if(stack.getItem().builtInRegistryHolder().getData(ItemPropertyMap.Consumable.DATA_MAP) == null) return;
         event.setCanceled(true);
         if (isBusy(ghast)) return;
 
@@ -101,10 +102,11 @@ public class HappyGhastHandler {
     @SubscribeEvent
     private void onInteractFeed(PlayerInteractEvent.EntityInteract event) {
         ItemStack stack = event.getItemStack();
-        if (!stack.has(ModDataComponentTypes.MOOD_DELTA)) return;
+        if (!stack.is(ItemTags.HAPPY_GHAST_FOOD)) return;
         if (!(event.getTarget() instanceof HappyGhast ghast)) return;
         if (ghast.isBaby()) return;
         if (isBusy(ghast)) return;
+        if(stack.getItem().builtInRegistryHolder().getData(ItemPropertyMap.Consumable.DATA_MAP) == null) return;
 
         event.setCancellationResult(InteractionResult.SUCCESS);
         event.setCanceled(true);
@@ -254,9 +256,8 @@ public class HappyGhastHandler {
 
         // Finish eating
         if (consumeTime >= 32) {
-            float moodDelta = ghast.getData(ModAttachments.CURRENT_FOOD)
-                    .getDefaultInstance()
-                    .getOrDefault(ModDataComponentTypes.MOOD_DELTA, 0F);
+            float moodDelta = ghast.getData(ModAttachments.CURRENT_FOOD).builtInRegistryHolder()
+                    .getData(ItemPropertyMap.Consumable.DATA_MAP).moodDelta();
 
             adjustMood(ghast, moodDelta);
 

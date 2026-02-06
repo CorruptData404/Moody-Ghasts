@@ -4,7 +4,6 @@ import ca.corruptdata.moodyghasts.client.rendering.IceChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
 import ca.corruptdata.moodyghasts.client.rendering.happyghast.MoodGhastRenderer;
-import ca.corruptdata.moodyghasts.component.ModDataComponentTypes;
 import ca.corruptdata.moodyghasts.datamap.GhastMoodMap;
 import ca.corruptdata.moodyghasts.datamap.ItemPropertyMap;
 import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
@@ -24,7 +23,6 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.event.RegisterSpriteSourcesEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -46,7 +44,6 @@ public class MoodyGhasts {
     public MoodyGhasts(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
 
-        ModDataComponentTypes.register(modEventBus);
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
@@ -79,6 +76,8 @@ public class MoodyGhasts {
 
     private void registerDataMaps(RegisterDataMapTypesEvent event) {
         event.register(GhastMoodMap.DATA_MAP);
+        event.register(ItemPropertyMap.Consumable.DATA_MAP);
+        //event.register(ItemPropertyMap.Projectile.DATA_MAP);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
