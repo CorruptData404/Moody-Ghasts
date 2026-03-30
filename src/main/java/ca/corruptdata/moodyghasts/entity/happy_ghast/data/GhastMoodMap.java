@@ -1,4 +1,4 @@
-package ca.corruptdata.moodyghasts.datamap;
+package ca.corruptdata.moodyghasts.entity.happy_ghast.data;
 
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import com.mojang.serialization.Codec;
@@ -8,7 +8,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.RegisterSpriteSourcesEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public record GhastMoodMap(Map<String, GhastMoodState> moodStates) {
+public record GhastMoodMap(GhastMoodSettings settings, Map<ResourceLocation, GhastMoodState> moodStates) {
     // ============================================================
     // Constants
     // ============================================================
@@ -30,15 +29,26 @@ public record GhastMoodMap(Map<String, GhastMoodState> moodStates) {
     // Records
     // ============================================================
 
+    public record GhastMoodSettings(
+            float baseMood,
+            float damageMoodRate,
+            float healMoodRate
+    ) {
+        public static final Codec<GhastMoodSettings> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                PERCENT.fieldOf("base_mood").forGetter(GhastMoodSettings::baseMood),
+                Codec.FLOAT.fieldOf("damage_mood_mult").forGetter(GhastMoodSettings::damageMoodRate),
+                Codec.FLOAT.fieldOf("heal_mood_mult").forGetter(GhastMoodSettings::healMoodRate)
+        ).apply(inst, GhastMoodSettings::new));
+    }
+
     public record GhastMoodState(
             float threshold,
-            float proj_multiplier,
             int tantrumTick,
             float speedModifier,
             @Nullable MoodRegression regression,
-            String backgroundBarTexture,
-            String progressBarTexture,
-            @Nullable String ghastTexture
+            ResourceLocation backgroundBarTexture,
+            ResourceLocation progressBarTexture,
+            @Nullable ResourceLocation ghastTexture
     ) {
         public record MoodRegression(float chance_per_tick, float delta) {
             public static final Codec<MoodRegression> CODEC = RecordCodecBuilder.create(inst -> inst.group(
@@ -49,15 +59,17 @@ public record GhastMoodMap(Map<String, GhastMoodState> moodStates) {
 
         public static final Codec<GhastMoodState> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 PERCENT.fieldOf("threshold").forGetter(GhastMoodState::threshold),
-                Codec.FLOAT.fieldOf("proj_multiplier").forGetter(GhastMoodState::proj_multiplier),
                 Codec.INT.optionalFieldOf("tantrum_tick").forGetter(s -> Optional.of(s.tantrumTick())),
                 Codec.FLOAT.optionalFieldOf("speed_modifier").forGetter(s -> Optional.of(s.speedModifier())),
                 MoodRegression.CODEC.optionalFieldOf("regression").forGetter(s -> Optional.ofNullable(s.regression())),
-                Codec.STRING.fieldOf("background_bar_texture").forGetter(GhastMoodState::backgroundBarTexture),
-                Codec.STRING.fieldOf("progress_bar_texture").forGetter(GhastMoodState::progressBarTexture),
-                Codec.STRING.optionalFieldOf("ghast_texture").forGetter(s -> Optional.ofNullable(s.ghastTexture()))
-        ).apply(inst, (threshold, multiplier, tantrumTick, speedModifier, regression, bgTex, progTex, ghastTex) ->
-                new GhastMoodState(threshold, multiplier, tantrumTick.orElse(0),
+                ResourceLocation.CODEC.fieldOf("background_bar_texture").forGetter(GhastMoodState::backgroundBarTexture),
+                ResourceLocation.CODEC.fieldOf("progress_bar_texture").forGetter(GhastMoodState::progressBarTexture),
+                ResourceLocation.CODEC.optionalFieldOf("ghast_texture").forGetter(s -> Optional.ofNullable(s.ghastTexture()))
+        ).apply(inst, (threshold, tantrumTick,
+                       speedModifier, regression,
+                       bgTex, progTex,
+                       ghastTex) ->
+                new GhastMoodState(threshold, tantrumTick.orElse(0),
                         speedModifier.orElse(0.0f), regression.orElse(null),
                         bgTex, progTex, ghastTex.orElse(null))));
     }
@@ -66,8 +78,11 @@ public record GhastMoodMap(Map<String, GhastMoodState> moodStates) {
     // Codec Definition
     // ============================================================
 
-    public static final Codec<GhastMoodMap> CODEC = Codec.unboundedMap(Codec.STRING, GhastMoodState.CODEC)
-            .xmap(GhastMoodMap::new, GhastMoodMap::moodStates)
+    public static final Codec<GhastMoodMap> CODEC = RecordCodecBuilder.<GhastMoodMap>create(inst -> inst.group(
+                    GhastMoodSettings.CODEC.fieldOf("settings").forGetter(GhastMoodMap::settings),
+                    Codec.unboundedMap(ResourceLocation.CODEC, GhastMoodState.CODEC)
+                            .fieldOf("mood_states").forGetter(GhastMoodMap::moodStates)
+            ).apply(inst, GhastMoodMap::new))
             .flatXmap(GhastMoodMap::validate, DataResult::success);
 
     public static final DataMapType<EntityType<?>, GhastMoodMap> DATA_MAP = DataMapType.builder(
@@ -84,102 +99,67 @@ public record GhastMoodMap(Map<String, GhastMoodState> moodStates) {
         return EntityType.HAPPY_GHAST.builtInRegistryHolder().getData(DATA_MAP);
     }
 
-    public String getMoodFromValue(float value) {
-        if (moodStates.isEmpty()) return null;
+    private static float cachedBaseMood = 0.25f;
 
-        return moodStates.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(
-                        Comparator.comparing(GhastMoodState::threshold)))
-                .filter(e -> value <= e.getValue().threshold())
-                .findFirst()
-                .map(Map.Entry::getKey)
-                .orElseThrow(() -> new IllegalStateException(
-                        String.format("No mood found for value: %.1f (thresholds: %s)",
-                                value,
-                                moodStates.entrySet().stream()
-                                        .map(e -> String.format("%s=%.1f",
-                                                e.getKey(), e.getValue().threshold()))
-                                        .collect(Collectors.joining(", "))
-                        )));
-    }
-
-    public int getMoodsTantrumTick(float moodValue) {
-        String mood = getMoodFromValue(moodValue);
-        return mood != null ? moodStates.get(mood).tantrumTick() : 0;
-    }
-
-    public float getMoodsProjMultiplier(float value) {
-        String mood = getMoodFromValue(value);
-        return mood != null ? moodStates.get(mood).proj_multiplier() : 0.0f;
-    }
-
-    public float getSpeedModifier(float value) {
-        String mood = getMoodFromValue(value);
-        return mood != null ? moodStates.get(mood).speedModifier() : 0.0f;
-    }
-
-    public Optional<GhastMoodState.MoodRegression> getMoodRegression(float value) {
-        String mood = getMoodFromValue(value);
-        if (mood == null) {
-            return Optional.empty();
-        }
-        return Optional.ofNullable(moodStates.get(mood).regression());
-    }
-
-    // ============================================================
-    // Lazy-loaded textures for all renderers
-    // ============================================================
-
-    private static Map<String, ResourceLocation> ghastTextures;
-    private static Map<String, ResourceLocation> backgroundTextures;
-    private static Map<String, ResourceLocation> progressTextures;
-
-    public static Map<String, ResourceLocation> getGhastTextures() {
-        if (ghastTextures == null || ghastTextures.isEmpty()) {
-            ghastTextures = buildTextureMap(GhastMoodState::ghastTexture);
-        }
-        return ghastTextures;
-    }
-
-    public static Map<String, ResourceLocation> getBackgroundTextures() {
-        if (backgroundTextures == null || backgroundTextures.isEmpty()) {
-            backgroundTextures = buildTextureMap(GhastMoodState::backgroundBarTexture);
-        }
-        return backgroundTextures;
-    }
-
-    public static Map<String, ResourceLocation> getProgressTextures() {
-        if (progressTextures == null || progressTextures.isEmpty()) {
-            progressTextures = buildTextureMap(GhastMoodState::progressBarTexture);
-        }
-        return progressTextures;
-    }
-
-    private static Map<String, ResourceLocation> buildTextureMap(java.util.function.Function<GhastMoodState, String> extractor) {
-        GhastMoodMap map = get();
-        if (map == null) return Map.of();
-        return map.moodStates().entrySet().stream()
-                .filter(e -> extractor.apply(e.getValue()) != null)
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        e -> ResourceLocation.parse(extractor.apply(e.getValue()))
-                ));
+    public static float getBaseMood() {
+        return cachedBaseMood;
     }
 
     @SubscribeEvent
     public static void onDatapackSync(OnDatapackSyncEvent event) {
-        clearTextures();
+        GhastMoodMap map = get();
+        if (map != null) {
+            cachedBaseMood = map.settings().baseMood();
+        }
     }
 
-    @SubscribeEvent
-    public static void onResourceManagerReload(RegisterSpriteSourcesEvent event) {
-        clearTextures();
+    public ResourceLocation getMoodOfValue(float moodValue) {
+        if (moodStates.isEmpty()) return null;
+
+        return moodStates.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.comparing(GhastMoodState::threshold)))
+                .filter(e -> moodValue <= e.getValue().threshold())
+                .findFirst()
+                .map(Map.Entry::getKey)
+                .orElseThrow(() -> new IllegalStateException(
+                        String.format("No mood found for value: %.1f", moodValue)));
     }
 
-    private static void clearTextures() {
-        if (ghastTextures != null) ghastTextures.clear();
-        if (backgroundTextures != null) backgroundTextures.clear();
-        if (progressTextures != null) progressTextures.clear();
+    public float getThresholdValueOfMood(float moodValue) {
+        ResourceLocation mood = getMoodOfValue(moodValue);
+        return moodStates.get(mood).threshold();
+    }
+
+    public int getTantrumTick(float moodValue) {
+        ResourceLocation mood = getMoodOfValue(moodValue);
+        return mood != null ? moodStates.get(mood).tantrumTick() : 0;
+    }
+
+    public float getSpeedModifier(float moodValue) {
+        ResourceLocation mood = getMoodOfValue(moodValue);
+        return mood != null ? moodStates.get(mood).speedModifier() : 0.0f;
+    }
+
+    public Optional<GhastMoodState.MoodRegression> getMoodRegression(float moodValue) {
+        ResourceLocation mood = getMoodOfValue(moodValue);
+        if (mood == null) return Optional.empty();
+        return Optional.ofNullable(moodStates.get(mood).regression());
+    }
+
+    public Map<ResourceLocation, ResourceLocation> getGhastTextures() {
+        return moodStates.entrySet().stream()
+                .filter(e -> e.getValue().ghastTexture() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().ghastTexture()));
+    }
+
+    public Map<ResourceLocation, ResourceLocation> getBackgroundTextures() {
+        return moodStates.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().backgroundBarTexture()));
+    }
+
+    public Map<ResourceLocation, ResourceLocation> getProgressTextures() {
+        return moodStates.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().progressBarTexture()));
     }
 
     // ============================================================
@@ -221,7 +201,7 @@ public record GhastMoodMap(Map<String, GhastMoodState> moodStates) {
 
         // Check ascending order
         float previousThreshold = MIN - 1;
-        List<Map.Entry<String, GhastMoodState>> sortedStates = ghastMoodMap.moodStates().entrySet().stream()
+        List<Map.Entry<ResourceLocation, GhastMoodState>> sortedStates = ghastMoodMap.moodStates().entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(GhastMoodState::threshold)))
                 .toList();
 

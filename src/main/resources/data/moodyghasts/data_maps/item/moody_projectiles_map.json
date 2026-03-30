@@ -1,0 +1,73 @@
+{
+  "values": {
+    "moodyghasts:ice_charge": {
+      "cooldown": 40,
+      "moodDelta": -0.05,
+      "projectile": {
+        "type": "moodyghasts:ice_charge",
+        "moodScaling": {
+          "radius": { "min": 2.5, "max": 6.0, "stepped": true },
+          "strength": { "min": 2.0, "max": 5.5 }
+        }
+      },
+      "shot": {
+        "type": "moodyghasts:single_shot",
+        "chargeDuration": 20,
+        "moodScaling": {
+          "velocity": { "min": 1.0, "max": 1.5 }
+        }
+      }
+    },
+    "minecraft:fire_charge": {
+      "cooldown": 40,
+      "moodDelta": 0.05,
+      "projectile": {
+        "type": "moodyghasts:large_fireball",
+        "moodScaling": {
+          "strength": { "min": 2.0, "max": 5.5, "stepped": true }
+        }
+      },
+      "shot": {
+        "type": "moodyghasts:single_shot",
+        "chargeDuration": 20,
+        "moodScaling": {
+          "velocity": { "min": 1.0, "max": 1.5 }
+        }
+      }
+    },
+    "minecraft:wind_charge": {
+      "cooldown": 20,
+      "moodDelta": 0.0,
+      "projectile": {
+        "type": "moodyghasts:wind_charge",
+        "moodScaling": {
+          "radius": { "min": 2.5, "max": 6.0, "stepped": true },
+          "strength": { "min": 2.0, "max": 5.5, "stepped": true }
+        }
+      },
+      "shot": {
+        "type": "moodyghasts:single_shot",
+        "chargeDuration": 20,
+        "moodScaling": {
+          "velocity": { "min": 1.0, "max": 1.5 }
+        }
+      }
+    },
+    "minecraft:powder_snow_bucket": {
+      "cooldown": 60,
+      "moodDelta": -0.005,
+      "projectile": {
+        "type": "moodyghasts:snow_ball"
+      },
+      "shot": {
+        "type": "moodyghasts:barrage",
+        "chargeDuration": 20,
+        "moodScaling": {
+          "count": { "min": 30, "max": 70 },
+          "velocity": { "min": 0.8, "max": 1.5 },
+          "inaccuracy": { "min": 0.08, "max": 0.15, "inverted": true }
+        }
+      }
+    }
+  }
+}

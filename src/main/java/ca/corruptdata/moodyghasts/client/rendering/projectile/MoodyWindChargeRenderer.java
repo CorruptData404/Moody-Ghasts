@@ -1,4 +1,4 @@
-package ca.corruptdata.moodyghasts.client.rendering;
+package ca.corruptdata.moodyghasts.client.rendering.projectile;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;

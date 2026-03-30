@@ -9,7 +9,7 @@ import net.minecraft.world.item.Item;
 
 public class ModTags {
     public static class Items {
-        public static final TagKey<Item> HAPPY_GHAST_PROJECTILES = createTag("happy_ghast_projectiles");
+        public static final TagKey<Item> MOODY_PROJECTILES = createTag("moody_projectiles");
 
         private static TagKey<Item> createTag(String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, name));

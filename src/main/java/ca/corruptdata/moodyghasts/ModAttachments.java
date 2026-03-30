@@ -1,6 +1,6 @@
 package ca.corruptdata.moodyghasts;
 
-import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.item.Item;
@@ -17,7 +17,7 @@ public class ModAttachments {
 
     public static final Supplier<AttachmentType<Float>> MOOD = ATTACHMENT_TYPES.register(
             "mood",
-            () -> AttachmentType.builder(() -> HappyGhastHandler.BASE_MOOD) // INITIAL_MOOD
+            () -> AttachmentType.builder(GhastMoodMap::getBaseMood) // INITIAL_MOOD
                     .serialize(Codec.FLOAT.fieldOf("mood"))
                     .sync(ByteBufCodecs.FLOAT)
                     .build()
@@ -26,7 +26,6 @@ public class ModAttachments {
     public static final Supplier<AttachmentType<Boolean>> IS_CHARGING = ATTACHMENT_TYPES.register(
             "is_charging",
             () -> AttachmentType.builder(() -> false)
-                    .serialize(Codec.BOOL.fieldOf("is_charging"))
                     .sync(ByteBufCodecs.BOOL)
                     .build()
     );
@@ -36,42 +35,32 @@ public class ModAttachments {
             () -> AttachmentType.builder(() -> 0).build()
     );
 
-    public static final Supplier<AttachmentType<Boolean>> IS_SNOWBALL_BARRAGE = ATTACHMENT_TYPES.register(
-            "is_snowball_barrage",
+    public static final Supplier<AttachmentType<Boolean>> IS_BARRAGING = ATTACHMENT_TYPES.register(
+            "is_barraging",
             () -> AttachmentType.builder(() -> false)
-                    .serialize(Codec.BOOL.fieldOf("is_snowball_barrage"))
                     .sync(ByteBufCodecs.BOOL)
                     .build()
     );
 
-    public static final Supplier<AttachmentType<Integer>> SNOWBALLS_LEFT = ATTACHMENT_TYPES.register(
-            "snowballs_left",
-            () -> AttachmentType.builder(() -> 0)
-                    .serialize(Codec.INT.fieldOf("snowballs_left"))
-                    .sync(ByteBufCodecs.INT)
-                    .build()
+    public static final Supplier<AttachmentType<Integer>> SHOTS_LEFT = ATTACHMENT_TYPES.register(
+            "shots_left",
+            () -> AttachmentType.builder(() -> 0).build()
     );
 
-    public static final Supplier<AttachmentType<Integer>> SNOWBALL_COOLDOWN = ATTACHMENT_TYPES.register(
-            "snowball_cooldown",
-            () -> AttachmentType.builder(() -> 0)
-                    .serialize(Codec.INT.fieldOf("snowball_cooldown"))
-                    .sync(ByteBufCodecs.INT)
-                    .build()
+    public static final Supplier<AttachmentType<Integer>> BARRAGE_DELAY = ATTACHMENT_TYPES.register(
+            "barrage_delay",
+            () -> AttachmentType.builder(() -> 0).build()
     );
 
     public static final Supplier<AttachmentType<Boolean>> IS_CONSUMING_FOOD = ATTACHMENT_TYPES.register(
             "is_consuming_food",
             () -> AttachmentType.builder(() -> false)
-                    .serialize(Codec.BOOL.fieldOf("is_consuming_food"))
-                    .sync(ByteBufCodecs.BOOL)
                     .build()
     );
 
     public static final Supplier<AttachmentType<Integer>> FOOD_CONSUME_TICKS = ATTACHMENT_TYPES.register(
             "food_consume_ticks",
             () -> AttachmentType.builder(() -> 0)
-                    .serialize(Codec.INT.fieldOf("food_consume_ticks"))
                     .build()
     );
 

@@ -1,12 +1,14 @@
 package ca.corruptdata.moodyghasts;
 
-import ca.corruptdata.moodyghasts.client.rendering.IceChargeRenderer;
-import ca.corruptdata.moodyghasts.client.rendering.MoodyWindChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.projectile.IceChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
-import ca.corruptdata.moodyghasts.client.rendering.happyghast.MoodGhastRenderer;
-import ca.corruptdata.moodyghasts.datamap.GhastMoodMap;
-import ca.corruptdata.moodyghasts.datamap.ItemPropertyMap;
-import ca.corruptdata.moodyghasts.entity.HappyGhastHandler;
+import ca.corruptdata.moodyghasts.client.rendering.happy_ghast.MoodGhastRenderer;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastInteractionHandler;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastShootingHandler;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
+import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
 import com.mojang.logging.LogUtils;
@@ -23,7 +25,6 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.RegisterSpriteSourcesEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
@@ -47,8 +48,17 @@ public class MoodyGhasts {
         ModAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModItems.register(modEventBus);
         ModEntities.register(modEventBus);
-        NeoForge.EVENT_BUS.register(new HappyGhastHandler());
 
+        GhastShootingHandler shootingHandler = new GhastShootingHandler();
+        GhastInteractionHandler interactionHandler = new GhastInteractionHandler(shootingHandler);
+
+        NeoForge.EVENT_BUS.register(shootingHandler);
+        NeoForge.EVENT_BUS.register(interactionHandler);
+        NeoForge.EVENT_BUS.register(new GhastMoodHandler());
+        NeoForge.EVENT_BUS.addListener(GhastMoodMap::onDatapackSync); // for static onDatapackSync
+
+        ModRegistries.PROJECTILE_FACTORY_REGISTER.register(modEventBus);
+        ModRegistries.SHOOTING_BEHAVIOUR_REGISTER.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
         // Register the item to a creative tab
@@ -76,8 +86,8 @@ public class MoodyGhasts {
 
     private void registerDataMaps(RegisterDataMapTypesEvent event) {
         event.register(GhastMoodMap.DATA_MAP);
-        event.register(ItemPropertyMap.Consumable.DATA_MAP);
-        //event.register(ItemPropertyMap.Projectile.DATA_MAP);
+        event.register(ItemPropertyMap.MoodyConsumable.DATA_MAP);
+        event.register(ItemPropertyMap.MoodyProjectile.DATA_MAP);
     }
 
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
@@ -86,10 +96,6 @@ public class MoodyGhasts {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             // Client setup code here
-        }
-        @SubscribeEvent
-        public static void onRegisterSpriteSourcesEvent(RegisterSpriteSourcesEvent event) {
-            GhastMoodMap.onResourceManagerReload(event);
         }
 
         @SubscribeEvent
@@ -114,7 +120,7 @@ public class MoodyGhasts {
             event.registerEntityModifier(
                     HappyGhastRenderer.class,
                     (entity, state) -> state.setRenderData(
-                            RenderStateKeys.IS_SNOWBALL_BARRAGE, entity.getData(ModAttachments.IS_SNOWBALL_BARRAGE)));
+                            RenderStateKeys.IS_BARRAGING, entity.getData(ModAttachments.IS_BARRAGING)));
         }
     }
 }

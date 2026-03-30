@@ -1,7 +1,7 @@
 package ca.corruptdata.moodyghasts.client.rendering.gui;
 
 import ca.corruptdata.moodyghasts.ModAttachments;
-import ca.corruptdata.moodyghasts.datamap.GhastMoodMap;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,8 +24,8 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
     private final HappyGhast happyGhast;
     private final GhastMoodMap thresholds;
     private final RandomSource random;
-    private final Map<String, ResourceLocation> moodBackgroundTextures;
-    private final Map<String, ResourceLocation> moodProgressTextures;
+    private final Map<ResourceLocation, ResourceLocation> moodBackgroundTextures;
+    private final Map<ResourceLocation, ResourceLocation> moodProgressTextures;
 
     public GhastMoodBarRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
@@ -34,8 +34,8 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
         this.random = minecraft.player.getRandom();
 
         // Initialize texture maps based on available moods
-        this.moodBackgroundTextures = GhastMoodMap.getBackgroundTextures();
-        this.moodProgressTextures = GhastMoodMap.getProgressTextures();
+        this.moodBackgroundTextures = thresholds.getBackgroundTextures();
+        this.moodProgressTextures = thresholds.getProgressTextures();
     }
 
     @Override
@@ -46,7 +46,7 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
         float moodValue = this.happyGhast.getData(ModAttachments.MOOD);
 
         // Apply shake and glow effects if the current mood has a tantrumTick
-        int tantrumTick = thresholds.getMoodsTantrumTick(moodValue);
+        int tantrumTick = thresholds.getTantrumTick(moodValue);
         int enragedTicks = happyGhast.getData(ModAttachments.TANTRUM_TICKS);
         if (enragedTicks > 0) {
             float progress = Mth.clamp((float) enragedTicks / tantrumTick, 0f, 1f);
@@ -65,14 +65,14 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
         }
 
         // Sort mood states by threshold to ensure correct rendering order
-        List<Map.Entry<String, GhastMoodMap.GhastMoodState>> sortedMoods = thresholds.moodStates().entrySet()
+        List<Map.Entry<ResourceLocation, GhastMoodMap.GhastMoodState>> sortedMoods = thresholds.moodStates().entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(GhastMoodMap.GhastMoodState::threshold)))
                 .toList();
 
         float prevThreshold = GhastMoodMap.MIN;
         for (var entry : sortedMoods) {
-            String mood = entry.getKey();
+            ResourceLocation mood = entry.getKey();
             float threshold = entry.getValue().threshold();
             drawMoodSection(graphics, left, top, prevThreshold, threshold, mood, moodValue);
             prevThreshold = threshold;
@@ -80,7 +80,7 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
     }
 
     private void drawMoodSection(GuiGraphics graphics, int left, int top, float startThreshold,
-                               float endThreshold, String mood, float moodValue) {
+                               float endThreshold, ResourceLocation mood, float moodValue) {
         int startPixel = (int) Math.floor(startThreshold * WIDTH);
         int endPixel = (int) Math.ceil(endThreshold * WIDTH);
         int sectionWidth = endPixel - startPixel;
