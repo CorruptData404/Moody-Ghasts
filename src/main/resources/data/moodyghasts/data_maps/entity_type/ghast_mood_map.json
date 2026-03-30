@@ -9,7 +9,6 @@
       "mood_states": {
         "moodyghasts:excited": {
           "threshold": 0.1,
-          "proj_multiplier": 0.0,
           "speed_modifier": 0.05,
           "regression": {
             "chance_per_tick": 0.05,
@@ -21,7 +20,6 @@
         },
         "moodyghasts:happy": {
           "threshold": 0.3,
-          "proj_multiplier": 0.0,
           "regression": {
             "chance_per_tick": 0.01,
             "delta": 0.002
@@ -31,7 +29,6 @@
         },
         "moodyghasts:neutral": {
           "threshold": 0.5,
-          "proj_multiplier": 0.0,
           "regression": {
             "chance_per_tick": 0.01,
             "delta": 0.002
@@ -42,7 +39,6 @@
         },
         "moodyghasts:sad": {
           "threshold": 0.7,
-          "proj_multiplier": 0.0,
           "regression": {
             "chance_per_tick": 0.01,
             "delta": 0.002
@@ -53,7 +49,6 @@
         },
         "moodyghasts:angry": {
           "threshold": 0.9,
-          "proj_multiplier": 0.0,
           "regression": {
             "chance_per_tick": 0.01,
             "delta": 0.002
@@ -64,7 +59,6 @@
         },
         "moodyghasts:enraged": {
           "threshold": 1.0,
-          "proj_multiplier": 0.0,
           "tantrum_tick": 400,
           "regression": {
             "chance_per_tick": 0.05,
