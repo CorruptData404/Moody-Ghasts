@@ -3,6 +3,7 @@ package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
 import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
+import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -11,12 +12,13 @@ import net.minecraft.world.phys.Vec3;
 
 public class BarrageBehaviour extends ShootingBehaviour {
 
-    public BarrageBehaviour(GhastProjectileFactory factory) {
-        super(factory);
+    public BarrageBehaviour(GhastProjectileFactory factory, HappyGhast ghast,
+                            Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
+        super(factory, ghast, player, data, mood);
     }
 
     @Override
-    protected void onChargeComplete(HappyGhast ghast, Player player) {
+    protected void onChargeComplete() {
         int totalProjectiles = data.shot().getCount(mood);
         ghast.setData(ModAttachments.IS_BARRAGING, true);
         ghast.setData(ModAttachments.SHOTS_LEFT, totalProjectiles);
@@ -24,34 +26,28 @@ public class BarrageBehaviour extends ShootingBehaviour {
     }
 
     @Override
-    public void onInitiate(HappyGhast ghast, Player player) {
-
-    }
-
-    @Override
-    public void tick(HappyGhast ghast) {
+    public void tick() {
         if (ghast.getData(ModAttachments.IS_CHARGING)) {
-            super.tick(ghast);
+            super.tick();
             return;
         }
 
         if (!ghast.getData(ModAttachments.IS_BARRAGING)) return;
 
-        Player player = ghast.getControllingPassenger() instanceof Player p ? p : null;
-        if (player == null) {
-            stop(ghast);
+        if (shooter != ghast.getControllingPassenger()) {
+            stop();
             return;
         }
 
-        handleBarrage(ghast, player);
+        handleBarrage();
     }
 
-    private void handleBarrage(HappyGhast ghast, Player player) {
+    private void handleBarrage() {
         int projectilesLeft = ghast.getData(ModAttachments.SHOTS_LEFT);
         int nextDelay = ghast.getData(ModAttachments.BARRAGE_DELAY);
 
         if (projectilesLeft <= 0) {
-            stop(ghast);
+            stop();
             return;
         }
 
@@ -67,19 +63,19 @@ public class BarrageBehaviour extends ShootingBehaviour {
             return;
         }
 
-        shootProjectile(ghast, player, progress);
+        shootProjectile(progress);
         ghast.setData(ModAttachments.SHOTS_LEFT, projectilesLeft - 1);
         ghast.setData(ModAttachments.BARRAGE_DELAY, delay);
     }
 
-    private void shootProjectile(HappyGhast ghast, Player player, float progress) {
+    private void shootProjectile(float progress) {
         Level level = ghast.level();
-        Vec3 spawnPos = getProjectileSpawnPos(ghast);
-        Vec3 direction = getPlayerAimVector(player);
+        Vec3 spawnPos = getProjectileSpawnPos();
+        Vec3 direction = getShooterAimVector();
         float speedFactor = data.shot().getVelocity(mood) * (0.8f + (0.7f * (float)Math.log10(progress + 0.1f) + 0.7f));
         float inaccuracy = data.shot().getInaccuracy(mood);
 
-        Projectile projectile = factory.createProjectile(level, player, mood, data.projectile());
+        Projectile projectile = factory.createProjectile(level, shooter, mood, data.projectile());
         projectile.setPos(spawnPos);
         projectile.shoot(
                 direction.x, direction.y, direction.z,
@@ -87,12 +83,12 @@ public class BarrageBehaviour extends ShootingBehaviour {
         );
 
         level.addFreshEntity(projectile);
-        playProjSound(ghast);
+        playProjSound();
         GhastMoodHandler.adjustMood(ghast, data.moodDelta());
     }
 
     @Override
-    public void stop(HappyGhast ghast) {
+    public void stop() {
         ghast.setData(ModAttachments.IS_BARRAGING, false);
         ghast.setData(ModAttachments.SHOTS_LEFT, 0);
         ghast.setData(ModAttachments.BARRAGE_DELAY, 0);

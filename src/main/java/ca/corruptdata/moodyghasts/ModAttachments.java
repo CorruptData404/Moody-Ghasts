@@ -69,16 +69,6 @@ public class ModAttachments {
             () -> AttachmentType.builder(() -> Items.AIR).build()
     );
 
-    public static final Supplier<AttachmentType<Item>> CURRENT_PROJECTILE = ATTACHMENT_TYPES.register(
-            "current_projectile",
-            () -> AttachmentType.builder(() -> Items.AIR).build()
-    );
-
-    public static final Supplier<AttachmentType<Object>> PROJECTILE_OWNER = ATTACHMENT_TYPES.register(
-            "projectile_owner",
-            () -> AttachmentType.builder(() -> null).build()
-    );
-
     public static final Supplier<AttachmentType<Integer>> TANTRUM_TICKS = ATTACHMENT_TYPES.register(
             "tantrum_ticks",
             () -> AttachmentType.builder(() -> 0)

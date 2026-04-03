@@ -11,7 +11,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -48,11 +47,11 @@ public class GhastShootingHandler {
             return;
         }
 
-        GhastProjectileFactory factory = factoryRegistry.get(projectileData.projectile().type())
+        GhastProjectileFactory projFactory = factoryRegistry.get(projectileData.projectile().type())
                 .map(Holder.Reference::value)
                 .orElse(null);
 
-        if (factory == null) {
+        if (projFactory == null) {
             LOGGER.error("No factory registered for projectile type: {}",
                     projectileData.projectile().type());
             return;
@@ -68,11 +67,14 @@ public class GhastShootingHandler {
             return;
         }
 
-        ShootingBehaviour behaviour = behaviourFactory.create(factory);
+        ShootingBehaviour behaviour = behaviourFactory.create(
+                projFactory,
+                ghast,
+                player,
+                projectileData,
+                ghast.getData(ModAttachments.MOOD));
 
         activeBehaviours.put(ghast.getUUID(), behaviour);
-        ghast.setData(ModAttachments.CURRENT_PROJECTILE, projectileItem.getItem());
-        behaviour.onChargeStart(ghast, player, projectileData, ghast.getData(ModAttachments.MOOD));
     }
 
     // ============================================================
@@ -88,13 +90,12 @@ public class GhastShootingHandler {
         ShootingBehaviour behaviour = activeBehaviours.get(ghast.getUUID());
         if (behaviour == null) return;
 
-        behaviour.tick(ghast);
+        behaviour.tick();
 
         // Clean up once both flags are clear — behaviour has fully finished
         if (!ghast.getData(ModAttachments.IS_CHARGING)
                 && !ghast.getData(ModAttachments.IS_BARRAGING)) {
             activeBehaviours.remove(ghast.getUUID());
-            ghast.setData(ModAttachments.CURRENT_PROJECTILE, Items.AIR);
         }
     }
 
