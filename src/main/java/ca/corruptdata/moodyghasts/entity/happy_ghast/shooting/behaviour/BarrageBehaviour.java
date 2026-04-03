@@ -4,6 +4,7 @@ import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -72,14 +73,24 @@ public class BarrageBehaviour extends ShootingBehaviour {
         Level level = ghast.level();
         Vec3 spawnPos = getProjectileSpawnPos();
         Vec3 direction = getShooterAimVector();
-        float speedFactor = data.shot().getVelocity(mood) * (0.8f + (0.7f * (float)Math.log10(progress + 0.1f) + 0.7f));
         float inaccuracy = data.shot().getInaccuracy(mood);
+
+        // Apply spread to direction before passing to shoot()
+        RandomSource random = ghast.getRandom();
+        direction = new Vec3(
+                random.triangle(direction.x, inaccuracy),
+                random.triangle(direction.y, inaccuracy),
+                random.triangle(direction.z, inaccuracy)
+        ).normalize();
+
+        float progressScale = 0.5f + (0.9f * (float)Math.log10(progress * 9 + 1));
+        float speedFactor = data.shot().getVelocity(mood) * progressScale;
 
         Projectile projectile = factory.createProjectile(level, shooter, mood, data.projectile());
         projectile.setPos(spawnPos);
         projectile.shoot(
                 direction.x, direction.y, direction.z,
-                speedFactor, inaccuracy
+                speedFactor, 0 // pass 0 inaccuracy since handled it above
         );
 
         level.addFreshEntity(projectile);

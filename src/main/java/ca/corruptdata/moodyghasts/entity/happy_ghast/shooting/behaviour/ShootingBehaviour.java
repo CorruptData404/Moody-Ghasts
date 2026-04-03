@@ -1,6 +1,7 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
 
 import ca.corruptdata.moodyghasts.ModAttachments;
+import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.core.BlockPos;
@@ -9,6 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.slf4j.Logger;
 
 public abstract class ShootingBehaviour {
     protected final GhastProjectileFactory factory;
@@ -17,6 +19,7 @@ public abstract class ShootingBehaviour {
     protected final HappyGhast ghast;
     protected final float mood;
     protected final int chargeDuration;
+    protected static final Logger LOGGER = MoodyGhasts.LOGGER;
 
 
     protected ShootingBehaviour(GhastProjectileFactory factory, HappyGhast ghast, Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
