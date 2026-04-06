@@ -4,7 +4,8 @@
       "settings": {
         "base_mood": 0.25,
         "damage_mood_mult": 0.02,
-        "heal_mood_mult": -0.02
+        "heal_mood_mult": -0.02,
+        "tantrum_tears": true
       },
       "mood_states": {
         "moodyghasts:excited": {

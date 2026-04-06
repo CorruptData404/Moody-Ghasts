@@ -55,6 +55,7 @@ public class GhastMoodHandler {
 
         return !thresholds.getMoodOfValue(currentMood).equals(thresholds.getMoodOfValue(newMood));
     }
+
     @SubscribeEvent
     private void onEatingTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
@@ -185,10 +186,13 @@ public class GhastMoodHandler {
                 }
 
                 // Drop 0–4 ghast tears
-                int tearCount = serverLevel.random.nextInt(5);
-                if (tearCount > 0) {
-                    ItemStack tears = new ItemStack(Items.GHAST_TEAR, tearCount);
-                    ghast.spawnAtLocation(serverLevel, tears);
+                if(GhastMoodMap.get().settings().tantrumTears())
+                {
+                    int tearCount = serverLevel.random.nextInt(5);
+                    if (tearCount > 0) {
+                        ItemStack tears = new ItemStack(Items.GHAST_TEAR, tearCount);
+                        ghast.spawnAtLocation(serverLevel, tears);
+                    }
                 }
 
                 // Convert to hostile ghast
