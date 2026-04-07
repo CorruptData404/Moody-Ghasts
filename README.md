@@ -2,23 +2,35 @@
 
 An overhaul mod for the Happy Ghast mob that adds new utility and mechanics!
 
-## Planned Features (May Change)
+## Mood System
+Ghasts now have dynamic emotions! Monitor their current emotion through the new mood bar while riding or by looking at their face.
 
-### Projectile Combat System
+### Mood Influences:
+* **Projectile Usage** — Different projectiles affect mood differently
+* **Treats** — Feed snowballs or new cookies to intentionally calm or anger your ghast
+* **Damage/Healing** — Recieving Damage or Healing can affect their mood
+* **Time** — Mood neutralizes over time
+
+### Mood Effects:
+* Excited ghasts gain a speed boost
+* Angry ghasts fire more powerful versions of projectiles
+* Enraged ghasts cry and risk becoming hostile - calm them quickly!
+
+## Aerial Ghast Combat
 You can now shoot various projectiles while controlling your ghast companion:
 
-* **Fire Charges** - Classic nether ghast projectiles
-* **Wind Charges** - More powerful than player-thrown variants
-* **Powdered Snow** - Release a barrage of snowballs
-* **Ice Charges** - New freezing projectile
+* **Fire Charges** — Classic explosive ghast projectiles
+* **Wind Charges** — More powerful than player-thrown variants
+* **Ice Charges** — New freezing projectile
+* **Powdered Snow** — Release a barrage of snowballs
 
-### Ice Charge Mechanics
-A new projectile that can be:
-* Thrown manually
+## Ice Charge Mechanics
+A new craftable projectile that can be:
+* Thrown by players
 * Shot from dispensers
-* Fired from your ghast companion
+* Fired from ridden ghasts
 
-Effects:
+### Effects:
 * **On Entity Impact**
   * Applies slowness and deals damage
   * Transforms Skeletons into Strays
@@ -28,19 +40,28 @@ Effects:
   * Creates snow layers on blocks
   * Extinguishes fires
 
-### Mood System
-Your ghast companions now have dynamic personalities! Monitor their mood through the new mood bar while riding or looking at their face.
+## Configuration
+This mod is highly data-driven and can be configured entirely through datapacks. No code required for most customization.
 
-Mood Influences:
-* **Projectile Usage** - Different projectiles affect mood differently
-* **Treats** - Feed cookies to intentionally calm or anger your ghast
-* **Damage/Healing** - Recieving Damage or Healing can affect their mood
-* **Time** - Mood neutralizes over time
+What you can configure:
 
-Mood Effects:
-* Angry ghasts fire more powerful projectiles
-* Enraged ghasts cry and risk becoming hostile - calm them quickly!
-* Happy ghasts gain temporary speed boosts
+* **Mood system** — tune base mood, how quickly mood regresses, damage and healing rates, tantrum thresholds and conversion behaviour, and ghast tear drops
+* **Mood states** — edit the thresholds and effects of existing moods (speed modifiers, tantrum timers, textures), or define entirely new mood states with custom textures and bar colours
+* **Ghast foods** — add new items that affect mood, and configure how much each one changes it
+* **Projectile system** — mix and match any projectile type with any shooting behaviour, and tune their properties (velocity, inaccuracy, strength, radius, count) with per-mood scaling
+
+### What requires a companion mod:
+
+* New projectile entity types (requires a GhastProjectileFactory implementation)
+* New shooting behaviours (requires a ShootingBehaviourFactory implementation)
+
+Both extension points use NeoForge's registry system, so other mods can register against them without modifying this mod's code.
+
+## Post 1.0 Plans
+
+* More rendering effects for tantrums
+* New Ice Charge item texture, custom model, particles, and sounds
+* More vanilla projectiles
 
 ## Dependencies
 * Minecraft [1.21.8]
