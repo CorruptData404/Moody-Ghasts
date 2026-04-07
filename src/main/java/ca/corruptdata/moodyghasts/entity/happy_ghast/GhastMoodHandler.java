@@ -162,13 +162,11 @@ public class GhastMoodHandler {
         if (transformOnTick > 0) {
             int tantrumTicks = ghast.getData(ModAttachments.TANTRUM_TICKS) + 1;
             ghast.setData(ModAttachments.TANTRUM_TICKS, tantrumTicks);
+            ServerLevel serverLevel = (ServerLevel) ghast.level();
 
             if (tantrumTicks >= transformOnTick) {
                 if (!net.neoforged.neoforge.event.EventHooks.canLivingConvert(ghast, EntityType.GHAST, t -> {}))
                     return;
-
-                ServerLevel serverLevel = (ServerLevel) ghast.level();
-
 
                 // Dismount all riders with short slow falling
                 for (Entity passenger : new ArrayList<>(ghast.getPassengers())) {
@@ -200,10 +198,17 @@ public class GhastMoodHandler {
                     net.neoforged.neoforge.event.EventHooks.onLivingConvert(ghast, newGhast);
 
                     if (!ghast.isSilent()) {
-                        serverLevel.playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
+                        serverLevel.playSound(ghast, ghast.getX(), ghast.getY(), ghast.getZ(),
                                 SoundEvents.GHAST_HURT, SoundSource.HOSTILE, 1.0F, 1.0F);
                     }
                 });
+            }
+            else if (tantrumTicks % 50 == 0 && !(ghast.isSilent()
+                    || ghast.getData(ModAttachments.IS_CHARGING)
+                    || ghast.getData(ModAttachments.IS_BARRAGING)
+                    || ghast.getData(ModAttachments.IS_CONSUMING_FOOD))) {
+                serverLevel.playSound(ghast, ghast.getX(), ghast.getY(), ghast.getZ(),
+                        SoundEvents.GHAST_AMBIENT, SoundSource.NEUTRAL, 1.0F, 1.0F);
             }
         } else {
             ghast.setData(ModAttachments.TANTRUM_TICKS, 0);
