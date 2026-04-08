@@ -14,9 +14,9 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemCooldowns;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.*;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.slf4j.Logger;
 
@@ -106,20 +106,19 @@ public class GhastInteractionHandler {
         player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         if (player.getAbilities().instabuild) return;
 
-        ItemStack remainder = stack.has(DataComponents.USE_REMAINDER)
-                ? stack.get(DataComponents.USE_REMAINDER).convertInto()
-                : ItemStack.EMPTY;
-
-        stack.shrink(1);
-
-        if (!remainder.isEmpty()) {
-            if (stack.isEmpty()) {
-                // Slot is now empty — place remainder directly into the hand
-                player.setItemInHand(player.getUsedItemHand(), remainder);
-            } else if (!player.getInventory().add(remainder)) {
-                player.drop(remainder, false);
-            }
+        ItemStack remainder;
+        if (stack.has(DataComponents.USE_REMAINDER)) {
+            remainder = stack.get(DataComponents.USE_REMAINDER).convertInto();
+        } else if (stack.getItem() instanceof BucketItem) {
+            remainder = BucketItem.getEmptySuccessItem(stack, player);
+        } else if (stack.is(Tags.Items.BUCKETS)) {
+            remainder = new ItemStack(Items.BUCKET);
+        } else {
+            remainder = ItemStack.EMPTY;
         }
+
+        ItemStack result = ItemUtils.createFilledResult(stack, player, remainder);
+        player.setItemInHand(player.getUsedItemHand(), result);
     }
 
     private void applyCooldownToProjectiles(Player player, int cooldown) {
