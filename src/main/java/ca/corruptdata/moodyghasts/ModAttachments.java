@@ -17,7 +17,7 @@ public class ModAttachments {
 
     public static final Supplier<AttachmentType<Float>> MOOD = ATTACHMENT_TYPES.register(
             "mood",
-            () -> AttachmentType.builder(GhastMoodMap::getBaseMood) // INITIAL_MOOD
+            () -> AttachmentType.builder(() -> GhastMoodMap.get().settings().baseMood()) // INITIAL_MOOD
                     .serialize(Codec.FLOAT.fieldOf("mood"))
                     .sync(ByteBufCodecs.FLOAT)
                     .build()

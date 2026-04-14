@@ -55,7 +55,6 @@ public class MoodyGhasts {
         NeoForge.EVENT_BUS.register(shootingHandler);
         NeoForge.EVENT_BUS.register(interactionHandler);
         NeoForge.EVENT_BUS.register(new GhastMoodHandler());
-        NeoForge.EVENT_BUS.addListener(GhastMoodMap::onDatapackSync); // for static onDatapackSync
 
         ModRegistries.PROJECTILE_FACTORY_REGISTER.register(modEventBus);
         ModRegistries.SHOOTING_BEHAVIOUR_REGISTER.register(modEventBus);

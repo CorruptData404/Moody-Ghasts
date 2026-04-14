@@ -126,13 +126,13 @@ public class GhastMoodHandler {
         if (ghast.isBaby()) return;
 
         float currentMood = ghast.getData(ModAttachments.MOOD);
-        float baseMood = GhastMoodMap.getBaseMood();
+        GhastMoodMap moodMap = GhastMoodMap.get();
+        float baseMood = moodMap.settings().baseMood();
         // Early return if already at base mood
         if (currentMood == baseMood) return;
 
         // Get the regression configuration for current mood state, if it exists
-        Optional<GhastMoodMap.GhastMoodState.MoodRegression> regression = GhastMoodMap.get()
-                .getMoodRegression(currentMood);
+        Optional<GhastMoodMap.GhastMoodState.MoodRegression> regression = moodMap.getMoodRegression(currentMood);
 
         if (regression.isEmpty()) return;
 
@@ -157,7 +157,8 @@ public class GhastMoodHandler {
         if (ghast.isBaby()) return;
 
         float mood = ghast.getData(ModAttachments.MOOD);
-        int transformOnTick = GhastMoodMap.get().getTantrumTick(mood);
+        GhastMoodMap moodMap = GhastMoodMap.get();
+        int transformOnTick = moodMap.getTantrumTick(mood);
 
         if (transformOnTick > 0) {
             int tantrumTicks = ghast.getData(ModAttachments.TANTRUM_TICKS) + 1;
@@ -184,7 +185,7 @@ public class GhastMoodHandler {
                 }
 
                 // Drop 0–4 ghast tears
-                if(GhastMoodMap.get().settings().tantrumTears())
+                if(moodMap.settings().tantrumTears())
                 {
                     int tearCount = serverLevel.random.nextInt(5);
                     if (tearCount > 0) {

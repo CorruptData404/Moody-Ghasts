@@ -7,8 +7,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import org.jetbrains.annotations.Nullable;
 
@@ -99,20 +97,6 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<ResourceLocation, Gha
 
     public static GhastMoodMap get() {
         return EntityType.HAPPY_GHAST.builtInRegistryHolder().getData(DATA_MAP);
-    }
-
-    private static float cachedBaseMood = 0.25f;
-
-    public static float getBaseMood() {
-        return cachedBaseMood;
-    }
-
-    @SubscribeEvent
-    public static void onDatapackSync(OnDatapackSyncEvent event) {
-        GhastMoodMap map = get();
-        if (map != null) {
-            cachedBaseMood = map.settings().baseMood();
-        }
     }
 
     public ResourceLocation getMoodOfValue(float moodValue) {
