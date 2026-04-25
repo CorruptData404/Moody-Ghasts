@@ -27,10 +27,6 @@ public class GhastShootingHandler {
     // Transient runtime state — not serialized, intentionally lost on restart
     private final Map<UUID, ShootingBehaviour> activeBehaviours = new HashMap<>();
 
-    // ============================================================
-    // Public API — called by GhastInteractionHandler
-    // ============================================================
-
     public boolean isActive(HappyGhast ghast) {
         return activeBehaviours.containsKey(ghast.getUUID());
     }
@@ -67,7 +63,7 @@ public class GhastShootingHandler {
             return;
         }
 
-        ShootingBehaviour behaviour = behaviourFactory.create(
+        ShootingBehaviour behaviour = behaviourFactory.createBehaviour(
                 projFactory,
                 ghast,
                 player,
@@ -76,10 +72,6 @@ public class GhastShootingHandler {
 
         activeBehaviours.put(ghast.getUUID(), behaviour);
     }
-
-    // ============================================================
-    // Event Handlers
-    // ============================================================
 
     @SubscribeEvent
     private void onGhastTick(EntityTickEvent.Post event) {

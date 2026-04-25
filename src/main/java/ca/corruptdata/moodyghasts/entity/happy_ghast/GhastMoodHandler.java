@@ -128,7 +128,7 @@ public class GhastMoodHandler {
         float currentMood = ghast.getData(ModAttachments.MOOD);
         GhastMoodMap moodMap = GhastMoodMap.get();
         float baseMood = moodMap.settings().baseMood();
-        // Early return if already at base mood
+
         if (currentMood == baseMood) return;
 
         // Get the regression configuration for current mood state, if it exists

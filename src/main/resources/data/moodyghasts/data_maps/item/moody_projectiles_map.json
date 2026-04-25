@@ -24,7 +24,7 @@
       "projectile": {
         "type": "moodyghasts:large_fireball",
         "moodScaling": {
-          "strength": { "min": 2.0, "max": 5.5, "stepped": true }
+          "strength": { "min": 1.0, "max": 4, "stepped": true }
         }
       },
       "shot": {
@@ -41,8 +41,8 @@
       "projectile": {
         "type": "moodyghasts:wind_charge",
         "moodScaling": {
-          "radius": { "min": 2.5, "max": 6.0, "stepped": true },
-          "strength": { "min": 2.0, "max": 5.5, "stepped": true }
+          "radius": { "min": 1.0, "max": 5.0, "stepped": true },
+          "strength": { "min": 1.5, "max": 4, "stepped": true }
         }
       },
       "shot": {

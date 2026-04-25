@@ -75,7 +75,6 @@ public class BarrageBehaviour extends ShootingBehaviour {
         Vec3 direction = getShooterAimVector();
         float inaccuracy = data.shot().getInaccuracy(mood);
 
-        // Apply spread to direction before passing to shoot()
         RandomSource random = ghast.getRandom();
         direction = new Vec3(
                 random.triangle(direction.x, inaccuracy),

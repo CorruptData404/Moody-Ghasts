@@ -7,6 +7,6 @@ import net.minecraft.world.entity.player.Player;
 
 @FunctionalInterface
 public interface ShootingBehaviourFactory {
-    ShootingBehaviour create(GhastProjectileFactory factory, HappyGhast ghast,
-                             Player player, ItemPropertyMap.MoodyProjectile data, float mood);
+    ShootingBehaviour createBehaviour(GhastProjectileFactory factory, HappyGhast ghast,
+                                      Player player, ItemPropertyMap.MoodyProjectile data, float mood);
 }

@@ -76,7 +76,7 @@ public abstract class ShootingBehaviour {
     protected void playProjSound() {
         ghast.level().playSound(null, BlockPos.containing(getProjectileSpawnPos()),
                 factory.getSoundEvent(), SoundSource.NEUTRAL,
-                0.5F, 0.4F / (ghast.level().getRandom().nextFloat() * 0.4F + 0.8F));
+                0.35F, 0.4F / (ghast.level().getRandom().nextFloat() * 0.4F + 0.8F));
     }
 
     protected abstract void onChargeComplete();

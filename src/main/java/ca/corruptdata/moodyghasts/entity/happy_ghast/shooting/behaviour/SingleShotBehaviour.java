@@ -20,7 +20,6 @@ public class SingleShotBehaviour extends ShootingBehaviour {
     protected void onChargeComplete() {
         Level level = ghast.level();
 
-        // Create and configure projectile
         Projectile projectile = factory.createProjectile(
                 level, shooter, mood, data.projectile()
         );

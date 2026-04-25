@@ -17,7 +17,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.*;
 
-@OnlyIn(Dist.CLIENT)
 public class GhastMoodBarRenderer implements ContextualBarRenderer {
 
     private final Minecraft minecraft;
