@@ -17,7 +17,7 @@ Ghasts now have dynamic emotions! Monitor their current emotion through the new 
 * Enraged ghasts cry and risk becoming hostile - calm them quickly!
 
 ## Aerial Ghast Combat
-You can now shoot various projectiles while controlling your ghast companion:
+You can now shoot various projectiles by using specific items while driving a happy ghast:
 
 * **Fire Charges** — Classic explosive ghast projectiles
 * **Wind Charges** — More powerful than player-thrown variants
@@ -38,7 +38,24 @@ A new craftable projectile that can be:
   * Converts water sources to frosted ice (when adjacent to air or non-source water)
   * Transforms lava into obsidian and cobblestone
   * Creates snow layers on blocks
+  * Turns cauldrons filled with water into powdered snow
   * Extinguishes fires
+
+## New Cookies
+
+A new use for an underwhelming food! Craft regular cookies into the frosted or spicy variants to affect your ghasts mood!
+
+Players can also consume them, they give the same hunger as regular cookies but come with a 50/50 chance for a positive or negative effect!
+
+### Spicy Cookie
+Upon feeding upsets the ghast.
+
+When eaten by a player they will either gain fire resistance for 15 seconds or be set on fire.
+
+### Frosted Cookie
+Upon feeding calms the ghast.
+
+When consumed by a player will either gain speed for 15 seconds or take freezing damage.
 
 ## Configuration
 This mod is highly data-driven and can be configured entirely through datapacks. No code required for most customization.
