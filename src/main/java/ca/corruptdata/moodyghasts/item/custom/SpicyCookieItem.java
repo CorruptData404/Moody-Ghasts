@@ -21,7 +21,7 @@ public class SpicyCookieItem extends Item {
             int random = level.random.nextInt(2);
             if(random == 0) livingEntity.setRemainingFireTicks(100);
             else if(random == 1) livingEntity.addEffect(new net.minecraft.world.effect.MobEffectInstance(
-                    net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE, 600, 0));
+                    net.minecraft.world.effect.MobEffects.FIRE_RESISTANCE, 300, 0));
         }
 
         return resultStack;

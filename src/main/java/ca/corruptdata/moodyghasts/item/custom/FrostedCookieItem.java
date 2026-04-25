@@ -23,7 +23,7 @@ public class FrostedCookieItem extends Item {
             int random = level.random.nextInt(2);
             if(random == 0) livingEntity.setTicksFrozen(500);
             else if(random == 1) livingEntity.addEffect(new MobEffectInstance(
-                    MobEffects.RESISTANCE, 600, 1));
+                    MobEffects.SPEED, 300, 2));
         }
         
         return resultStack;
