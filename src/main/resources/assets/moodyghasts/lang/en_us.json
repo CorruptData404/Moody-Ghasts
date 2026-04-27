@@ -4,5 +4,12 @@
   "item.moodyghasts.frosted_cookie": "Frosted Cookie",
   "death.attack.moodyghasts.ice_charge": "%1$s was flash frozen",
   "death.attack.moodyghasts.ice_charge.player": "%1$s was iced by %2$s",
-  "death.attack.moodyghasts.ice_charge.item": "%1$s was iced by %2$s"
+  "death.attack.moodyghasts.ice_charge.item": "%1$s was iced by %2$s",
+  "config.moodyghasts.shoot_logging": "Shooting Logging",
+  "config.moodyghasts.mood_logging": "Mood Logging",
+  "config.moodyghasts.shoot_logging.tooltip": "Log detailed information about ghast projectile shooting behavior. Useful for debugging but can create spam.",
+  "config.moodyghasts.mood_logging.tooltip": "Log every mood change for ghasts. Warning: This creates a lot of log output and should only be enabled when debugging mood issues.",
+  "moodyghasts.configuration.title": "Moody Ghasts Configuration",
+  "moodyghasts.configuration.section.moodyghasts.common.toml": "General Settings",
+  "moodyghasts.configuration.section.moodyghasts.common.toml.title": "Moody Ghasts - Common Configuration"
 }

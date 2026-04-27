@@ -22,7 +22,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
@@ -60,7 +59,6 @@ public class MoodyGhasts {
         ModRegistries.SHOOTING_BEHAVIOUR_REGISTER.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
-        // Register the item to a creative tab
         modEventBus.addListener(this::addCreative);
 
         modEventBus.addListener(this::registerDataMaps);
@@ -92,10 +90,6 @@ public class MoodyGhasts {
     // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
     @EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT)
     public static class ClientModEvents {
-        @SubscribeEvent
-        public static void onClientSetup(FMLClientSetupEvent event) {
-            // Client setup code here
-        }
 
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

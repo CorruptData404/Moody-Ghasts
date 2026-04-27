@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
 
+import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
@@ -21,6 +22,10 @@ public class BarrageBehaviour extends ShootingBehaviour {
     @Override
     protected void onChargeComplete() {
         int totalProjectiles = data.shot().getCount(mood);
+
+        if(Config.SHOOT_LOGGING.get())
+            LOGGER.info("Doing {} shot barrage for ghast {}", totalProjectiles, ghast.getUUID());
+
         ghast.setData(ModAttachments.IS_BARRAGING, true);
         ghast.setData(ModAttachments.SHOTS_LEFT, totalProjectiles);
         ghast.setData(ModAttachments.BARRAGE_DELAY, 0);
@@ -102,5 +107,8 @@ public class BarrageBehaviour extends ShootingBehaviour {
         ghast.setData(ModAttachments.IS_BARRAGING, false);
         ghast.setData(ModAttachments.SHOTS_LEFT, 0);
         ghast.setData(ModAttachments.BARRAGE_DELAY, 0);
+
+        if(Config.SHOOT_LOGGING.get())
+            LOGGER.info("Barrage stopped for ghast {}", ghast.getUUID());
     }
 }

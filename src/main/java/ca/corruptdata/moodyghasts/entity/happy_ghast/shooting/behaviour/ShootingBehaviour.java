@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
 
+import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
@@ -31,6 +32,9 @@ public abstract class ShootingBehaviour {
         this.ghast = ghast;
         ghast.setData(ModAttachments.IS_CHARGING, true);
         ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 1);
+
+        if(Config.SHOOT_LOGGING.get())
+            LOGGER.info("Starting {} tick charge for ghast {}", chargeDuration, ghast.getUUID());
     }
 
     public void tick() {
@@ -46,6 +50,10 @@ public abstract class ShootingBehaviour {
             if (chargeTick == chargeDuration / 2) {
                 ghast.level().levelEvent(ghast, 1015, ghast.blockPosition(), 0);
             } else if (chargeTick == chargeDuration) {
+
+                if(Config.SHOOT_LOGGING.get())
+                    LOGGER.info("Completed {} tick charge for ghast {}", chargeDuration, ghast.getUUID());
+
                 onChargeComplete();
                 resetChargeState();
             }
@@ -57,6 +65,9 @@ public abstract class ShootingBehaviour {
     private void resetChargeState() {
         ghast.setData(ModAttachments.IS_CHARGING, false);
         ghast.setData(ModAttachments.PROJECTILE_CHARGE_TICK, 0);
+
+        if(Config.SHOOT_LOGGING.get())
+            LOGGER.info("Resetting charge state for ghast {}", ghast.getUUID());
     }
 
     protected Vec3 getProjectileSpawnPos() {

@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast;
 
+import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
@@ -40,12 +41,22 @@ public class GhastMoodHandler {
     public static void adjustMood(HappyGhast ghast, float delta) {
         if (delta == 0.0) return;
 
-        ParticleOptions particle = delta > 0F ? ParticleTypes.ANGRY_VILLAGER : ParticleTypes.HAPPY_VILLAGER;
         float currentMood = ghast.getData(ModAttachments.MOOD);
-        if (wouldCrossMoodThreshold(currentMood, delta)) spawnSurroundParticles(ghast, particle);
 
         float newMood = Mth.clamp(currentMood + delta, GhastMoodMap.MIN, GhastMoodMap.MAX);
-        LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, newMood);
+
+        if(Config.MOOD_LOGGING.get())
+            LOGGER.info("Adjusting mood by {} from {} to {}", delta, currentMood, newMood);
+
+        if (wouldCrossMoodThreshold(currentMood, delta)){
+            ParticleOptions particle = delta > 0F ? ParticleTypes.ANGRY_VILLAGER : ParticleTypes.HAPPY_VILLAGER;
+
+            spawnSurroundParticles(ghast, particle);
+
+            if(Config.MOOD_LOGGING.get())
+                LOGGER.info("Ghast is now mood {}", GhastMoodMap.get().getMoodOfValue(newMood));
+        }
+
         ghast.setData(ModAttachments.MOOD, newMood);
     }
 

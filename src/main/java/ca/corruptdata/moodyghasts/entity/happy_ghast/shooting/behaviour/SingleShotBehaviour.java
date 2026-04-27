@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
 
+import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
@@ -18,6 +19,9 @@ public class SingleShotBehaviour extends ShootingBehaviour {
 
     @Override
     protected void onChargeComplete() {
+        if(Config.SHOOT_LOGGING.get())
+            LOGGER.info("Doing single shot for ghast {}", ghast.getUUID());
+
         Level level = ghast.level();
 
         Projectile projectile = factory.createProjectile(
