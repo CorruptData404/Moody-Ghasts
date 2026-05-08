@@ -8,7 +8,7 @@ import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -19,7 +19,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.animal.HappyGhast;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
@@ -35,8 +35,8 @@ import java.util.Optional;
 public class GhastMoodHandler {
 
     private static final Logger LOGGER = MoodyGhasts.LOGGER;
-    private static final ResourceLocation SPEED_MODIFIER_ID =
-            ResourceLocation.fromNamespaceAndPath("moodyghasts", "speed_modifier");
+    private static final Identifier SPEED_MODIFIER_ID =
+            Identifier.fromNamespaceAndPath("moodyghasts", "speed_modifier");
 
     public static void adjustMood(HappyGhast ghast, float delta) {
         if (delta == 0.0) return;
@@ -70,7 +70,7 @@ public class GhastMoodHandler {
     @SubscribeEvent
     private void onEatingTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.level().isClientSide) return;
+        if (ghast.level().isClientSide()) return;
         if (ghast.isBaby()) return;
         if (!ghast.getData(ModAttachments.IS_CONSUMING_FOOD)) return;
 
@@ -84,7 +84,7 @@ public class GhastMoodHandler {
 
             spawnMouthParticles(ghast, new ItemParticleOption(
                     ParticleTypes.ITEM,
-                    ghast.getData(ModAttachments.CURRENT_FOOD).getDefaultInstance()
+                    ghast.getData(ModAttachments.CURRENT_FOOD)
             ));
         }
 
@@ -107,7 +107,7 @@ public class GhastMoodHandler {
     @SubscribeEvent
     private void onSpeedModifyTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.level().isClientSide) return;
+        if (ghast.level().isClientSide()) return;
         if (ghast.isBaby()) return;
 
         AttributeInstance speedAttribute = ghast.getAttribute(Attributes.FLYING_SPEED);
@@ -133,7 +133,7 @@ public class GhastMoodHandler {
     @SubscribeEvent
     private void onMoodRegressionTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.level().isClientSide) return;
+        if (ghast.level().isClientSide()) return;
         if (ghast.isBaby()) return;
 
         float currentMood = ghast.getData(ModAttachments.MOOD);
@@ -164,7 +164,7 @@ public class GhastMoodHandler {
     @SubscribeEvent
     private void onTantrumTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.level().isClientSide) return;
+        if (ghast.level().isClientSide()) return;
         if (ghast.isBaby()) return;
 
         float mood = ghast.getData(ModAttachments.MOOD);
@@ -198,7 +198,7 @@ public class GhastMoodHandler {
                 // Drop 0–4 ghast tears
                 if(moodMap.settings().tantrumTears())
                 {
-                    int tearCount = serverLevel.random.nextInt(5);
+                    int tearCount = serverLevel.getRandom().nextInt(5);
                     if (tearCount > 0) {
                         ItemStack tears = new ItemStack(Items.GHAST_TEAR, tearCount);
                         ghast.spawnAtLocation(serverLevel, tears);

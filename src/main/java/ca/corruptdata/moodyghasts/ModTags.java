@@ -1,7 +1,7 @@
 package ca.corruptdata.moodyghasts;
 
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
@@ -12,12 +12,12 @@ public class ModTags {
         public static final TagKey<Item> MOODY_PROJECTILES = createTag("moody_projectiles");
 
         private static TagKey<Item> createTag(String name) {
-            return ItemTags.create(ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, name));
+            return ItemTags.create(Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, name));
         }
     }
 
     public static class Entities{
         public static final TagKey<EntityType<?>> FREEZE_IMMUNE =
-                TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.withDefaultNamespace("freeze_immune_entity_types"));
+                TagKey.create(Registries.ENTITY_TYPE, Identifier.withDefaultNamespace("freeze_immune_entity_types"));
     }
 }

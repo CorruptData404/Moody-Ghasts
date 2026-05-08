@@ -6,7 +6,7 @@ import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.animal.HappyGhast;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;

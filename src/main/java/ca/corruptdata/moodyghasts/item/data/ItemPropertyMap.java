@@ -6,7 +6,7 @@ import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class ItemPropertyMap {
         ).apply(inst, MoodyConsumable::new));
 
         public static final DataMapType<Item, MoodyConsumable> DATA_MAP = DataMapType.builder(
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_consumables_map"),
+                Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_consumables_map"),
                 Registries.ITEM,
                 CODEC
         ).build();
@@ -80,11 +80,11 @@ public class ItemPropertyMap {
     // ============================================================
 
     public record ProjectileConfig(
-            ResourceLocation type,
+            Identifier type,
             Map<String, MoodScalingConfig> moodScaling  // "radius", "strength", etc.
     ) {
         public static final Codec<ProjectileConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                ResourceLocation.CODEC.fieldOf("type").forGetter(ProjectileConfig::type),
+                Identifier.CODEC.fieldOf("type").forGetter(ProjectileConfig::type),
                 Codec.unboundedMap(Codec.STRING, MoodScalingConfig.CODEC)
                         .optionalFieldOf("moodScaling", Map.of())
                         .forGetter(ProjectileConfig::moodScaling)
@@ -107,12 +107,12 @@ public class ItemPropertyMap {
     // ============================================================
 
     public record ShotConfig(
-            ResourceLocation type,
+            Identifier type,
             Integer chargeDuration,
             Map<String, MoodScalingConfig> moodScaling  // "count", "delay", etc.
     ) {
         public static final Codec<ShotConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                ResourceLocation.CODEC.fieldOf("type").forGetter(ShotConfig::type),
+                Identifier.CODEC.fieldOf("type").forGetter(ShotConfig::type),
                 Codec.INT.optionalFieldOf("chargeDuration", 20).forGetter(ShotConfig::chargeDuration),
                 Codec.unboundedMap(Codec.STRING, MoodScalingConfig.CODEC)
                         .optionalFieldOf("moodScaling", Map.of())
@@ -154,7 +154,7 @@ public class ItemPropertyMap {
         ).apply(inst, MoodyProjectile::new));
 
         public static final DataMapType<Item, MoodyProjectile> DATA_MAP = DataMapType.builder(
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_projectiles_map"),
+                Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_projectiles_map"),
                 Registries.ITEM,
                 CODEC
         ).build();

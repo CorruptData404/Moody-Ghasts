@@ -4,7 +4,6 @@ import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.item.custom.FrostedCookieItem;
 import ca.corruptdata.moodyghasts.item.custom.IceChargeItem;
 import ca.corruptdata.moodyghasts.item.custom.SpicyCookieItem;
-import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.bus.api.IEventBus;
@@ -14,20 +13,17 @@ public class ModItems {
 
     public static final DeferredItem<IceChargeItem> ICE_CHARGE = ITEMS.registerItem(
             "ice_charge",
-            IceChargeItem::new,
-            new Item.Properties()
+            IceChargeItem::new
     );
 
     public static final DeferredItem<FrostedCookieItem> FROSTED_COOKIE = ITEMS.registerItem(
             "frosted_cookie",
-            FrostedCookieItem::new,
-            new Item.Properties()
+            FrostedCookieItem::new
     );
 
     public static final DeferredItem<SpicyCookieItem> SPICY_COOKIE = ITEMS.registerItem(
             "spicy_cookie",
-            SpicyCookieItem::new,
-            new Item.Properties()
+            SpicyCookieItem::new
     );
 
     public static void register(IEventBus eventBus) {

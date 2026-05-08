@@ -4,7 +4,7 @@ import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour.*;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.*;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModRegistries {
@@ -14,12 +14,12 @@ public class ModRegistries {
 
     public static final ResourceKey<Registry<GhastProjectileFactory>> PROJECTILE_FACTORIES =
             ResourceKey.createRegistryKey(
-                    ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "projectile_factories")
+                    Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "projectile_factories")
             );
 
     public static final ResourceKey<Registry<ShootingBehaviourFactory>> SHOOTING_BEHAVIOURS =
             ResourceKey.createRegistryKey(
-                    ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "shooting_behaviours")
+                    Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "shooting_behaviours")
             );
 
     // ============================================================

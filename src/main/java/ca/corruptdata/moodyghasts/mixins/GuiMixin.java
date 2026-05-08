@@ -3,7 +3,7 @@ package ca.corruptdata.moodyghasts.mixins;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
-import net.minecraft.world.entity.animal.HappyGhast;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

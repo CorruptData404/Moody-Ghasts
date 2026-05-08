@@ -8,7 +8,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -18,7 +18,7 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
+import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -46,7 +46,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     private static final int CONVERSION_TIMEOUT = 2; // ticks
     private static final ResourceKey<DamageType> ICECHARGE_DAMAGE =
             ResourceKey.create(Registries.DAMAGE_TYPE,
-                    ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
+                    Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
     protected LivingEntity owner = null;
 
 
@@ -70,7 +70,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
         super.tick();
         BlockPos newBlockPos = this.blockPosition();
 
-        if (!level().isClientSide) {
+        if (!level().isClientSide()) {
 
             if (level() instanceof ServerLevel) {
                 recentlyConverted.clear();
@@ -94,7 +94,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     protected void onHit(@NotNull HitResult result) {
         super.onHit(result);
 
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             Vec3 location = result.getLocation();
 
             if (this.level() instanceof ServerLevel server) {
@@ -157,7 +157,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     @Override
     protected void onHitEntity(@NotNull EntityHitResult entityHit) {
         super.onHitEntity(entityHit);
-        if (!this.level().isClientSide && entityHit.getEntity() instanceof LivingEntity target) {
+        if (!this.level().isClientSide() && entityHit.getEntity() instanceof LivingEntity target) {
 
             if (target.isOnFire()) {
                 target.extinguishFire();
@@ -247,7 +247,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
                     SoundEvents.FIRE_EXTINGUISH,
                     SoundSource.BLOCKS,
                     0.7F,
-                    1.6F + (server.random.nextFloat() - server.random.nextFloat()) * 0.4F
+                    1.6F + (server.getRandom().nextFloat() - server.getRandom().nextFloat()) * 0.4F
             );
         }
     }
@@ -327,7 +327,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
                     SoundEvents.LAVA_EXTINGUISH,
                     SoundSource.BLOCKS,
                     0.2F,
-                    2.0F + (server.random.nextFloat() - server.random.nextFloat()) * 0.4F);
+                    2.0F + (server.getRandom().nextFloat() - server.getRandom().nextFloat()) * 0.4F);
         }
     }
 

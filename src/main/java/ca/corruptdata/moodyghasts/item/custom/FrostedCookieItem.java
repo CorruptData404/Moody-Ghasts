@@ -19,8 +19,8 @@ public class FrostedCookieItem extends Item {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
         ItemStack resultStack = super.finishUsingItem(stack, level, livingEntity);
 
-        if (!level.isClientSide) {
-            int random = level.random.nextInt(2);
+        if (!level.isClientSide()) {
+            int random = level.getRandom().nextInt(2);
             if(random == 0) livingEntity.setTicksFrozen(500);
             else if(random == 1) livingEntity.addEffect(new MobEffectInstance(
                     MobEffects.SPEED, 300, 2));

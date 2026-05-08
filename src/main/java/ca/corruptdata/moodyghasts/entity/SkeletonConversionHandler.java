@@ -3,12 +3,12 @@ package ca.corruptdata.moodyghasts.entity;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.ConversionParams;
 import net.minecraft.world.entity.ConversionType;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.monster.Skeleton;
+import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -18,7 +18,7 @@ public class SkeletonConversionHandler {
 
     private static final ResourceKey<DamageType> ICECHARGE_DAMAGE =
             ResourceKey.create(Registries.DAMAGE_TYPE,
-                    ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
+                    Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
 
     @SubscribeEvent
     public static void onIceChargeHit(LivingDamageEvent.Post event) {

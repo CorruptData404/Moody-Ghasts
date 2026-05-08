@@ -8,7 +8,7 @@ import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factori
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
-import net.minecraft.world.entity.animal.HappyGhast;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -76,7 +76,7 @@ public class GhastShootingHandler {
     @SubscribeEvent
     private void onGhastTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.level().isClientSide) return;
+        if (ghast.level().isClientSide()) return;
         if (ghast.isBaby()) return;
 
         ShootingBehaviour behaviour = activeBehaviours.get(ghast.getUUID());

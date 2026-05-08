@@ -5,7 +5,7 @@ import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.MoodyWindChargeEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.bus.api.IEventBus;
@@ -20,7 +20,7 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<IceChargeEntity>> ICE_CHARGE = ENTITIES.register("ice_charge", () -> {
         ResourceKey<EntityType<?>> key = ResourceKey.create(
                 Registries.ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge")
+                Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge")
         );
         return EntityType.Builder
                 .<IceChargeEntity>of(IceChargeEntity::new, MobCategory.MISC)
@@ -33,7 +33,7 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<MoodyIceChargeEntity>> MOODY_ICE_CHARGE = ENTITIES.register("moody_ice_charge", () -> {
         ResourceKey<EntityType<?>> key = ResourceKey.create(
                 Registries.ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_ice_charge")
+                Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_ice_charge")
         );
         return EntityType.Builder
                 .<MoodyIceChargeEntity>of(MoodyIceChargeEntity::new, MobCategory.MISC)
@@ -46,7 +46,7 @@ public class ModEntities {
     public static final DeferredHolder<EntityType<?>, EntityType<MoodyWindChargeEntity>> MOODY_WIND_CHARGE = ENTITIES.register("moody_wind_charge", () -> {
         ResourceKey<EntityType<?>> key = ResourceKey.create(
                 Registries.ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_wind_charge")
+                Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_wind_charge")
         );
         return EntityType.Builder
                 .<MoodyWindChargeEntity>of(MoodyWindChargeEntity::new, MobCategory.MISC)

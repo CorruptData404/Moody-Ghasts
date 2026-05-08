@@ -12,7 +12,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.animal.HappyGhast;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -40,7 +40,7 @@ public class GhastInteractionHandler {
         if (!(player.getVehicle() instanceof HappyGhast ghast)) return;
         if (player != ghast.getControllingPassenger()) return;
         event.setCanceled(true);
-        if (player.level().isClientSide) return;
+        if (player.level().isClientSide()) return;
         if (isBusy(ghast)) return;
 
         Registry<GhastProjectileFactory> factoryRegistry = Objects.requireNonNull(player.getServer())
@@ -108,7 +108,7 @@ public class GhastInteractionHandler {
 
         ItemStack remainder;
         if (stack.has(DataComponents.USE_REMAINDER)) {
-            remainder = stack.get(DataComponents.USE_REMAINDER).convertInto();
+            remainder = stack.get(DataComponents.USE_REMAINDER);
         } else if (stack.getItem() instanceof BucketItem) {
             remainder = BucketItem.getEmptySuccessItem(stack, player);
         } else if (stack.is(Tags.Items.BUCKETS)) {

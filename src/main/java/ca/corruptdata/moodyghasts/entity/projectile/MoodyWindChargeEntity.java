@@ -1,13 +1,11 @@
 package ca.corruptdata.moodyghasts.entity.projectile;
 
 import ca.corruptdata.moodyghasts.entity.ModEntities;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.windcharge.AbstractWindCharge;
+import net.minecraft.world.entity.projectile.hurtingprojectile.windcharge.AbstractWindCharge;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SimpleExplosionDamageCalculator;
@@ -56,10 +54,7 @@ public class MoodyWindChargeEntity extends AbstractWindCharge {
             position.z(),
             this.customRadius,
             false,
-            Level.ExplosionInteraction.TRIGGER,
-            ParticleTypes.GUST_EMITTER_SMALL,
-            ParticleTypes.GUST_EMITTER_LARGE,
-            SoundEvents.WIND_CHARGE_BURST
+            Level.ExplosionInteraction.TRIGGER
         );
     }
 
