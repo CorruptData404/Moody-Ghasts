@@ -12,6 +12,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -165,7 +166,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
                 return;
             }
 
-            if(target.getType().is(ModTags.Entities.FREEZE_IMMUNE)) return;
+            if (target.getType().builtInRegistryHolder().is(ModTags.Entities.FREEZE_IMMUNE)) return;
 
             DamageSource iceDamage = new DamageSource(
                     registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ICECHARGE_DAMAGE),
@@ -262,7 +263,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             BlockPos snowPos = below.above();
             if (server.isEmptyBlock(snowPos) &&
                     !belowState.is(Blocks.FROSTED_ICE) &&
-                    !belowState.is(net.minecraft.tags.BlockTags.SNOW_LAYER_CANNOT_SURVIVE_ON)) {
+                    !belowState.is(BlockTags.CANNOT_SUPPORT_SNOW_LAYER)) {
                 server.setBlockAndUpdate(snowPos, Blocks.SNOW.defaultBlockState());
             }
         }

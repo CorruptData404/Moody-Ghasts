@@ -43,11 +43,11 @@ public class GhastInteractionHandler {
         if (player.level().isClientSide()) return;
         if (isBusy(ghast)) return;
 
-        Registry<GhastProjectileFactory> factoryRegistry = Objects.requireNonNull(player.getServer())
+        Registry<GhastProjectileFactory> factoryRegistry = Objects.requireNonNull(player.level().getServer())
                 .registryAccess()
                 .lookupOrThrow(ModRegistries.PROJECTILE_FACTORIES);
 
-        Registry<ShootingBehaviourFactory> behaviourRegistry = Objects.requireNonNull(player.getServer())
+        Registry<ShootingBehaviourFactory> behaviourRegistry = Objects.requireNonNull(player.level().getServer())
                 .registryAccess()
                 .lookupOrThrow(ModRegistries.SHOOTING_BEHAVIOURS);
 
@@ -108,7 +108,7 @@ public class GhastInteractionHandler {
 
         ItemStack remainder;
         if (stack.has(DataComponents.USE_REMAINDER)) {
-            remainder = stack.get(DataComponents.USE_REMAINDER);
+            remainder = stack.get(DataComponents.USE_REMAINDER).convertInto().create();
         } else if (stack.getItem() instanceof BucketItem) {
             remainder = BucketItem.getEmptySuccessItem(stack, player);
         } else if (stack.is(Tags.Items.BUCKETS)) {

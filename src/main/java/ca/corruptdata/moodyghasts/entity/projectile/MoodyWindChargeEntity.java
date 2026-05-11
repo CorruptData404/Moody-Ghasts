@@ -1,8 +1,11 @@
 package ca.corruptdata.moodyghasts.entity.projectile;
 
 import ca.corruptdata.moodyghasts.entity.ModEntities;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.hurtingprojectile.windcharge.AbstractWindCharge;
@@ -41,20 +44,22 @@ public class MoodyWindChargeEntity extends AbstractWindCharge {
         );
     }
 
-
     @Override
     protected void explode(Vec3 position) {
-
         this.level().explode(
-            this,
-            null,
-            explosionDamageCalculator,
-            position.x(),
-            position.y(),
-            position.z(),
-            this.customRadius,
-            false,
-            Level.ExplosionInteraction.TRIGGER
+                this,
+                null,
+                explosionDamageCalculator,
+                position.x(),
+                position.y(),
+                position.z(),
+                this.customRadius,
+                false,
+                Level.ExplosionInteraction.TRIGGER,
+                ParticleTypes.GUST_EMITTER_SMALL,
+                ParticleTypes.GUST_EMITTER_LARGE,
+                WeightedList.of(),
+                SoundEvents.WIND_CHARGE_BURST
         );
     }
 

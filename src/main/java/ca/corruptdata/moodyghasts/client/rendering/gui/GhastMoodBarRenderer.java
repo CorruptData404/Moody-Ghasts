@@ -4,14 +4,14 @@ import ca.corruptdata.moodyghasts.ModAttachments;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.HappyGhast;
+import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 
 import java.util.*;
 
@@ -21,8 +21,8 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
     private final HappyGhast happyGhast;
     private final GhastMoodMap thresholds;
     private final RandomSource random;
-    private final Map<ResourceLocation, ResourceLocation> moodBackgroundTextures;
-    private final Map<ResourceLocation, ResourceLocation> moodProgressTextures;
+    private final Map<Identifier, Identifier> moodBackgroundTextures;
+    private final Map<Identifier, Identifier> moodProgressTextures;
 
     public GhastMoodBarRenderer(Minecraft minecraft) {
         this.minecraft = minecraft;
@@ -36,7 +36,8 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
     }
 
     @Override
-    public void renderBackground(GuiGraphics graphics, DeltaTracker deltaTracker) {
+    public void extractBackground(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {
+
         int left = this.left(this.minecraft.getWindow());
         int top = this.top(this.minecraft.getWindow());
 
@@ -62,22 +63,22 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
         }
 
         // Sort mood states by threshold to ensure correct rendering order
-        List<Map.Entry<ResourceLocation, GhastMoodMap.GhastMoodState>> sortedMoods = thresholds.moodStates().entrySet()
+        List<Map.Entry<Identifier, GhastMoodMap.GhastMoodState>> sortedMoods = thresholds.moodStates().entrySet()
                 .stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.comparing(GhastMoodMap.GhastMoodState::threshold)))
                 .toList();
 
         float prevThreshold = GhastMoodMap.MIN;
         for (var entry : sortedMoods) {
-            ResourceLocation mood = entry.getKey();
+            Identifier mood = entry.getKey();
             float threshold = entry.getValue().threshold();
             drawMoodSection(graphics, left, top, prevThreshold, threshold, mood, moodValue);
             prevThreshold = threshold;
         }
     }
 
-    private void drawMoodSection(GuiGraphics graphics, int left, int top, float startThreshold,
-                               float endThreshold, ResourceLocation mood, float moodValue) {
+    private void drawMoodSection(GuiGraphicsExtractor graphics, int left, int top, float startThreshold,
+                                 float endThreshold, Identifier mood, float moodValue) {
         int startPixel = (int) Math.floor(startThreshold * WIDTH);
         int endPixel = (int) Math.ceil(endThreshold * WIDTH);
         int sectionWidth = endPixel - startPixel;
@@ -85,7 +86,7 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
         if (sectionWidth <= 0) return;
 
         // Draw background if texture exists
-        ResourceLocation bgTexture = moodBackgroundTextures.get(mood);
+        Identifier bgTexture = moodBackgroundTextures.get(mood);
         if (bgTexture != null) {
             graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
@@ -106,7 +107,7 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
 
             int filledPixels = (int) (sectionWidth * fillPercentInSection);
             if (filledPixels > 0) {
-                ResourceLocation fillTexture = moodProgressTextures.get(mood);
+                Identifier fillTexture = moodProgressTextures.get(mood);
                 if (fillTexture != null) {
                     graphics.blit(
                             RenderPipelines.GUI_TEXTURED,
@@ -121,7 +122,6 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
             }
         }
     }
-
     @Override
-    public void render(GuiGraphics graphics, DeltaTracker deltaTracker) {}
+    public void extractRenderState(GuiGraphicsExtractor graphics, DeltaTracker deltaTracker) {}
 }
