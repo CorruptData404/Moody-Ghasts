@@ -30,14 +30,12 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<ResourceLocation, Gha
     public record GhastMoodSettings(
             float baseMood,
             float damageMoodRate,
-            float healMoodRate,
-            boolean tantrumTears
+            float healMoodRate
     ) {
         public static final Codec<GhastMoodSettings> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 PERCENT.fieldOf("base_mood").forGetter(GhastMoodSettings::baseMood),
                 Codec.FLOAT.fieldOf("damage_mood_mult").forGetter(GhastMoodSettings::damageMoodRate),
-                Codec.FLOAT.fieldOf("heal_mood_mult").forGetter(GhastMoodSettings::healMoodRate),
-                Codec.BOOL.fieldOf("tantrum_tears").forGetter(GhastMoodSettings::tantrumTears)
+                Codec.FLOAT.fieldOf("heal_mood_mult").forGetter(GhastMoodSettings::healMoodRate)
         ).apply(inst, GhastMoodSettings::new));
     }
 
