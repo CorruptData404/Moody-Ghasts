@@ -8,7 +8,9 @@ import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -22,6 +24,9 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -37,6 +42,10 @@ public class GhastMoodHandler {
     private static final Logger LOGGER = MoodyGhasts.LOGGER;
     private static final Identifier SPEED_MODIFIER_ID =
             Identifier.fromNamespaceAndPath("moodyghasts", "speed_modifier");
+    private static final ResourceKey<LootTable> lootTableKey = ResourceKey.create(
+            Registries.LOOT_TABLE,
+            Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "events/happy_ghast_tantrum")
+    );
 
     public static void adjustMood(HappyGhast ghast, float delta) {
         if (delta == 0.0) return;
@@ -195,13 +204,15 @@ public class GhastMoodHandler {
                     ghast.setItemSlot(EquipmentSlot.BODY, ItemStack.EMPTY);
                 }
 
-                // Drop 0–4 ghast tears
-                if(moodMap.settings().tantrumTears())
-                {
-                    int tearCount = serverLevel.getRandom().nextInt(5);
-                    if (tearCount > 0) {
-                        ItemStack tears = new ItemStack(Items.GHAST_TEAR, tearCount);
-                        ghast.spawnAtLocation(serverLevel, tears);
+                // Drop tantrum loot
+                LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(lootTableKey);
+
+                LootParams lootParams = new LootParams.Builder(serverLevel)
+                        .create(LootContextParamSets.EMPTY);
+
+                for (ItemStack drop : lootTable.getRandomItems(lootParams)) {
+                    if (!drop.isEmpty()) {
+                        ghast.spawnAtLocation(serverLevel, drop);
                     }
                 }
 
