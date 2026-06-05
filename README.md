@@ -13,7 +13,7 @@ Ghasts now have dynamic emotions! Monitor their current emotion through the new 
 
 ### Mood Effects:
 * Excited ghasts gain a speed boost
-* Angry ghasts fire more powerful versions of projectiles
+* Projectile effects can scale significantly with mood
 * Enraged ghasts cry and risk becoming hostile - calm them quickly!
 
 ## Aerial Ghast Combat
@@ -24,7 +24,7 @@ You can now shoot various projectiles by using specific items while driving a ha
 * **Ice Charges** — New freezing projectile
 * **Powdered Snow** — Release a barrage of snowballs
 
-## Ice Charge Mechanics
+## New Ice Charge
 A new craftable projectile that can be:
 * Thrown by players
 * Shot from dispensers
@@ -35,7 +35,8 @@ A new craftable projectile that can be:
   * Applies slowness and deals damage
   * Transforms Skeletons into Strays
 * **Area Effects**
-  * Converts water sources to frosted ice (when adjacent to air or non-source water)
+  * Converts water sources to frosted ice
+    * Only when adjacent to air or non-source water. This means they can be shot through bodies of water!
   * Transforms lava into obsidian and cobblestone
   * Creates snow layers on blocks
   * Turns cauldrons filled with water into powdered snow
@@ -62,7 +63,7 @@ This mod is highly data-driven and can be configured entirely through datapacks.
 
 What you can configure:
 
-* **Mood system** — tune base mood, how quickly mood regresses, damage and healing rates, tantrum thresholds and conversion behaviour, and ghast tear drops
+* **Mood system** — tune base mood, how quickly mood regresses, damage and healing rates, tantrum thresholds, and conversion behaviour
 * **Mood states** — edit the thresholds and effects of existing moods (speed modifiers, tantrum timers, textures), or define entirely new mood states with custom textures and bar colours
 * **Ghast foods** — add new items that affect mood, and configure how much each one changes it
 * **Projectile system** — mix and match any projectile type with any shooting behaviour, and tune their properties (velocity, inaccuracy, strength, radius, count) with per-mood scaling
@@ -81,5 +82,4 @@ Both extension points use NeoForge's registry system, so other mods can register
 * More vanilla projectiles
 
 ## Dependencies
-* Minecraft [1.21.8]
 * Neoforge

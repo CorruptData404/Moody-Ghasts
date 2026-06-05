@@ -248,7 +248,7 @@ public class GhastMoodHandler {
     private void onDamage(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.isBaby()) return;
-        adjustMood(ghast, event.getNewDamage() * GhastMoodMap.get().settings().damageMoodRate());
+        adjustMood(ghast, event.getInflictedDamage() * GhastMoodMap.get().settings().damageMoodRate());
     }
 
     public static void spawnSurroundParticles(HappyGhast ghast, ParticleOptions particleOption) {
