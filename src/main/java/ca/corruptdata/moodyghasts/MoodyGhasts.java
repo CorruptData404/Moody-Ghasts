@@ -1,9 +1,10 @@
 package ca.corruptdata.moodyghasts;
 
 import ca.corruptdata.moodyghasts.client.rendering.projectile.IceChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyIceChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
-import ca.corruptdata.moodyghasts.client.rendering.happy_ghast.MoodGhastRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.happy_ghast.MoodyGhastRenderer;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastInteractionHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastShootingHandler;
@@ -94,9 +95,9 @@ public class MoodyGhasts {
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.ICE_CHARGE.get(), IceChargeRenderer::new);
-            event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), IceChargeRenderer::new);
+            event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), MoodyIceChargeRenderer::new);
             event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), MoodyWindChargeRenderer::new);
-            event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodGhastRenderer::new);
+            event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodyGhastRenderer::new);
 
         }
 
