@@ -9,14 +9,14 @@ import net.minecraft.client.renderer.entity.state.HappyGhastRenderState;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
-public class MoodGhastRenderer extends HappyGhastRenderer {
+public class MoodyGhastRenderer extends HappyGhastRenderer {
 
     // Default shooting texture
     private static final ResourceLocation GHAST_SHOOTING_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID,
                     "textures/entity/happyghast/ghast_shooting.png");
 
-    public MoodGhastRenderer(EntityRendererProvider.Context context) {
+    public MoodyGhastRenderer(EntityRendererProvider.Context context) {
         super(context);
     }
 

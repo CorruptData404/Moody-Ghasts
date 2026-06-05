@@ -14,7 +14,7 @@ public class MoodyWindChargeRenderer extends WindChargeRenderer {
     @Override
     public void render(EntityRenderState state, PoseStack poseStack, MultiBufferSource buffer, int packedLight) {
         poseStack.pushPose();
-        float scale = 2.0F; // Adjust this value to change the size
+        float scale = 3.0F;
         poseStack.scale(scale, scale, scale);
         super.render(state, poseStack, buffer, packedLight);
         poseStack.popPose();
