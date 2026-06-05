@@ -15,7 +15,7 @@ public class MoodyWindChargeRenderer extends WindChargeRenderer {
     @Override
     public void submit(EntityRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
         poseStack.pushPose();
-        float scale = 2.0F;
+        float scale = 3.0F;
         poseStack.scale(scale, scale, scale);
         super.submit(state, poseStack, submitNodeCollector, camera);
         poseStack.popPose();
