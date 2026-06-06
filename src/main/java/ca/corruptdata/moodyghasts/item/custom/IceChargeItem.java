@@ -31,11 +31,15 @@ public class IceChargeItem extends Item implements ProjectileItem {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
         if (level instanceof ServerLevel serverlevel) {
-            // Create and shoot the projectile
             Projectile.spawnProjectileFromRotation(
-                    (p_level, p_shooter, p_projectile) -> new IceChargeEntity(
-                            player, level, player.position().x(), player.getEyePosition().y(), player.position().z()
-                    ),
+                    (p_level, p_shooter, p_projectile) -> {
+                        Vec3 eyePos = p_shooter.getEyePosition();
+                        Vec3 lookVec = p_shooter.getLookAngle();
+                        Vec3 spawnPos = eyePos.add(lookVec.scale(0.5));
+                        return new IceChargeEntity(
+                                p_shooter, p_level, spawnPos.x(), spawnPos.y(), spawnPos.z()
+                        );
+                    },
                     serverlevel,
                     itemstack,
                     player,
@@ -54,7 +58,7 @@ public class IceChargeItem extends Item implements ProjectileItem {
         player.awardStat(Stats.ITEM_USED.get(this));
         itemstack.consume(1, player);
         return InteractionResult.SUCCESS;
-}
+    }
 
     @Override
     public IceChargeEntity asProjectile(Level level, Position pos, ItemStack stack, Direction dir) {
