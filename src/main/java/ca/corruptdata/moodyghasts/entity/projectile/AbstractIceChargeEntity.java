@@ -47,7 +47,6 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     private static final ResourceKey<DamageType> ICECHARGE_DAMAGE =
             ResourceKey.create(Registries.DAMAGE_TYPE,
                     ResourceLocation.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
-    protected LivingEntity owner = null;
 
 
 
@@ -60,7 +59,6 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     // Movement vector constructor with owner
     protected AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity owner, Vec3 movement, Level level) {
         super(type, owner, movement, level);
-        this.owner = owner;
     }
 
     @Override
@@ -156,7 +154,6 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
 
     @Override
     protected void onHitEntity(@NotNull EntityHitResult entityHit) {
-        super.onHitEntity(entityHit);
         if (!this.level().isClientSide && entityHit.getEntity() instanceof LivingEntity target) {
 
             if (target.isOnFire()) {
@@ -168,16 +165,17 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             if(target.getType().is(ModTags.Entities.FREEZE_IMMUNE)) return;
 
             DamageSource iceDamage = new DamageSource(
-                    registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ICECHARGE_DAMAGE),
-                    this,
-                    owner);
+                    registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ICECHARGE_DAMAGE));
+
+            if (this.getOwner() instanceof LivingEntity livingOwner) {
+                target.setLastHurtByMob(livingOwner);
+            }
 
             if (this.level().dimension() == Level.NETHER) {
                 if (target.isSensitiveToWater()) {
                     target.hurtServer((ServerLevel) this.level(), iceDamage, getDamage() * 2);
                 }
-            }
-            else {
+            } else {
                 target.hurtServer((ServerLevel) this.level(), iceDamage, getDamage());
                 target.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 60, 2));
                 target.addEffect(new MobEffectInstance(MobEffects.MINING_FATIGUE, 60, 2));
@@ -185,7 +183,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
 
             // Create ice effects around the hit entity
             applyIceEffects(target.blockPosition(), (ServerLevel) this.level());
-            }
+        }
     }
 
 
