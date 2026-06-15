@@ -41,8 +41,8 @@
       "projectile": {
         "type": "moodyghasts:wind_charge",
         "moodScaling": {
-          "radius": { "min": 1.0, "max": 5.0, "stepped": true },
-          "strength": { "min": 1.5, "max": 4, "stepped": true }
+          "radius": { "min": 1.0, "max": 4.0, "stepped": true },
+          "strength": { "min": 1.5, "max": 3.5, "stepped": true }
         }
       },
       "shot": {
@@ -55,7 +55,7 @@
     },
     "minecraft:powder_snow_bucket": {
       "cooldown": 60,
-      "moodDelta": -0.005,
+      "moodDelta": -0.0035,
       "projectile": {
         "type": "moodyghasts:snow_ball"
       },
@@ -63,8 +63,8 @@
         "type": "moodyghasts:barrage",
         "chargeDuration": 20,
         "moodScaling": {
-          "count": { "min": 30, "max": 70 },
-          "velocity": { "min": 1.0, "max": 1.0 },
+          "count": { "min": 30, "max": 90 },
+          "velocity": { "min": 1.0, "max": 2.0 },
           "inaccuracy": { "min": 0.08, "max": 0.10, "inverted": true }
         }
       }
