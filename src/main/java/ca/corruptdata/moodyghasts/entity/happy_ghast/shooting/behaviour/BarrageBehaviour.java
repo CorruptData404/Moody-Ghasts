@@ -90,6 +90,12 @@ public class BarrageBehaviour extends ShootingBehaviour {
         float progressScale = 0.5f + (0.9f * (float)Math.log10(progress * 9 + 1));
         float speedFactor = data.shot().getVelocity(mood) * progressScale;
 
+        if(Config.SHOOT_LOGGING.get())
+            LOGGER.info("""
+                    New Barrage Projectile with:
+                    Speed Factor: {}
+                    Inaccuracy: {}""", speedFactor, inaccuracy);
+
         Projectile projectile = factory.createProjectile(level, shooter, mood, data.projectile());
         projectile.setPos(spawnPos);
         projectile.shoot(

@@ -19,8 +19,15 @@ public class SingleShotBehaviour extends ShootingBehaviour {
 
     @Override
     protected void onChargeComplete() {
+        float velocity = data.shot().getVelocity(mood);
+        float inaccuracy = data.shot().getInaccuracy(mood);
+
         if(Config.SHOOT_LOGGING.get())
-            LOGGER.info("Doing single shot for ghast {}", ghast.getUUID());
+            LOGGER.info("""
+                            Doing single shot for ghast {} with:
+                            Velocity: {}
+                            Inaccuracy: {}""",
+                    ghast.getUUID(),velocity,inaccuracy);
 
         Level level = ghast.level();
 
@@ -33,8 +40,8 @@ public class SingleShotBehaviour extends ShootingBehaviour {
         projectile.setPos(getProjectileSpawnPos());
         projectile.shoot(
                 direction.x, direction.y, direction.z,
-                data.shot().getVelocity(mood),
-                data.shot().getInaccuracy(mood));
+                velocity,
+                inaccuracy);
 
         // Spawn projectile
         level.levelEvent(null, 1016, ghast.blockPosition(), 0);
