@@ -11,6 +11,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.HappyGhast;
 import net.minecraft.world.entity.player.Player;
@@ -57,7 +58,7 @@ public class GhastInteractionHandler {
                                 .builtInRegistryHolder()
                                 .getData(ItemPropertyMap.MoodyProjectile.DATA_MAP))
                         .cooldown());
-        consumePlayerItem(player, projectileItem);
+        consumePlayerItem(player, event.getHand(), projectileItem);
     }
 
     @SubscribeEvent
@@ -73,7 +74,7 @@ public class GhastInteractionHandler {
         ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
         ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
 
-        consumePlayerItem(event.getEntity(), stack);
+        consumePlayerItem(event.getEntity(), event.getHand(), stack);
 
     }
 
@@ -92,7 +93,7 @@ public class GhastInteractionHandler {
         ghast.setData(ModAttachments.IS_CONSUMING_FOOD, true);
         ghast.setData(ModAttachments.CURRENT_FOOD, stack.getItem());
 
-        consumePlayerItem(event.getEntity(), stack);
+        consumePlayerItem(event.getEntity(), event.getHand(), stack);
     }
 
     private boolean isBusy(HappyGhast ghast){
@@ -102,7 +103,7 @@ public class GhastInteractionHandler {
                 || shootingHandler.isActive(ghast);
     }
 
-    private void consumePlayerItem(Player player, ItemStack stack) {
+    private void consumePlayerItem(Player player, InteractionHand hand, ItemStack stack) {
         player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         if (player.getAbilities().instabuild) return;
 
@@ -118,7 +119,7 @@ public class GhastInteractionHandler {
         }
 
         ItemStack result = ItemUtils.createFilledResult(stack, player, remainder);
-        player.setItemInHand(player.getUsedItemHand(), result);
+        player.setItemInHand(hand, result);
     }
 
     private void applyCooldownToProjectiles(Player player, int cooldown) {
