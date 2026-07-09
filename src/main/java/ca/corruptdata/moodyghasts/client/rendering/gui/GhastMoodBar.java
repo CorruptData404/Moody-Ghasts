@@ -5,17 +5,17 @@ import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.gui.contextualbar.ContextualBarRenderer;
+import net.minecraft.client.gui.contextualbar.ContextualBar;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 
 import java.util.*;
 
-public class GhastMoodBarRenderer implements ContextualBarRenderer {
+public class GhastMoodBar implements ContextualBar {
 
     private final Minecraft minecraft;
     private final HappyGhast happyGhast;
@@ -24,10 +24,10 @@ public class GhastMoodBarRenderer implements ContextualBarRenderer {
     private final Map<Identifier, Identifier> moodBackgroundTextures;
     private final Map<Identifier, Identifier> moodProgressTextures;
 
-    public GhastMoodBarRenderer(Minecraft minecraft) {
+    public GhastMoodBar(Minecraft minecraft) {
         this.minecraft = minecraft;
         this.happyGhast = (HappyGhast) Objects.requireNonNull(minecraft.player).getVehicle();
-        this.thresholds = EntityType.HAPPY_GHAST.builtInRegistryHolder().getData(GhastMoodMap.DATA_MAP);
+        this.thresholds = EntityTypes.HAPPY_GHAST.builtInRegistryHolder().getData(GhastMoodMap.DATA_MAP);
         this.random = minecraft.player.getRandom();
 
         // Initialize texture maps based on available moods

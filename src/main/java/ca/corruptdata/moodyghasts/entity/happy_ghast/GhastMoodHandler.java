@@ -186,7 +186,7 @@ public class GhastMoodHandler {
             ServerLevel serverLevel = (ServerLevel) ghast.level();
 
             if (tantrumTicks >= transformOnTick) {
-                if (!net.neoforged.neoforge.event.EventHooks.canLivingConvert(ghast, EntityType.GHAST, t -> {}))
+                if (!net.neoforged.neoforge.event.EventHooks.canLivingConvert(ghast, EntityTypes.GHAST, t -> {}))
                     return;
 
                 // Dismount all riders with short slow falling
@@ -217,7 +217,7 @@ public class GhastMoodHandler {
                 }
 
                 // Convert to hostile ghast
-                ghast.convertTo(EntityType.GHAST, ConversionParams.single(ghast, false, true), newGhast -> {
+                ghast.convertTo(EntityTypes.GHAST, ConversionParams.single(ghast, false, true), newGhast -> {
                     net.neoforged.neoforge.event.EventHooks.onLivingConvert(ghast, newGhast);
 
                     if (!ghast.isSilent()) {

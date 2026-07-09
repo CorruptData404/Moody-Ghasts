@@ -7,7 +7,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.entity.ConversionParams;
 import net.minecraft.world.entity.ConversionType;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.monster.skeleton.Skeleton;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -28,7 +28,7 @@ public class SkeletonConversionHandler {
 
         // Instant conversion to Stray
         skeleton.convertTo(
-                EntityType.STRAY,
+                EntityTypes.STRAY,
                 new ConversionParams(ConversionType.SINGLE, true, true, null),
                 newEntity -> {
                     net.neoforged.neoforge.event.EventHooks.onLivingConvert(skeleton, newEntity);

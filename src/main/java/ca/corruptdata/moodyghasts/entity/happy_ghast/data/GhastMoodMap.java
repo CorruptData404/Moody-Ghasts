@@ -7,6 +7,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import org.jetbrains.annotations.Nullable;
 
@@ -94,7 +95,7 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
     // ============================================================
 
     public static GhastMoodMap get() {
-        return EntityType.HAPPY_GHAST.builtInRegistryHolder().getData(DATA_MAP);
+        return EntityTypes.HAPPY_GHAST.builtInRegistryHolder().getData(DATA_MAP);
     }
 
     public Identifier getMoodOfValue(float moodValue) {
