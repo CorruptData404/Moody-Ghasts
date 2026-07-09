@@ -35,9 +35,9 @@ public abstract class GuiMixin {
     private static Gui.ContextualInfo moodyghasts$getUpdatedEnum() {
         if (moodyghasts$updatedEnum == null) {
             moodyghasts$updatedEnum = Arrays.stream(Gui.ContextualInfo.values())
-                    .filter(e -> e.name().equals("GHAST_MOOD_BAR"))
+                    .filter(e -> e.name().equals("MOODY_VEHICLE"))
                     .findFirst()
-                    .orElseThrow(() -> new RuntimeException("GHAST_MOOD_BAR not found"));
+                    .orElseThrow(() -> new RuntimeException("MOODY_VEHICLE not found"));
         }
         return moodyghasts$updatedEnum;
     }
