@@ -1,10 +1,5 @@
 package ca.corruptdata.moodyghasts;
 
-import ca.corruptdata.moodyghasts.client.rendering.projectile.IceChargeRenderer;
-import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyIceChargeRenderer;
-import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyWindChargeRenderer;
-import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
-import ca.corruptdata.moodyghasts.client.rendering.happy_ghast.MoodyGhastRenderer;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastInteractionHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastShootingHandler;
@@ -13,19 +8,12 @@ import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.item.ModItems;
 import com.mojang.logging.LogUtils;
-import net.minecraft.client.renderer.entity.HappyGhastRenderer;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.renderstate.RegisterRenderStateModifiersEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
@@ -86,35 +74,5 @@ public class MoodyGhasts {
         event.register(GhastMoodMap.DATA_MAP);
         event.register(ItemPropertyMap.MoodyConsumable.DATA_MAP);
         event.register(ItemPropertyMap.MoodyProjectile.DATA_MAP);
-    }
-
-    // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-    @EventBusSubscriber(modid = MOD_ID, value = Dist.CLIENT)
-    public static class ClientModEvents {
-
-        @SubscribeEvent
-        public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(ModEntities.ICE_CHARGE.get(), IceChargeRenderer::new);
-            event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), MoodyIceChargeRenderer::new);
-            event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), MoodyWindChargeRenderer::new);
-            event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodyGhastRenderer::new);
-
-        }
-
-        @SubscribeEvent
-        public static void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {
-            event.registerEntityModifier(
-                    HappyGhastRenderer.class,
-                    (entity, state) -> state.setRenderData(
-                            RenderStateKeys.MOOD, entity.getData(ModAttachments.MOOD)));
-            event.registerEntityModifier(
-                    HappyGhastRenderer.class,
-                    (entity, state) -> state.setRenderData(
-                            RenderStateKeys.IS_CHARGING, entity.getData(ModAttachments.IS_CHARGING)));
-            event.registerEntityModifier(
-                    HappyGhastRenderer.class,
-                    (entity, state) -> state.setRenderData(
-                            RenderStateKeys.IS_BARRAGING, entity.getData(ModAttachments.IS_BARRAGING)));
-        }
     }
 }
