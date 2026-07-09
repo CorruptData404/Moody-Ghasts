@@ -23,11 +23,11 @@ public abstract class ContextualInfoMixin {
     static {
         // Guard: only add if not already present (handles hot reload / classloader edge cases)
         boolean alreadyPresent = Arrays.stream($VALUES)
-                .anyMatch(e -> e.name().equals("GHAST_MOOD_BAR"));
+                .anyMatch(e -> e.name().equals("MOODY_VEHICLE"));
         if (!alreadyPresent) {
             Gui.ContextualInfo[] newValues = new Gui.ContextualInfo[$VALUES.length + 1];
             System.arraycopy($VALUES, 0, newValues, 0, $VALUES.length);
-            Gui.ContextualInfo entry = moodyghasts$invokeInit("GHAST_MOOD_BAR", $VALUES.length);
+            Gui.ContextualInfo entry = moodyghasts$invokeInit("MOODY_VEHICLE", $VALUES.length);
             newValues[$VALUES.length] = entry;
             $VALUES = newValues;
         }
