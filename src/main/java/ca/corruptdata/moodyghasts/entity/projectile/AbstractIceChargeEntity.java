@@ -35,6 +35,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
@@ -71,7 +73,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             if (level() instanceof ServerLevel) {
                 recentlyConverted.clear();
             }
-            
+
             // Check for fluid interactions when the entity moves to a new block
             if (!prevBlockPos.equals(newBlockPos) && shouldTriggerInFluid(newBlockPos)) {
                 BlockHitResult hitResult = new BlockHitResult(
@@ -142,7 +144,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
                 );
 
                 BlockPos centerPos = BlockPos.containing(location.x, location.y, location.z);
-                applyIceEffects(centerPos, server);
+                applyIceEffects(centerPos, server, radius);
             }
 
             this.discard();
@@ -191,23 +193,54 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     }
 
     protected void applyIceEffects(BlockPos center, ServerLevel server) {
-        int radius = (int) getAdjustedRadius(server);
-        BlockPos.betweenClosedStream(
-                        center.offset(-radius, -radius, -radius),
-                        center.offset(radius, radius, radius)
-                )
-                .filter(pos -> pos.distSqr(center) <= (double) radius * radius)
-                .forEach(pos -> {
-                    BlockState state = server.getBlockState(pos);
-                    BlockPos above = pos.above();
-                    BlockState aboveState = server.getBlockState(above);
-                    BlockPos below = pos.below();
-                    BlockState belowState = server.getBlockState(below);
+        applyIceEffects(center, server, getAdjustedRadius(server));
+    }
 
-                    processFireExtinguishing(server, pos);
-                    processSnowCreation(server, below, belowState);
-                    processBlockConversion(pos, server, state, aboveState);
-                });
+    protected void applyIceEffects(BlockPos center, ServerLevel server, float adjustedRadius) {
+        int radius = (int) adjustedRadius;
+        long radiusSq = (long) radius * radius;
+
+        // Every position in the sphere is looked up up to 3 times: once as itself,
+        // once as a neighbour's "above", and once as a neighbour's "below". Caching by
+        // packed long position (BlockPos.asLong()) avoids re-querying the chunk/section
+        // for a block already read, without the overhead or aliasing risk of
+        // using mutable BlockPos objects as map keys.
+        Map<Long, BlockState> stateCache = new HashMap<>();
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+
+        int cx = center.getX();
+        int cy = center.getY();
+        int cz = center.getZ();
+
+        for (int x = -radius; x <= radius; x++) {
+            long xSq = (long) x * x;
+            for (int y = -radius; y <= radius; y++) {
+                long xySq = xSq + (long) y * y;
+                if (xySq > radiusSq) continue; // whole z-column is out of range, skip early
+                for (int z = -radius; z <= radius; z++) {
+                    if (xySq + (long) z * z > radiusSq) continue;
+
+                    cursor.set(cx + x, cy + y, cz + z);
+                    BlockPos pos = cursor.immutable();
+                    BlockPos abovePos = pos.above();
+                    BlockPos belowPos = pos.below();
+
+                    BlockState state = cachedState(server, stateCache, pos);
+                    BlockState aboveState = cachedState(server, stateCache, abovePos);
+                    BlockState belowState = cachedState(server, stateCache, belowPos);
+
+                    processFireExtinguishing(server, pos, state);
+                    processSnowCreation(server, belowPos, belowState);
+                    processBlockConversion(pos, server, state, aboveState, belowState);
+
+                    stateCache.remove(pos.asLong());
+                }
+            }
+        }
+    }
+
+    private BlockState cachedState(ServerLevel server, Map<Long, BlockState> cache, BlockPos pos) {
+        return cache.computeIfAbsent(pos.asLong(), _ -> server.getBlockState(pos));
     }
 
     private boolean shouldTriggerInFluid(BlockPos pos) {
@@ -233,9 +266,8 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
         return false;
     }
 
-    private void processFireExtinguishing(ServerLevel server, BlockPos pos) {
-        BlockState currentState = server.getBlockState(pos);
-        if (currentState.getBlock() instanceof BaseFireBlock) {
+    private void processFireExtinguishing(ServerLevel server, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof BaseFireBlock) {
             server.removeBlock(pos, false);
             server.playSound(
                     null,
@@ -265,28 +297,16 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     }
 
     private void processBlockConversion(BlockPos pos, ServerLevel server,
-                                        BlockState state, BlockState aboveState) {
-        if (state.getBlock() instanceof LayeredCauldronBlock) {
-            handleWaterConversion(pos, server, state, aboveState);
-        }
-        // Then check for regular water/lava blocks
-        else if (state.is(Blocks.WATER)) {
+                                        BlockState state, BlockState aboveState, BlockState belowState) {
+        if (state.is(Blocks.WATER) || state.is(Blocks.WATER_CAULDRON)) {
             handleWaterConversion(pos, server, state, aboveState);
         } else if (state.is(Blocks.LAVA)) {
-            handleLavaConversion(pos, server);
+            handleLavaConversion(pos, server, state, belowState);
         }
 
     }
 
     private void handleWaterConversion(BlockPos pos, ServerLevel server, BlockState state, BlockState aboveState) {
-
-        // Handle Cauldrons with water
-        if (state.is(Blocks.WATER_CAULDRON)) {
-            int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
-            server.setBlockAndUpdate(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState()
-                    .setValue(LayeredCauldronBlock.LEVEL, waterLevel));
-        }
-
         // Handle regular water blocks
         if (state.getFluidState().isSource() &&
                 !aboveState.is(Blocks.WATER) &&
@@ -294,16 +314,20 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
                 !aboveState.is(Blocks.ICE)) {
             server.setBlockAndUpdate(pos, Blocks.FROSTED_ICE.defaultBlockState());
             server.scheduleTick(pos, Blocks.FROSTED_ICE, 200);
+        } else if (state.is(Blocks.WATER_CAULDRON))  { // Handle Cauldrons with water
+            int waterLevel = state.getValue(LayeredCauldronBlock.LEVEL);
+            server.setBlockAndUpdate(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState()
+                    .setValue(LayeredCauldronBlock.LEVEL, waterLevel));
         }
     }
 
 
-    private void handleLavaConversion(BlockPos pos, ServerLevel server) {
-        BlockState state = server.getBlockState(pos);
-        if (state.is(Blocks.LAVA)) {
+    private void handleLavaConversion(BlockPos pos, ServerLevel server, BlockState state, BlockState belowState) {
             // Convert lava
             if (state.getFluidState().isSource()) {
                 server.setBlockAndUpdate(pos, Blocks.OBSIDIAN.defaultBlockState());
+            } else if (belowState.is(Blocks.SOUL_SOIL)) {
+                server.setBlockAndUpdate(pos, Blocks.BASALT.defaultBlockState());
             } else {
                 server.setBlockAndUpdate(pos, Blocks.COBBLESTONE.defaultBlockState());
             }
@@ -324,7 +348,6 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
                     SoundSource.BLOCKS,
                     0.2F,
                     2.0F + (server.getRandom().nextFloat() - server.getRandom().nextFloat()) * 0.4F);
-        }
     }
 
     @Override
