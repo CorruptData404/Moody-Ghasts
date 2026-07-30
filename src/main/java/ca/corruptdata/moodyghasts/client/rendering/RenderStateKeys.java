@@ -14,4 +14,7 @@ public class RenderStateKeys {
 
     public static final ContextKey<Boolean> IS_BARRAGING = new ContextKey<>(
             Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_barraging"));
+
+    public static final ContextKey<Float> TANTRUM_PROGRESS = new ContextKey<>(
+            Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "tantrum_progress"));
 }
