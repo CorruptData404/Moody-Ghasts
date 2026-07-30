@@ -7,7 +7,9 @@ import ca.corruptdata.moodyghasts.client.rendering.projectile.IceChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyIceChargeRenderer;
 import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityTypes;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -25,6 +27,7 @@ public class MoodyGhastsClient {
         // Register the built-in configuration screen
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
 
+        modEventBus.addListener(this::registerLayerDefinitions);
         modEventBus.addListener(this::registerRenderers);
         modEventBus.addListener(this::registerRenderStateModifiers);
     }
@@ -49,5 +52,14 @@ public class MoodyGhastsClient {
                 HappyGhastRenderer.class,
                 (entity, state) -> state.setRenderData(
                         RenderStateKeys.IS_BARRAGING, entity.getData(ModAttachments.IS_BARRAGING)));
+        event.registerEntityModifier(
+                HappyGhastRenderer.class,
+                (entity, state) -> {
+                    GhastMoodMap map = GhastMoodMap.get();
+                    int tantrumTick = map != null ? map.getTantrumTick(entity.getData(ModAttachments.MOOD)) : 1;
+                    int enragedTicks = entity.getData(ModAttachments.TANTRUM_TICKS);
+                    float progress = tantrumTick > 0 ? Mth.clamp((float) enragedTicks / tantrumTick, 0f, 1f) : 0f;
+                    state.setRenderData(RenderStateKeys.TANTRUM_PROGRESS, progress);
+                });
     }
 }

@@ -216,6 +216,10 @@ public class GhastMoodHandler {
                     }
                 }
 
+                //Spawn particles twice
+                spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER);
+                spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER);
+
                 // Convert to hostile ghast
                 ghast.convertTo(EntityTypes.GHAST, ConversionParams.single(ghast, false, true), newGhast -> {
                     net.neoforged.neoforge.event.EventHooks.onLivingConvert(ghast, newGhast);

@@ -18,6 +18,7 @@ public class MoodyGhastRenderer extends HappyGhastRenderer {
 
     public MoodyGhastRenderer(EntityRendererProvider.Context context) {
         super(context);
+        this.addLayer(new GhastTantrumOverlayLayer(this));
     }
 
     @Override
