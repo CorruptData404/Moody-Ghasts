@@ -17,8 +17,11 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
@@ -34,6 +37,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +52,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     protected abstract float getDamage();
     private final Set<BlockPos> recentlyConverted = Collections.newSetFromMap(new WeakHashMap<>());
     private static final int CONVERSION_TIMEOUT = 2; // ticks
+    private int noDeflectTicks = 5;
     private static final ResourceKey<DamageType> ICECHARGE_DAMAGE =
             ResourceKey.create(Registries.DAMAGE_TYPE,
                     Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
@@ -67,6 +73,10 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
         BlockPos prevBlockPos = this.blockPosition();
         super.tick();
         BlockPos newBlockPos = this.blockPosition();
+
+        if (this.noDeflectTicks > 0) {
+            this.noDeflectTicks--;
+        }
 
         if (!level().isClientSide()) {
 
@@ -184,6 +194,11 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             // Create ice effects around the hit entity
             applyIceEffects(target.blockPosition(), (ServerLevel) this.level());
         }
+    }
+
+    @Override
+    public boolean deflect(ProjectileDeflection deflection, @Nullable Entity deflectingEntity, @Nullable EntityReference<Entity> newOwner, boolean byAttack) {
+        return this.noDeflectTicks > 0 ? false : super.deflect(deflection, deflectingEntity, newOwner, byAttack);
     }
 
 

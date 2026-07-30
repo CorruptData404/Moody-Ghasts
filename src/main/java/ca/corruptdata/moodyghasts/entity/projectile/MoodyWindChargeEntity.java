@@ -6,13 +6,17 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.hurtingprojectile.windcharge.AbstractWindCharge;
 import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SimpleExplosionDamageCalculator;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.Function;
@@ -20,6 +24,7 @@ import java.util.function.Function;
 public class MoodyWindChargeEntity extends AbstractWindCharge {
     private static final double MIN_CAMERA_DISTANCE_SQUARED = 12.25;
     private final float customRadius;
+    private int noDeflectTicks = 5;
     private final ExplosionDamageCalculator explosionDamageCalculator;
 
     public MoodyWindChargeEntity(EntityType<? extends AbstractWindCharge> entityType, Level level) {
@@ -42,6 +47,19 @@ public class MoodyWindChargeEntity extends AbstractWindCharge {
                 Optional.of(1.22F * strength),
                 BuiltInRegistries.BLOCK.get(BlockTags.BLOCKS_WIND_CHARGE_EXPLOSIONS).map(Function.identity())
         );
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.noDeflectTicks > 0) {
+            this.noDeflectTicks--;
+        }
+    }
+
+    @Override
+    public boolean deflect(ProjectileDeflection deflection, @Nullable Entity deflectingEntity, @Nullable EntityReference<Entity> newOwner, boolean byAttack) {
+        return this.noDeflectTicks > 0 ? false : super.deflect(deflection, deflectingEntity, newOwner, byAttack);
     }
 
     @Override
