@@ -21,9 +21,16 @@ public class ItemPropertyMap {
     // MoodyConsumable - Food items that affect mood
     // ============================================================
 
-    public record MoodyConsumable(float moodDelta) {
+    public record MoodyConsumable(
+            float moodDelta,
+            int consumeTick,
+            int rtpDiameter
+    ) {
+
         public static final Codec<MoodyConsumable> CODEC = RecordCodecBuilder.create(inst -> inst.group(
-                Codec.FLOAT.fieldOf("moodDelta").forGetter(MoodyConsumable::moodDelta)
+                Codec.FLOAT.fieldOf("moodDelta").forGetter(MoodyConsumable::moodDelta),
+                Codec.INT.optionalFieldOf("consumeTick",32).forGetter(MoodyConsumable::consumeTick),
+                Codec.INT.optionalFieldOf("rtpDiameter",0).forGetter(MoodyConsumable::rtpDiameter)
         ).apply(inst, MoodyConsumable::new));
 
         public static final DataMapType<Item, MoodyConsumable> DATA_MAP = DataMapType.builder(
