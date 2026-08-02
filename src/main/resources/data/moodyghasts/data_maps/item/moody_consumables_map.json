@@ -8,6 +8,11 @@
     },
     "moodyghasts:spicy_cookie": {
       "moodDelta": 0.05
+    },
+    "minecraft:chorus_fruit": {
+      "moodDelta": 0.025,
+      "consumeTick": 16,
+      "rtpDiameter": 32
     }
   }
 }

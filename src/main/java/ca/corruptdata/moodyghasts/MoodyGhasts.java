@@ -2,6 +2,7 @@ package ca.corruptdata.moodyghasts;
 
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastInteractionHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMovementHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastShootingHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
@@ -43,6 +44,7 @@ public class MoodyGhasts {
         NeoForge.EVENT_BUS.register(shootingHandler);
         NeoForge.EVENT_BUS.register(interactionHandler);
         NeoForge.EVENT_BUS.register(new GhastMoodHandler());
+        NeoForge.EVENT_BUS.register(new GhastMovementHandler());
 
         ModRegistries.PROJECTILE_FACTORY_REGISTER.register(modEventBus);
         ModRegistries.SHOOTING_BEHAVIOUR_REGISTER.register(modEventBus);
