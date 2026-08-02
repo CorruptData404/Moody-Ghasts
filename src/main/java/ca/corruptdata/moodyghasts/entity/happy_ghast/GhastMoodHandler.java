@@ -18,10 +18,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -40,8 +38,6 @@ import java.util.Optional;
 public class GhastMoodHandler {
 
     private static final Logger LOGGER = MoodyGhasts.LOGGER;
-    private static final Identifier SPEED_MODIFIER_ID =
-            Identifier.fromNamespaceAndPath("moodyghasts", "speed_modifier");
     private static final ResourceKey<LootTable> lootTableKey = ResourceKey.create(
             Registries.LOOT_TABLE,
             Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "events/happy_ghast_tantrum")
@@ -60,7 +56,7 @@ public class GhastMoodHandler {
         if (wouldCrossMoodThreshold(currentMood, delta)){
             ParticleOptions particle = delta > 0F ? ParticleTypes.ANGRY_VILLAGER : ParticleTypes.HAPPY_VILLAGER;
 
-            spawnSurroundParticles(ghast, particle);
+            spawnSurroundParticles(ghast, particle,15);
 
             if(Config.MOOD_LOGGING.get())
                 LOGGER.info("Ghast is now mood {}", GhastMoodMap.get().getMoodOfValue(newMood));
@@ -86,23 +82,23 @@ public class GhastMoodHandler {
         int consumeTime = ghast.getData(ModAttachments.FOOD_CONSUME_TICKS);
         ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, consumeTime + 1);
 
+        Item foodItem = ghast.getData(ModAttachments.CURRENT_FOOD);
+        ItemPropertyMap.MoodyConsumable foodData = foodItem.builtInRegistryHolder().getData(ItemPropertyMap.MoodyConsumable.DATA_MAP);
         // Every 4 ticks, play eating sound and particles
         if (consumeTime % 4 == 0) {
             ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                     SoundEvents.GENERIC_EAT, SoundSource.NEUTRAL, 1.0F, 1.0F);
 
-            spawnMouthParticles(ghast, new ItemParticleOption(
-                    ParticleTypes.ITEM,
-                    ghast.getData(ModAttachments.CURRENT_FOOD)
-            ));
+            spawnMouthParticles(ghast, new ItemParticleOption(ParticleTypes.ITEM, foodItem),8);
         }
 
         // Finish eating
-        if (consumeTime >= 32) {
-            float moodDelta = ghast.getData(ModAttachments.CURRENT_FOOD).builtInRegistryHolder()
-                    .getData(ItemPropertyMap.MoodyConsumable.DATA_MAP).moodDelta();
+        if (consumeTime >= foodData.consumeTick()) {
 
-            adjustMood(ghast, moodDelta);
+            if(GhastMovementHandler.tryTeleportGhastSafely(ghast, foodItem.getDefaultInstance(), foodData.rtpDiameter()))
+                spawnSurroundParticles(ghast, ParticleTypes.PORTAL,600);
+
+            adjustMood(ghast, foodData.moodDelta());
 
             ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                     SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 1.0F, 1.0F);
@@ -110,32 +106,6 @@ public class GhastMoodHandler {
             ghast.setData(ModAttachments.IS_CONSUMING_FOOD, false);
             ghast.setData(ModAttachments.CURRENT_FOOD, Items.AIR);
             ghast.setData(ModAttachments.FOOD_CONSUME_TICKS, 0);
-        }
-    }
-
-    @SubscribeEvent
-    private void onSpeedModifyTick(EntityTickEvent.Post event) {
-        if (!(event.getEntity() instanceof HappyGhast ghast)) return;
-        if (ghast.level().isClientSide()) return;
-        if (ghast.isBaby()) return;
-
-        AttributeInstance speedAttribute = ghast.getAttribute(Attributes.FLYING_SPEED);
-        if (speedAttribute == null) return;
-
-        float targetSpeed = GhastMoodMap.get().getSpeedModifier(ghast.getData(ModAttachments.MOOD));
-        boolean hasModifier = speedAttribute.hasModifier(SPEED_MODIFIER_ID);
-
-        if (targetSpeed != 0.0f) {
-            if (!hasModifier || speedAttribute.getModifier(SPEED_MODIFIER_ID).amount() != targetSpeed) {
-                speedAttribute.removeModifier(SPEED_MODIFIER_ID);
-                speedAttribute.addTransientModifier(new AttributeModifier(
-                        SPEED_MODIFIER_ID,
-                        targetSpeed,
-                        AttributeModifier.Operation.ADD_VALUE
-                ));
-            }
-        } else if (hasModifier) {
-            speedAttribute.removeModifier(SPEED_MODIFIER_ID);
         }
     }
 
@@ -217,8 +187,7 @@ public class GhastMoodHandler {
                 }
 
                 //Spawn particles twice
-                spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER);
-                spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER);
+                spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER,30);
 
                 // Convert to hostile ghast
                 ghast.convertTo(EntityType.GHAST, ConversionParams.single(ghast, false, true), newGhast -> {
@@ -255,9 +224,9 @@ public class GhastMoodHandler {
         adjustMood(ghast, event.getInflictedDamage() * GhastMoodMap.get().settings().damageMoodRate());
     }
 
-    public static void spawnSurroundParticles(HappyGhast ghast, ParticleOptions particleOption) {
+    public static void spawnSurroundParticles(HappyGhast ghast, ParticleOptions particleOption, int number) {
         if (ghast.level() instanceof ServerLevel serverLevel) {
-            for (int i = 0; i < 15; i++) {
+            for (int i = 0; i < number; i++) {
                 double d0 = ghast.getRandom().nextGaussian() * 0.02;
                 double d1 = ghast.getRandom().nextGaussian() * 0.02;
                 double d2 = ghast.getRandom().nextGaussian() * 0.02;
@@ -274,7 +243,7 @@ public class GhastMoodHandler {
         }
     }
 
-    public static void spawnMouthParticles(HappyGhast ghast, ParticleOptions particleOption) {
+    public static void spawnMouthParticles(HappyGhast ghast, ParticleOptions particleOption, int number) {
         if (ghast.level() instanceof ServerLevel serverLevel) {
             Vec3 viewVec = ghast.getViewVector(1.0F);
             Vec3 mouthPos = new Vec3(
@@ -282,7 +251,7 @@ public class GhastMoodHandler {
                     ghast.getEyeY() - 1.5,
                     ghast.getZ() + viewVec.z * 2.7
             );
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < number; i++) {
                 double d0 = ghast.getRandom().nextGaussian() * 0.02; // small horizontal spread
                 double d1 = -0.1; // consistent downward velocity
                 double d2 = ghast.getRandom().nextGaussian() * 0.02; // small horizontal spread
