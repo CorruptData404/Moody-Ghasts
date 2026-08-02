@@ -186,7 +186,6 @@ public class GhastMoodHandler {
                     }
                 }
 
-                //Spawn particles twice
                 spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER,30);
 
                 // Convert to hostile ghast
