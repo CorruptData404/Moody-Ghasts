@@ -15,25 +15,31 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
+import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingHealEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class GhastMoodHandler {
 
@@ -211,16 +217,77 @@ public class GhastMoodHandler {
     }
 
     @SubscribeEvent
+    private void onGhastDeath(LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof HappyGhast deceasedGhast)) return;
+        if (deceasedGhast.level().isClientSide()) return;
+
+        var settings = GhastMoodMap.get().settings();
+        boolean babyDied = deceasedGhast.isBaby();
+
+        float killDelta = babyDied ? settings.killBabyDelta() : settings.killAdultDelta();
+        float witnessDelta = babyDied ? settings.seeBabyDeathDelta() : settings.seeAdultDeathDelta();
+
+        // If a happy ghast or player riding a happy ghast is responsible for the kill apply killDelta instead of witnessDelta
+        DamageSource damageSource = event.getSource();
+        Entity killer = damageSource.getEntity();
+        Entity directEntity = damageSource.getDirectEntity();
+
+        HappyGhast killerGhast = null;
+        if (directEntity instanceof Projectile projectile) {
+            Optional<UUID> owningGhastId = projectile.getData(ModAttachments.OWNING_GHAST);
+            if (owningGhastId.isPresent() && deceasedGhast.level() instanceof ServerLevel serverLevel) {
+                Entity owningGhast = serverLevel.getEntity(owningGhastId.get());
+                if (owningGhast instanceof HappyGhast ghast && !ghast.isBaby() && ghast != deceasedGhast) {
+                    killerGhast = ghast;
+                }
+            }
+        } else if (killer instanceof HappyGhast adultKiller && !adultKiller.isBaby() && adultKiller != deceasedGhast) {
+            // Adult HappyGhasts have no direct attack in vanilla, so this branch is usually unreachable
+            killerGhast = adultKiller;
+        } else if (killer != null && killer.getVehicle() instanceof HappyGhast mount
+                && !mount.isBaby() && mount != deceasedGhast) {
+            killerGhast = mount;
+        }
+
+        if (killerGhast != null && killDelta != 0F) {
+            if (Config.MOOD_LOGGING.get())
+                LOGGER.info("Ghast {} was killed by adult ghast {}, applying mood delta {} regardless of range",
+                        deceasedGhast.getUUID(), killerGhast.getUUID(), killDelta);
+
+            adjustMood(killerGhast, killDelta);
+        }
+
+        // Everyone else nearby gets the smaller "witnessed a death" adjustment.
+        if (witnessDelta == 0F) return;
+
+        HappyGhast finalKillerGhast = killerGhast;
+        AABB searchBox = deceasedGhast.getBoundingBox().inflate(settings.moodEventRadius());
+        List<HappyGhast> nearbyAdults = deceasedGhast.level().getEntitiesOfClass(
+                HappyGhast.class,
+                searchBox,
+                adult -> !adult.isBaby() && adult != deceasedGhast && !adult.equals(finalKillerGhast)
+        );
+
+        for (HappyGhast adult : nearbyAdults) {
+            if (Config.MOOD_LOGGING.get())
+                LOGGER.info("Ghast {} died near adult ghast {}, applying mood delta {}",
+                        deceasedGhast.getUUID(), adult.getUUID(), witnessDelta);
+
+            adjustMood(adult, witnessDelta);
+        }
+    }
+
+    @SubscribeEvent
     private void onHeal(LivingHealEvent event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.isBaby()) return;
-        adjustMood(ghast, event.getAmount() * GhastMoodMap.get().settings().healMoodRate());
+        adjustMood(ghast, event.getAmount() * GhastMoodMap.get().settings().healMoodMult());
     }
     @SubscribeEvent
     private void onDamage(LivingDamageEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.isBaby()) return;
-        adjustMood(ghast, event.getInflictedDamage() * GhastMoodMap.get().settings().damageMoodRate());
+        adjustMood(ghast, event.getInflictedDamage() * GhastMoodMap.get().settings().damageMoodMult());
     }
 
     public static void spawnSurroundParticles(HappyGhast ghast, ParticleOptions particleOption, int number) {

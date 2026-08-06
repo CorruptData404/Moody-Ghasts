@@ -29,13 +29,23 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
 
     public record GhastMoodSettings(
             float baseMood,
-            float damageMoodRate,
-            float healMoodRate
+            float damageMoodMult,
+            float healMoodMult,
+            float moodEventRadius,
+            float seeBabyDeathDelta,
+            float killBabyDelta,
+            float seeAdultDeathDelta,
+            float killAdultDelta
     ) {
         public static final Codec<GhastMoodSettings> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 PERCENT.fieldOf("base_mood").forGetter(GhastMoodSettings::baseMood),
-                Codec.FLOAT.fieldOf("damage_mood_mult").forGetter(GhastMoodSettings::damageMoodRate),
-                Codec.FLOAT.fieldOf("heal_mood_mult").forGetter(GhastMoodSettings::healMoodRate)
+                Codec.FLOAT.fieldOf("damage_mood_mult").forGetter(GhastMoodSettings::damageMoodMult),
+                Codec.FLOAT.fieldOf("heal_mood_mult").forGetter(GhastMoodSettings::healMoodMult),
+                Codec.FLOAT.fieldOf("mood_event_radius").forGetter(GhastMoodSettings::moodEventRadius),
+                Codec.FLOAT.fieldOf("see_baby_death_delta").forGetter(GhastMoodSettings::seeBabyDeathDelta),
+                Codec.FLOAT.fieldOf("kill_baby_delta").forGetter(GhastMoodSettings::killBabyDelta),
+                Codec.FLOAT.fieldOf("see_adult_death_delta").forGetter(GhastMoodSettings::seeAdultDeathDelta),
+                Codec.FLOAT.fieldOf("kill_adult_delta").forGetter(GhastMoodSettings::killAdultDelta)
         ).apply(inst, GhastMoodSettings::new));
     }
 
