@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 public class LargeFireballFactory implements GhastProjectileFactory {
 
     @Override
-    public Projectile createProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
+    public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
         int strength = (int) projConfig.getStrength(mood);
 
         if(Config.SHOOT_LOGGING.get())
