@@ -13,7 +13,7 @@ import net.minecraft.world.phys.Vec3;
 public class IceChargeFactory implements GhastProjectileFactory {
 
     @Override
-    public Projectile createProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
+    public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
         float radius = projConfig.getRadius(mood);
         float strength = projConfig.getStrength(mood);
 

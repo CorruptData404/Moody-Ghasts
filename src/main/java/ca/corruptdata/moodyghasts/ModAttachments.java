@@ -9,6 +9,8 @@ import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class ModAttachments {
@@ -76,4 +78,9 @@ public class ModAttachments {
                     .sync(ByteBufCodecs.INT)
                     .build()
     );
+
+    public static final Supplier<AttachmentType<Optional<UUID>>> OWNING_GHAST =
+            ATTACHMENT_TYPES.register("owning_ghast",
+                    () -> AttachmentType.builder(Optional::<UUID>empty).build());
+
 }

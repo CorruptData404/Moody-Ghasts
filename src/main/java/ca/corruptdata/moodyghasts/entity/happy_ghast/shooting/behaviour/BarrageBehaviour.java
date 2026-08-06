@@ -96,7 +96,7 @@ public class BarrageBehaviour extends ShootingBehaviour {
                     Speed Factor: {}
                     Inaccuracy: {}""", speedFactor, inaccuracy);
 
-        Projectile projectile = factory.createProjectile(level, shooter, mood, data.projectile());
+        Projectile projectile = factory.createProjectile(level, shooter, ghast, mood, data.projectile());
         projectile.setPos(spawnPos);
         projectile.shoot(
                 direction.x, direction.y, direction.z,

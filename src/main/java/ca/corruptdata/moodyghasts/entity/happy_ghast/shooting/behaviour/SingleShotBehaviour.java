@@ -32,7 +32,7 @@ public class SingleShotBehaviour extends ShootingBehaviour {
         Level level = ghast.level();
 
         Projectile projectile = factory.createProjectile(
-                level, shooter, mood, data.projectile()
+                level, shooter, ghast, mood, data.projectile()
         );
 
         Vec3 direction = getShooterAimVector();
