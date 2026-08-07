@@ -19,6 +19,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.item.Item;
@@ -48,6 +49,8 @@ public class GhastMoodHandler {
             Registries.LOOT_TABLE,
             Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "events/happy_ghast_tantrum")
     );
+
+    private static final long NOTICED_BY_BABY_GRACE_TICKS = 240L;
 
     public static void adjustMood(HappyGhast ghast, float delta) {
         if (delta == 0.0) return;
@@ -116,6 +119,19 @@ public class GhastMoodHandler {
     }
 
     @SubscribeEvent
+    private void onBabyFollowAdultTick(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof HappyGhast babyGhast)) return;
+        if (babyGhast.level().isClientSide()) return;
+        if (!babyGhast.isBaby()) return;
+
+        babyGhast.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_ADULT).ifPresent(adultEntity -> {
+            if (adultEntity instanceof HappyGhast adultGhast) {
+                adultGhast.setData(ModAttachments.LAST_NOTICED_BY_BABY_TICK, adultGhast.level().getGameTime());
+            }
+        });
+    }
+
+    @SubscribeEvent
     private void onMoodRegressionTick(EntityTickEvent.Post event) {
         if (!(event.getEntity() instanceof HappyGhast ghast)) return;
         if (ghast.level().isClientSide()) return;
@@ -123,9 +139,6 @@ public class GhastMoodHandler {
 
         float currentMood = ghast.getData(ModAttachments.MOOD);
         GhastMoodMap moodMap = GhastMoodMap.get();
-        float baseMood = moodMap.settings().baseMood();
-
-        if (currentMood == baseMood) return;
 
         // Get the regression configuration for current mood state, if it exists
         Optional<GhastMoodMap.GhastMoodState.MoodRegression> regression = moodMap.getMoodRegression(currentMood);
@@ -135,15 +148,31 @@ public class GhastMoodHandler {
         // Check if regression should occur this tick based on chance_per_tick
         if (ghast.level().getRandom().nextFloat() > regression.get().chance_per_tick()) return;
 
+        long lastNoticedTick = ghast.getData(ModAttachments.LAST_NOTICED_BY_BABY_TICK);
+        boolean recentlyNoticedByBaby = lastNoticedTick >= 0
+                && (ghast.level().getGameTime() - lastNoticedTick) <= NOTICED_BY_BABY_GRACE_TICKS;
+
+        float baseMood = recentlyNoticedByBaby ? moodMap.settings().noticedByBabyBaseMood() : moodMap.settings().baseMood();
+
+        if(recentlyNoticedByBaby && Config.MOOD_LOGGING.get())
+            LOGGER.info("Ghast was noticed by a baby ghast {} ticks ago (grace window: {} ticks) - using modified base mood {}",
+                    ghast.level().getGameTime() - lastNoticedTick, NOTICED_BY_BABY_GRACE_TICKS, baseMood);
+
+        if (currentMood == baseMood) return;
+
         float delta = regression.get().delta();
+        if (recentlyNoticedByBaby) {
+            delta *= currentMood > baseMood
+                    ? moodMap.settings().noticedByBabyHappierMult()
+                    : moodMap.settings().noticedByBabyAngrierMult();
+        }
+
 
         // If very close to base mood (within one delta), set it to base
-        if (Math.abs(currentMood - baseMood) <= delta) {
+        if (Math.abs(currentMood - baseMood) <= delta)
             adjustMood(ghast, baseMood - currentMood);
-        }
-        else{
+        else
             adjustMood(ghast, currentMood > baseMood ? -delta : delta);
-        }
     }
 
     @SubscribeEvent
