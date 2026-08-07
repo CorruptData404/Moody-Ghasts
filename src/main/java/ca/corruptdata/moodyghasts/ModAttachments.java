@@ -83,4 +83,7 @@ public class ModAttachments {
             ATTACHMENT_TYPES.register("owning_ghast",
                     () -> AttachmentType.builder(Optional::<UUID>empty).build());
 
+    public static final Supplier<AttachmentType<Long>> LAST_NOTICED_BY_BABY_TICK =
+            ATTACHMENT_TYPES.register("last_followed_by_baby_tick",
+                    () -> AttachmentType.builder(() -> -1L).build());
 }

@@ -9,7 +9,10 @@
         "see_baby_death_delta": 0.5,
         "kill_baby_delta": 1.0,
         "see_adult_death_delta": 0.1,
-        "kill_adult_delta": 0.2
+        "kill_adult_delta": 0.2,
+        "noticed_by_baby_base_mood": 0.15,
+        "noticed_by_baby_happier_mult": 2.0,
+        "noticed_by_baby_angrier_mult": 1.0
       },
       "mood_states": {
         "moodyghasts:excited": {

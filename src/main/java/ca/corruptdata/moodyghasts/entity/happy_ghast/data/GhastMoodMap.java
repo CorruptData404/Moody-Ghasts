@@ -37,7 +37,10 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
             float seeBabyDeathDelta,
             float killBabyDelta,
             float seeAdultDeathDelta,
-            float killAdultDelta
+            float killAdultDelta,
+            float noticedByBabyBaseMood,
+            float noticedByBabyHappierMult,
+            float noticedByBabyAngrierMult
     ) {
         public static final Codec<GhastMoodSettings> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 PERCENT.fieldOf("base_mood").forGetter(GhastMoodSettings::baseMood),
@@ -47,7 +50,11 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
                 Codec.FLOAT.fieldOf("see_baby_death_delta").forGetter(GhastMoodSettings::seeBabyDeathDelta),
                 Codec.FLOAT.fieldOf("kill_baby_delta").forGetter(GhastMoodSettings::killBabyDelta),
                 Codec.FLOAT.fieldOf("see_adult_death_delta").forGetter(GhastMoodSettings::seeAdultDeathDelta),
-                Codec.FLOAT.fieldOf("kill_adult_delta").forGetter(GhastMoodSettings::killAdultDelta)
+                Codec.FLOAT.fieldOf("kill_adult_delta").forGetter(GhastMoodSettings::killAdultDelta),
+                PERCENT.fieldOf("noticed_by_baby_base_mood").forGetter(GhastMoodSettings::noticedByBabyBaseMood),
+                NON_NEGATIVE_FLOAT.fieldOf("noticed_by_baby_happier_mult").forGetter(GhastMoodSettings::noticedByBabyHappierMult),
+                NON_NEGATIVE_FLOAT.fieldOf("noticed_by_baby_angrier_mult").forGetter(GhastMoodSettings::noticedByBabyAngrierMult)
+
         ).apply(inst, GhastMoodSettings::new));
     }
 
@@ -193,13 +200,13 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
         Set<Float> thresholds = new HashSet<>();
         for (var entry : ghastMoodMap.moodStates().entrySet()) {
             float threshold = entry.getValue().threshold();
-            
+
             if (threshold < MIN || threshold > MAX) {
                 return DataResult.error(() ->
                         String.format("Threshold for %s (%.1f) must be between %.1f and %.1f",
                                 entry.getKey(), threshold, MIN, MAX));
             }
-            
+
             if (!thresholds.add(threshold)) {
                 return DataResult.error(() ->
                         String.format("Duplicate threshold value %.1f for mood %s",
