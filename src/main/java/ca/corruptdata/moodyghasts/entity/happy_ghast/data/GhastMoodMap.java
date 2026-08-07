@@ -23,6 +23,8 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
     public static final float MIN = 0.0f;
 
     private static final Codec<Float> PERCENT = Codec.floatRange(MIN, MAX);
+    private static final Codec<Float> NON_NEGATIVE_FLOAT = Codec.floatRange(0f, Float.MAX_VALUE);
+    private static final Codec<Integer> NON_NEGATIVE_INT = Codec.intRange(0, Integer.MAX_VALUE);
 
     // ============================================================
     // Records
@@ -42,7 +44,7 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
                 PERCENT.fieldOf("base_mood").forGetter(GhastMoodSettings::baseMood),
                 Codec.FLOAT.fieldOf("damage_mood_mult").forGetter(GhastMoodSettings::damageMoodMult),
                 Codec.FLOAT.fieldOf("heal_mood_mult").forGetter(GhastMoodSettings::healMoodMult),
-                Codec.FLOAT.fieldOf("mood_event_radius").forGetter(GhastMoodSettings::moodEventRadius),
+                NON_NEGATIVE_FLOAT.fieldOf("mood_event_radius").forGetter(GhastMoodSettings::moodEventRadius),
                 Codec.FLOAT.fieldOf("see_baby_death_delta").forGetter(GhastMoodSettings::seeBabyDeathDelta),
                 Codec.FLOAT.fieldOf("kill_baby_delta").forGetter(GhastMoodSettings::killBabyDelta),
                 Codec.FLOAT.fieldOf("see_adult_death_delta").forGetter(GhastMoodSettings::seeAdultDeathDelta),
@@ -52,8 +54,8 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
 
     public record GhastMoodState(
             float threshold,
-            int tantrumTick,
-            float speedModifier,
+            @Nullable Integer tantrumTick,
+            @Nullable Float speedModifier,
             @Nullable MoodRegression regression,
             Identifier backgroundBarTexture,
             Identifier progressBarTexture,
@@ -62,14 +64,14 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
         public record MoodRegression(float chance_per_tick, float delta) {
             public static final Codec<MoodRegression> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                     PERCENT.fieldOf("chance_per_tick").forGetter(MoodRegression::chance_per_tick),
-                    Codec.FLOAT.fieldOf("delta").forGetter(MoodRegression::delta)
+                    NON_NEGATIVE_FLOAT.fieldOf("delta").forGetter(MoodRegression::delta)
             ).apply(inst, MoodRegression::new));
         }
 
         public static final Codec<GhastMoodState> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 PERCENT.fieldOf("threshold").forGetter(GhastMoodState::threshold),
-                Codec.INT.optionalFieldOf("tantrum_tick").forGetter(s -> Optional.of(s.tantrumTick())),
-                Codec.FLOAT.optionalFieldOf("speed_modifier").forGetter(s -> Optional.of(s.speedModifier())),
+                NON_NEGATIVE_INT.optionalFieldOf("tantrum_tick").forGetter(s -> Optional.ofNullable(s.tantrumTick())),
+                Codec.FLOAT.optionalFieldOf("speed_modifier").forGetter(s -> Optional.ofNullable(s.speedModifier())),
                 MoodRegression.CODEC.optionalFieldOf("regression").forGetter(s -> Optional.ofNullable(s.regression())),
                 Identifier.CODEC.fieldOf("background_bar_texture").forGetter(GhastMoodState::backgroundBarTexture),
                 Identifier.CODEC.fieldOf("progress_bar_texture").forGetter(GhastMoodState::progressBarTexture),
@@ -78,8 +80,8 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
                        speedModifier, regression,
                        bgTex, progTex,
                        ghastTex) ->
-                new GhastMoodState(threshold, tantrumTick.orElse(0),
-                        speedModifier.orElse(0.0f), regression.orElse(null),
+                new GhastMoodState(threshold, tantrumTick.orElse(null),
+                        speedModifier.orElse(null), regression.orElse(null),
                         bgTex, progTex, ghastTex.orElse(null))));
     }
 
@@ -101,6 +103,22 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
     ).synced(CODEC, false).build();
 
     // ============================================================
+    // Sorted-state cache
+    // ============================================================
+    private static GhastMoodMap cachedFor;
+    private static List<Map.Entry<Identifier, GhastMoodState>> cachedSortedStates;
+
+    private List<Map.Entry<Identifier, GhastMoodState>> sortedStates() {
+        if (cachedFor != this) {
+            cachedSortedStates = moodStates.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.comparing(GhastMoodState::threshold)))
+                    .toList();
+            cachedFor = this;
+        }
+        return cachedSortedStates;
+    }
+
+    // ============================================================
     // Public Methods
     // ============================================================
 
@@ -111,8 +129,7 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
     public Identifier getMoodOfValue(float moodValue) {
         if (moodStates.isEmpty()) return null;
 
-        return moodStates.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.comparing(GhastMoodState::threshold)))
+        return sortedStates().stream()
                 .filter(e -> moodValue <= e.getValue().threshold())
                 .findFirst()
                 .map(Map.Entry::getKey)
@@ -125,15 +142,23 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
         return moodStates.get(mood).threshold();
     }
 
+
     public int getTantrumTick(float moodValue) {
         Identifier mood = getMoodOfValue(moodValue);
-        return mood != null ? moodStates.get(mood).tantrumTick() : 0;
+        if (mood == null) return 0;
+        Integer tantrumTick = moodStates.get(mood).tantrumTick();
+        if (tantrumTick == null) return 0;
+        return tantrumTick;
     }
 
     public float getSpeedModifier(float moodValue) {
         Identifier mood = getMoodOfValue(moodValue);
-        return mood != null ? moodStates.get(mood).speedModifier() : 0.0f;
+        if (mood == null) return 0.0f;
+        Float speedModifier = moodStates.get(mood).speedModifier();
+        if (speedModifier == null) return 0.0f;
+        return speedModifier;
     }
+
 
     public Optional<GhastMoodState.MoodRegression> getMoodRegression(float moodValue) {
         Identifier mood = getMoodOfValue(moodValue);
@@ -181,13 +206,33 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
                         String.format("Duplicate threshold value %.1f for mood %s",
                                 threshold, entry.getKey()));
             }
+
+            GhastMoodState.MoodRegression regression = entry.getValue().regression();
+            if (regression != null && regression.delta() < 0f) {
+                return DataResult.error(() ->
+                        String.format("Regression delta for %s (%.3f) must not be negative",
+                                entry.getKey(), regression.delta()));
+            }
+
+            Integer tantrumTick = entry.getValue().tantrumTick();
+            if (tantrumTick != null && tantrumTick < 0) {
+                return DataResult.error(() ->
+                        String.format("Tantrum tick for %s (%d) must not be negative",
+                                entry.getKey(), tantrumTick));
+            }
+        }
+
+        float moodEventRadius = ghastMoodMap.settings().moodEventRadius();
+        if (moodEventRadius < 0f) {
+            return DataResult.error(() ->
+                    String.format("Mood event radius (%.3f) must not be negative", moodEventRadius));
         }
 
         // Verify exactly one mood has MAX threshold
         long maxThresholdCount = thresholds.stream()
                 .filter(t -> t == MAX)
                 .count();
-            
+
         if (maxThresholdCount != 1) {
             return DataResult.error(() ->
                     String.format("Exactly one mood must have threshold of %.1f, found %d",
