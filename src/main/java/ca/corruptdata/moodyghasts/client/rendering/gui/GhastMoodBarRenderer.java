@@ -1,6 +1,6 @@
 package ca.corruptdata.moodyghasts.client.rendering.gui;
 
-import ca.corruptdata.moodyghasts.ModAttachments;
+import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;

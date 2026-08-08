@@ -1,12 +1,12 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast;
 
-import ca.corruptdata.moodyghasts.ModAttachments;
-import ca.corruptdata.moodyghasts.ModTags;
+import ca.corruptdata.moodyghasts.registry.ModAttachments;
+import ca.corruptdata.moodyghasts.registry.ModTags;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour.ShootingBehaviourFactory;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
-import ca.corruptdata.moodyghasts.ModRegistries;
+import ca.corruptdata.moodyghasts.registry.ModRegistries;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.stats.Stats;

@@ -1,5 +1,6 @@
-package ca.corruptdata.moodyghasts;
+package ca.corruptdata.moodyghasts.registry;
 
+import ca.corruptdata.moodyghasts.MoodyGhasts;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;

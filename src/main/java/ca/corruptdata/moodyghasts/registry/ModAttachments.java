@@ -1,5 +1,6 @@
-package ca.corruptdata.moodyghasts;
+package ca.corruptdata.moodyghasts.registry;
 
+import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import com.mojang.serialization.Codec;
 import net.minecraft.network.codec.ByteBufCodecs;

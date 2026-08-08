@@ -1,7 +1,7 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
 
 import ca.corruptdata.moodyghasts.Config;
-import ca.corruptdata.moodyghasts.ModAttachments;
+import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;

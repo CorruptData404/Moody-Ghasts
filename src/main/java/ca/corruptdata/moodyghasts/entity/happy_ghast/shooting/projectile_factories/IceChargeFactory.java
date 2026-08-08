@@ -1,7 +1,7 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories;
 
 import ca.corruptdata.moodyghasts.Config;
-import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.MoodyIceChargeEntity;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;

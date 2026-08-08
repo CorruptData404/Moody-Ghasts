@@ -1,11 +1,12 @@
 package ca.corruptdata.moodyghasts.client;
 
-import ca.corruptdata.moodyghasts.ModAttachments;
+import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
 import ca.corruptdata.moodyghasts.client.rendering.happy_ghast.MoodyGhastRenderer;
-import ca.corruptdata.moodyghasts.client.rendering.projectile.IceChargeRenderer;
-import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyIceChargeRenderer;
-import ca.corruptdata.moodyghasts.client.rendering.projectile.MoodyWindChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.projectile.ice_charge.IceChargeModel;
+import ca.corruptdata.moodyghasts.client.rendering.projectile.ice_charge.IceChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.projectile.ice_charge.MoodyIceChargeRenderer;
+import ca.corruptdata.moodyghasts.client.rendering.projectile.wind_charge.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
@@ -37,6 +38,10 @@ public class MoodyGhastsClient {
         event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), MoodyIceChargeRenderer::new);
         event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), MoodyWindChargeRenderer::new);
         event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodyGhastRenderer::new);
+    }
+
+    private void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(IceChargeModel.LAYER_LOCATION, IceChargeModel::createBodyLayer);
     }
 
     private void registerRenderStateModifiers(RegisterRenderStateModifiersEvent event) {

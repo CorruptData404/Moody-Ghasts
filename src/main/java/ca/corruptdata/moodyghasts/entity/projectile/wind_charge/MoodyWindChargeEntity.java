@@ -1,4 +1,4 @@
-package ca.corruptdata.moodyghasts.entity.projectile;
+package ca.corruptdata.moodyghasts.entity.projectile.wind_charge;
 
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import net.minecraft.core.particles.ParticleTypes;
