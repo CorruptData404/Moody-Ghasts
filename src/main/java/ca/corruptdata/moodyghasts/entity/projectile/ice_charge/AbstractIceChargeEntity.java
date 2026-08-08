@@ -1,7 +1,7 @@
-package ca.corruptdata.moodyghasts.entity.projectile;
+package ca.corruptdata.moodyghasts.entity.projectile.ice_charge;
 
 import ca.corruptdata.moodyghasts.MoodyGhasts;
-import ca.corruptdata.moodyghasts.ModTags;
+import ca.corruptdata.moodyghasts.registry.ModTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -22,6 +22,7 @@ import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
+import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.projectile.ItemSupplier;
 import net.minecraft.world.item.ItemStack;
@@ -65,6 +66,15 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     // Movement vector constructor with owner
     protected AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity owner, Vec3 movement, Level level) {
         super(type, owner, movement, level);
+    }
+
+    @Override
+    public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
+        super.shoot(x, y, z, velocity, inaccuracy);
+
+        ProjectileUtil.rotateTowardsMovement(this, 1.0F);
+        this.yRotO = this.getYRot();
+        this.xRotO = this.getXRot();
     }
 
     @Override

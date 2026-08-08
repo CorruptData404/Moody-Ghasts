@@ -1,5 +1,6 @@
-package ca.corruptdata.moodyghasts;
+package ca.corruptdata.moodyghasts.registry;
 
+import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour.*;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.*;
 import net.minecraft.core.Registry;

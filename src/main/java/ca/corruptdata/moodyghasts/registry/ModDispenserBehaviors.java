@@ -1,6 +1,6 @@
-package ca.corruptdata.moodyghasts;
+package ca.corruptdata.moodyghasts.registry;
 
-import ca.corruptdata.moodyghasts.entity.projectile.IceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.IceChargeEntity;
 import ca.corruptdata.moodyghasts.item.ModItems;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;

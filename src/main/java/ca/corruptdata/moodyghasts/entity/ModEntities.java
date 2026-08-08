@@ -1,8 +1,8 @@
 package ca.corruptdata.moodyghasts.entity;
 
-import ca.corruptdata.moodyghasts.entity.projectile.IceChargeEntity;
-import ca.corruptdata.moodyghasts.entity.projectile.MoodyIceChargeEntity;
-import ca.corruptdata.moodyghasts.entity.projectile.MoodyWindChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.IceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.MoodyIceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.wind_charge.MoodyWindChargeEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
@@ -24,7 +24,7 @@ public class ModEntities {
         );
         return EntityType.Builder
                 .<IceChargeEntity>of(IceChargeEntity::new, MobCategory.MISC)
-                .sized(0.5F, 0.5F)
+                .sized(0.3F, 0.3F)
                 .clientTrackingRange(8)
                 .updateInterval(10)
                 .build(key);
@@ -37,7 +37,7 @@ public class ModEntities {
         );
         return EntityType.Builder
                 .<MoodyIceChargeEntity>of(MoodyIceChargeEntity::new, MobCategory.MISC)
-                .sized(0.5F, 0.5F)
+                .sized(1.0F, 1.0F)
                 .clientTrackingRange(8)
                 .updateInterval(10)
                 .build(key);
@@ -50,7 +50,7 @@ public class ModEntities {
         );
         return EntityType.Builder
                 .<MoodyWindChargeEntity>of(MoodyWindChargeEntity::new, MobCategory.MISC)
-                .sized(0.5F, 0.5F)
+                .sized(1.0F, 1.0F)
                 .clientTrackingRange(8)
                 .updateInterval(10)
                 .build(key);

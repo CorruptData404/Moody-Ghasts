@@ -1,6 +1,6 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories;
 
-import ca.corruptdata.moodyghasts.ModAttachments;
+import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.sounds.SoundEvent;

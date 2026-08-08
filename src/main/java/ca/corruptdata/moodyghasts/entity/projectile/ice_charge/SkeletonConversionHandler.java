@@ -1,4 +1,4 @@
-package ca.corruptdata.moodyghasts.entity;
+package ca.corruptdata.moodyghasts.entity.projectile.ice_charge;
 
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import net.minecraft.core.registries.Registries;
