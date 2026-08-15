@@ -56,7 +56,7 @@ public class MoodyGhastsClient {
         event.registerEntityModifier(
                 HappyGhastRenderer.class,
                 (entity, state) -> state.setRenderData(
-                        RenderStateKeys.IS_BARRAGING, entity.getData(ModAttachments.IS_BARRAGING)));
+                        RenderStateKeys.IS_FIRING, entity.getData(ModAttachments.IS_FIRING)));
         event.registerEntityModifier(
                 HappyGhastRenderer.class,
                 (entity, state) -> {

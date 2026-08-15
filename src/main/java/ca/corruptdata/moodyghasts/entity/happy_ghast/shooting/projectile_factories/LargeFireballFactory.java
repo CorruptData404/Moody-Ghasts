@@ -1,6 +1,5 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories;
 
-import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -10,20 +9,23 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.LargeFireball;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class LargeFireballFactory implements GhastProjectileFactory {
+import java.util.Set;
+
+public class LargeFireballFactory implements ProjectileFactory {
 
     @Override
     public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
-        int strength = (int) projConfig.getStrength(mood);
-
-        if(Config.SHOOT_LOGGING.get())
-            LOGGER.info("Creating Large Fireball with strength {}", strength);
-
-        return new LargeFireball(level, owner, Vec3.ZERO, strength);
+        return new LargeFireball(level, owner, Vec3.ZERO, projConfig.getScaledInt("strength", mood));
     }
 
     @Override
     public SoundEvent getSoundEvent() {
         return SoundEvents.FIRECHARGE_USE;
     }
+
+    @Override
+    public Set<String> getRecognizedMoodScalingKeys() {
+        return Set.of("strength");
+    }
+
 }

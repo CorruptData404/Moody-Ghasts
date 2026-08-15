@@ -1,9 +1,9 @@
-package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
+package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern;
 
 import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
@@ -13,8 +13,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
-public abstract class ShootingBehaviour {
-    protected final GhastProjectileFactory factory;
+public abstract class FiringPattern {
+    protected final ProjectileFactory factory;
     protected final ItemPropertyMap.MoodyProjectile data;
     protected final Player shooter;
     protected final HappyGhast ghast;
@@ -23,7 +23,7 @@ public abstract class ShootingBehaviour {
     protected static final Logger LOGGER = MoodyGhasts.LOGGER;
 
 
-    protected ShootingBehaviour(GhastProjectileFactory factory, HappyGhast ghast, Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
+    protected FiringPattern(ProjectileFactory factory, HappyGhast ghast, Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
         this.factory = factory;
         this.data = data;
         this.chargeDuration = data.shot().chargeDuration();

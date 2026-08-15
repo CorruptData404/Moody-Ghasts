@@ -38,8 +38,8 @@ public class ModAttachments {
             () -> AttachmentType.builder(() -> 0).build()
     );
 
-    public static final Supplier<AttachmentType<Boolean>> IS_BARRAGING = ATTACHMENT_TYPES.register(
-            "is_barraging",
+    public static final Supplier<AttachmentType<Boolean>> IS_FIRING = ATTACHMENT_TYPES.register(
+            "is_firing",
             () -> AttachmentType.builder(() -> false)
                     .sync(ByteBufCodecs.BOOL)
                     .build()

@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories;
 
+import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
@@ -11,8 +12,10 @@ import net.minecraft.world.level.Level;
 import org.slf4j.Logger;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
-public interface GhastProjectileFactory {
+public interface ProjectileFactory {
     Logger LOGGER = MoodyGhasts.LOGGER;
 
     /**
@@ -31,6 +34,19 @@ public interface GhastProjectileFactory {
      */
     default Projectile createProjectile(Level level, Player owner, HappyGhast ghast, float mood,
                                         ItemPropertyMap.ProjectileConfig projConfig) {
+
+        if (Config.SHOOT_LOGGING.get()) {
+            Set<String> keys = getRecognizedMoodScalingKeys();
+            if (!keys.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (String key : new TreeSet<>(keys)) {
+                    if (!sb.isEmpty()) sb.append(", ");
+                    sb.append(key).append('=').append(projConfig.getScaled(key, mood));
+                }
+                LOGGER.info("Creating projectile '{}' ({})", projConfig.type(), sb);
+            }
+        }
+
         Projectile projectile = buildProjectile(level, owner, mood, projConfig);
         projectile.setOwner(owner);
         projectile.setData(ModAttachments.OWNING_GHAST, Optional.of(ghast.getUUID()));
@@ -53,6 +69,19 @@ public interface GhastProjectileFactory {
     Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig);
 
     SoundEvent getSoundEvent();
+
+    /**
+     * The {@code moodScaling} keys this factory actually reads from {@code projConfig} in
+     * {@link #buildProjectile} (e.g. {@code Set.of("radius", "strength")}). Override this if
+     * your factory calls {@code projConfig.getScaled(key, mood)} or the named convenience
+     * wrappers ({@code getRadius}, {@code getStrength}) for any key, so that datapack
+     * validation can flag typos or missing entries in moody_projectiles_map.json for your
+     * projectile type.
+     * <p>
+     * Defaults to an empty set (no validation) so factories that don't override this simply
+     * aren't checked, rather than being flagged as broken.
+     */
+    default Set<String> getRecognizedMoodScalingKeys() {
+        return Set.of();
+    }
 }
-
-
