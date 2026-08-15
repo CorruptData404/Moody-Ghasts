@@ -10,17 +10,13 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class IceChargeFactory implements GhastProjectileFactory {
+import java.util.Set;
+
+public class IceChargeFactory implements ProjectileFactory {
 
     @Override
     public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
-        float radius = projConfig.getRadius(mood);
-        float strength = projConfig.getStrength(mood);
-
-        if(Config.SHOOT_LOGGING.get())
-            LOGGER.info("Creating Ice Charge with radius {} and strength {}", radius, strength);
-
-        return new MoodyIceChargeEntity(level, owner, Vec3.ZERO, radius, strength);
+        return new MoodyIceChargeEntity(level, owner, Vec3.ZERO, projConfig.getRadius(mood), projConfig.getStrength(mood));
     }
 
     @Override
@@ -28,4 +24,10 @@ public class IceChargeFactory implements GhastProjectileFactory {
         //TODO: Custom Sound
         return SoundEvents.SNOWBALL_THROW;
     }
+
+    @Override
+    public Set<String> getRecognizedMoodScalingKeys() {
+        return Set.of("radius", "strength");
+    }
+
 }

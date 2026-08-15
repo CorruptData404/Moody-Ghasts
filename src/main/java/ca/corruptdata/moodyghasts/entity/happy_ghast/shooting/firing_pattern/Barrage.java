@@ -1,9 +1,9 @@
-package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
+package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern;
 
 import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
@@ -12,21 +12,20 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class BarrageBehaviour extends ShootingBehaviour {
+public class Barrage extends FiringPattern {
 
-    public BarrageBehaviour(GhastProjectileFactory factory, HappyGhast ghast,
-                            Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
+    private int totalProjectiles;
+
+    public Barrage(ProjectileFactory factory, HappyGhast ghast,
+                   Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
         super(factory, ghast, player, data, mood);
     }
 
     @Override
     protected void onChargeComplete() {
-        int totalProjectiles = data.shot().getCount(mood);
+        totalProjectiles = data.shot().getCount(mood);
 
-        if(Config.SHOOT_LOGGING.get())
-            LOGGER.info("Doing {} shot barrage for ghast {}", totalProjectiles, ghast.getUUID());
-
-        ghast.setData(ModAttachments.IS_BARRAGING, true);
+        ghast.setData(ModAttachments.IS_FIRING, true);
         ghast.setData(ModAttachments.SHOTS_LEFT, totalProjectiles);
         ghast.setData(ModAttachments.BARRAGE_DELAY, 0);
     }
@@ -38,7 +37,7 @@ public class BarrageBehaviour extends ShootingBehaviour {
             return;
         }
 
-        if (!ghast.getData(ModAttachments.IS_BARRAGING)) return;
+        if (!ghast.getData(ModAttachments.IS_FIRING)) return;
 
         if (shooter != ghast.getControllingPassenger()) {
             stop();
@@ -57,7 +56,7 @@ public class BarrageBehaviour extends ShootingBehaviour {
             return;
         }
 
-        float progress = (float) projectilesLeft / data.shot().getCount(mood);
+        float progress = (float) projectilesLeft / totalProjectiles;
 
         // Calculate logarithmic delay (increases as progress decreases)
         // Maps progress from 1.0->0.0 to 0->5 logarithmically
@@ -110,7 +109,7 @@ public class BarrageBehaviour extends ShootingBehaviour {
 
     @Override
     public void stop() {
-        ghast.setData(ModAttachments.IS_BARRAGING, false);
+        ghast.setData(ModAttachments.IS_FIRING, false);
         ghast.setData(ModAttachments.SHOTS_LEFT, 0);
         ghast.setData(ModAttachments.BARRAGE_DELAY, 0);
 

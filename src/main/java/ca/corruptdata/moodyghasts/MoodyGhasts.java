@@ -12,6 +12,7 @@ import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.registry.ModDispenserBehaviors;
 import ca.corruptdata.moodyghasts.registry.ModRegistries;
 import com.mojang.logging.LogUtils;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -20,6 +21,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.registries.datamaps.DataMapsUpdatedEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import org.slf4j.Logger;
 
@@ -49,8 +51,10 @@ public class MoodyGhasts {
         NeoForge.EVENT_BUS.register(new GhastMoodHandler());
         NeoForge.EVENT_BUS.register(new GhastMovementHandler());
 
+        NeoForge.EVENT_BUS.addListener(this::onDataMapsUpdated);
+
         ModRegistries.PROJECTILE_FACTORY_REGISTER.register(modEventBus);
-        ModRegistries.SHOOTING_BEHAVIOUR_REGISTER.register(modEventBus);
+        ModRegistries.FIRING_PATTERN_FACTORY_REGISTER.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::addCreative);
@@ -72,6 +76,12 @@ public class MoodyGhasts {
         if(event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
             event.accept(ModItems.SPICY_COOKIE);
             event.accept(ModItems.FROSTED_COOKIE);
+        }
+    }
+
+    private void onDataMapsUpdated(DataMapsUpdatedEvent event) {
+        if (event.getRegistryKey() == Registries.ITEM) {
+            ItemPropertyMap.validateMoodScalingKeys();
         }
     }
 

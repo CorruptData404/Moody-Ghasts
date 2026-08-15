@@ -2,9 +2,9 @@ package ca.corruptdata.moodyghasts.entity.happy_ghast;
 
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour.ShootingBehaviour;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour.ShootingBehaviourFactory;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern.FiringPattern;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern_factories.FiringPatternFactory;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -25,15 +25,15 @@ public class GhastShootingHandler {
     private static final Logger LOGGER = MoodyGhasts.LOGGER;
 
     // Transient runtime state — not serialized, intentionally lost on restart
-    private final Map<UUID, ShootingBehaviour> activeBehaviours = new HashMap<>();
+    private final Map<UUID, FiringPattern> activePatterns = new HashMap<>();
 
     public boolean isActive(HappyGhast ghast) {
-        return activeBehaviours.containsKey(ghast.getUUID());
+        return activePatterns.containsKey(ghast.getUUID());
     }
 
     public void startShooting(HappyGhast ghast, Player player, ItemStack projectileItem,
-                              Registry<GhastProjectileFactory> factoryRegistry,
-                              Registry<ShootingBehaviourFactory> behaviourRegistry) {
+                              Registry<ProjectileFactory> projFactoryRegistry,
+                              Registry<FiringPatternFactory> pattFactoryRegistry) {
         var projectileData = projectileItem.getItem()
                 .builtInRegistryHolder()
                 .getData(ItemPropertyMap.MoodyProjectile.DATA_MAP);
@@ -43,7 +43,7 @@ public class GhastShootingHandler {
             return;
         }
 
-        GhastProjectileFactory projFactory = factoryRegistry.get(projectileData.projectile().type())
+        ProjectileFactory projFactory = projFactoryRegistry.get(projectileData.projectile().type())
                 .map(Holder.Reference::value)
                 .orElse(null);
 
@@ -53,24 +53,24 @@ public class GhastShootingHandler {
             return;
         }
 
-        ShootingBehaviourFactory behaviourFactory = behaviourRegistry.get(projectileData.shot().type())
+        FiringPatternFactory pattFactory = pattFactoryRegistry.get(projectileData.shot().type())
                 .map(Holder.Reference::value)
                 .orElse(null);
 
-        if (behaviourFactory == null) {
-            LOGGER.error("No behaviour registered for shot type: {}",
+        if (pattFactory == null) {
+            LOGGER.error("No factory registered for firing pattern type: {}",
                     projectileData.shot().type());
             return;
         }
 
-        ShootingBehaviour behaviour = behaviourFactory.createBehaviour(
+        FiringPattern behaviour = pattFactory.createPattern(
                 projFactory,
                 ghast,
                 player,
                 projectileData,
                 ghast.getData(ModAttachments.MOOD));
 
-        activeBehaviours.put(ghast.getUUID(), behaviour);
+        activePatterns.put(ghast.getUUID(), behaviour);
     }
 
     @SubscribeEvent
@@ -79,21 +79,21 @@ public class GhastShootingHandler {
         if (ghast.level().isClientSide()) return;
         if (ghast.isBaby()) return;
 
-        ShootingBehaviour behaviour = activeBehaviours.get(ghast.getUUID());
+        FiringPattern behaviour = activePatterns.get(ghast.getUUID());
         if (behaviour == null) return;
 
         behaviour.tick();
 
-        // Clean up once both flags are clear — behaviour has fully finished
+        // Clean up once both flags are clear — pattern has fully finished
         if (!ghast.getData(ModAttachments.IS_CHARGING)
-                && !ghast.getData(ModAttachments.IS_BARRAGING)) {
-            activeBehaviours.remove(ghast.getUUID());
+                && !ghast.getData(ModAttachments.IS_FIRING)) {
+            activePatterns.remove(ghast.getUUID());
         }
     }
 
     @SubscribeEvent
     private void onServerStopping(ServerStoppingEvent event) {
-        // Clear all active behaviours on server stop — clean slate on next start
-        activeBehaviours.clear();
+        // Clear all active patterns on server stop — clean slate on next start
+        activePatterns.clear();
     }
 }

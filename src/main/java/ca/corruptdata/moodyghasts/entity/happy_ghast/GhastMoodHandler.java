@@ -235,7 +235,7 @@ public class GhastMoodHandler {
             }
             else if (tantrumTicks % 50 == 0 && !(ghast.isSilent()
                     || ghast.getData(ModAttachments.IS_CHARGING)
-                    || ghast.getData(ModAttachments.IS_BARRAGING)
+                    || ghast.getData(ModAttachments.IS_FIRING)
                     || ghast.getData(ModAttachments.IS_CONSUMING_FOOD))) {
                 serverLevel.playSound(ghast, ghast.getX(), ghast.getY(), ghast.getZ(),
                         SoundEvents.GHAST_AMBIENT, SoundSource.NEUTRAL, 1.0F, 1.0F);

@@ -12,7 +12,7 @@ public class RenderStateKeys {
     public static final ContextKey<Boolean> IS_CHARGING = new ContextKey<>(
             Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_charging"));
 
-    public static final ContextKey<Boolean> IS_BARRAGING = new ContextKey<>(
+    public static final ContextKey<Boolean> IS_FIRING = new ContextKey<>(
             Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "is_barraging"));
 
     public static final ContextKey<Float> TANTRUM_PROGRESS = new ContextKey<>(

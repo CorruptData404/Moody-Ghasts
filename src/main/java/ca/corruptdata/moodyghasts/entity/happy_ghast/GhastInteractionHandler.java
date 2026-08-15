@@ -3,8 +3,8 @@ package ca.corruptdata.moodyghasts.entity.happy_ghast;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.registry.ModTags;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour.ShootingBehaviourFactory;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern_factories.FiringPatternFactory;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import ca.corruptdata.moodyghasts.registry.ModRegistries;
 import net.minecraft.core.Registry;
@@ -44,13 +44,13 @@ public class GhastInteractionHandler {
         if (player.level().isClientSide()) return;
         if (isBusy(ghast)) return;
 
-        Registry<GhastProjectileFactory> factoryRegistry = Objects.requireNonNull(player.level().getServer())
+        Registry<ProjectileFactory> factoryRegistry = Objects.requireNonNull(player.level().getServer())
                 .registryAccess()
                 .lookupOrThrow(ModRegistries.PROJECTILE_FACTORIES);
 
-        Registry<ShootingBehaviourFactory> behaviourRegistry = Objects.requireNonNull(player.level().getServer())
+        Registry<FiringPatternFactory> behaviourRegistry = Objects.requireNonNull(player.level().getServer())
                 .registryAccess()
-                .lookupOrThrow(ModRegistries.SHOOTING_BEHAVIOURS);
+                .lookupOrThrow(ModRegistries.FIRING_PATTERN_FACTORIES);
 
         shootingHandler.startShooting(ghast, player, projectileItem, factoryRegistry, behaviourRegistry);
         applyCooldownToProjectiles(player,
@@ -98,7 +98,7 @@ public class GhastInteractionHandler {
 
     private boolean isBusy(HappyGhast ghast){
         return ghast.getData(ModAttachments.IS_CHARGING)
-                || ghast.getData(ModAttachments.IS_BARRAGING)
+                || ghast.getData(ModAttachments.IS_FIRING)
                 || ghast.getData(ModAttachments.IS_CONSUMING_FOOD)
                 || shootingHandler.isActive(ghast);
     }

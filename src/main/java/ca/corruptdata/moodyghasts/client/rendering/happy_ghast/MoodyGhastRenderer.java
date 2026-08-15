@@ -25,7 +25,7 @@ public class MoodyGhastRenderer extends HappyGhastRenderer {
     public @NotNull Identifier getTextureLocation(HappyGhastRenderState state) {
         if (state.isBaby) return super.getTextureLocation(state);
 
-        if (state.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING) || state.getRenderDataOrThrow(RenderStateKeys.IS_BARRAGING))
+        if (state.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING) || state.getRenderDataOrThrow(RenderStateKeys.IS_FIRING))
             return GHAST_SHOOTING_TEXTURE;
 
         GhastMoodMap map = GhastMoodMap.get();

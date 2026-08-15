@@ -11,16 +11,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 
-public class SnowBallFactory implements GhastProjectileFactory {
+public class SnowBallFactory implements ProjectileFactory {
 
     @Override
     public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
-        Snowball proj = new Snowball(level, 0.0, 0.0, 0.0, new ItemStack(Items.SNOWBALL));
-
-        if(Config.SHOOT_LOGGING.get())
-            LOGGER.info("Creating Snowball with no mood scaling");
-
-        return proj;
+        return new Snowball(level, 0.0, 0.0, 0.0, new ItemStack(Items.SNOWBALL));
     }
 
     @Override

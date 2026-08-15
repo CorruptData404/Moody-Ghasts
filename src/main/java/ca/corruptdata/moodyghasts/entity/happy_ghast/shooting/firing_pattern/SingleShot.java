@@ -1,8 +1,7 @@
-package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.behaviour;
+package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern;
 
-import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.GhastProjectileFactory;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
 import net.minecraft.world.entity.player.Player;
@@ -10,24 +9,18 @@ import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-public class SingleShotBehaviour extends ShootingBehaviour {
+public class SingleShot extends FiringPattern {
 
-    public SingleShotBehaviour(GhastProjectileFactory factory, HappyGhast ghast,
-                            Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
+    public SingleShot(ProjectileFactory factory, HappyGhast ghast,
+                      Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
         super(factory, ghast, player, data, mood);
     }
 
     @Override
     protected void onChargeComplete() {
+        //Firing is instant upon charge completion so updating ModAttachments.IS_FIRING is unnecessary
         float velocity = data.shot().getVelocity(mood);
         float inaccuracy = data.shot().getInaccuracy(mood);
-
-        if(Config.SHOOT_LOGGING.get())
-            LOGGER.info("""
-                            Doing single shot for ghast {} with:
-                            Velocity: {}
-                            Inaccuracy: {}""",
-                    ghast.getUUID(),velocity,inaccuracy);
 
         Level level = ghast.level();
 
