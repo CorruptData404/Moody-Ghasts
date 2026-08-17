@@ -19,8 +19,6 @@ public class SingleShot extends FiringPattern {
     @Override
     protected void onChargeComplete() {
         //Firing is instant upon charge completion so updating ModAttachments.IS_FIRING is unnecessary
-        float velocity = data.shot().getVelocity(mood);
-        float inaccuracy = data.shot().getInaccuracy(mood);
 
         Level level = ghast.level();
 
@@ -33,8 +31,8 @@ public class SingleShot extends FiringPattern {
         projectile.setPos(getProjectileSpawnPos());
         projectile.shoot(
                 direction.x, direction.y, direction.z,
-                velocity,
-                inaccuracy);
+                data.shot().getVelocity(mood),
+                data.shot().getInaccuracy(mood));
 
         // Spawn projectile
         level.levelEvent(null, 1016, ghast.blockPosition(), 0);

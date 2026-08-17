@@ -37,10 +37,9 @@ public class MoodyWindChargeEntity extends AbstractWindCharge {
         );
     }
 
-    public MoodyWindChargeEntity(Level level, LivingEntity owner, Vec3 movement, float radius, float strength) {
+    public MoodyWindChargeEntity(Level level, LivingEntity owner, float radius, float strength) {
         super(ModEntities.MOODY_WIND_CHARGE.get(), level);
         this.setOwner(owner);
-        this.setDeltaMovement(movement);
         this.customRadius = radius;
         this.explosionDamageCalculator = new SimpleExplosionDamageCalculator(
                 true, false,

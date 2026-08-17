@@ -61,7 +61,7 @@ public class Barrage extends FiringPattern {
         // Calculate logarithmic delay (increases as progress decreases)
         // Maps progress from 1.0->0.0 to 0->5 logarithmically
         float delayFactor = -2.0f * (float)Math.log(progress + 0.1f);
-        int delay = Math.max(0, Math.min(5, (int)delayFactor));
+        int delay = Math.clamp((int) delayFactor, 0, 5);
 
         if (nextDelay > 0) {
             ghast.setData(ModAttachments.BARRAGE_DELAY, nextDelay - 1);
