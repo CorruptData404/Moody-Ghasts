@@ -18,7 +18,7 @@ public class IceChargeEntity extends AbstractIceChargeEntity {
 
 
     public IceChargeEntity(LivingEntity shooter, Level level, double x, double y, double z) {
-        super(ModEntities.ICE_CHARGE.get(), shooter, Vec3.ZERO, level);
+        super(ModEntities.ICE_CHARGE.get(), shooter, level);
         this.setPos(x, y, z);
     }
 

@@ -58,14 +58,14 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             ResourceKey.create(Registries.DAMAGE_TYPE,
                     Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "ice_charge"));
 
-    // Constructor 1
+
     public AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, Level world) {
         super(type, world);
     }
 
-    // Movement vector constructor with owner
-    protected AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity owner, Vec3 movement, Level level) {
-        super(type, owner, movement, level);
+    protected AbstractIceChargeEntity(EntityType<? extends AbstractIceChargeEntity> type, LivingEntity owner, Level level) {
+        super(type, level);
+        this.setOwner(owner);
     }
 
     @Override
@@ -97,10 +97,10 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             // Check for fluid interactions when the entity moves to a new block
             if (!prevBlockPos.equals(newBlockPos) && shouldTriggerInFluid(newBlockPos)) {
                 BlockHitResult hitResult = new BlockHitResult(
-                    this.position(),
-                    Direction.DOWN,
-                    newBlockPos,
-                    true
+                        this.position(),
+                        Direction.DOWN,
+                        newBlockPos,
+                        true
                 );
                 this.onHitBlock(hitResult);
                 this.onHit(hitResult);
@@ -348,31 +348,31 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
 
 
     private void handleLavaConversion(BlockPos pos, ServerLevel server, BlockState state, BlockState belowState) {
-            // Convert lava
-            if (state.getFluidState().isSource()) {
-                server.setBlockAndUpdate(pos, Blocks.OBSIDIAN.defaultBlockState());
-            } else if (belowState.is(Blocks.SOUL_SOIL)) {
-                server.setBlockAndUpdate(pos, Blocks.BASALT.defaultBlockState());
-            } else {
-                server.setBlockAndUpdate(pos, Blocks.COBBLESTONE.defaultBlockState());
-            }
+        // Convert lava
+        if (state.getFluidState().isSource()) {
+            server.setBlockAndUpdate(pos, Blocks.OBSIDIAN.defaultBlockState());
+        } else if (belowState.is(Blocks.SOUL_SOIL)) {
+            server.setBlockAndUpdate(pos, Blocks.BASALT.defaultBlockState());
+        } else {
+            server.setBlockAndUpdate(pos, Blocks.COBBLESTONE.defaultBlockState());
+        }
 
-            // Mark this position as recently converted
-            BlockPos immutablePos = pos.immutable();
-            recentlyConverted.add(immutablePos);
-            server.scheduleTick(pos, Blocks.AIR, CONVERSION_TIMEOUT);
+        // Mark this position as recently converted
+        BlockPos immutablePos = pos.immutable();
+        recentlyConverted.add(immutablePos);
+        server.scheduleTick(pos, Blocks.AIR, CONVERSION_TIMEOUT);
 
-            // Add steam particles
-            server.sendParticles(ParticleTypes.LARGE_SMOKE,
-                    pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
-                    4, 0.3D, 0.3D, 0.3D, 0.0D);
+        // Add steam particles
+        server.sendParticles(ParticleTypes.LARGE_SMOKE,
+                pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                4, 0.3D, 0.3D, 0.3D, 0.0D);
 
-            // Play the cooling sound
-            server.playSound(null, pos,
-                    SoundEvents.LAVA_EXTINGUISH,
-                    SoundSource.BLOCKS,
-                    0.2F,
-                    2.0F + (server.getRandom().nextFloat() - server.getRandom().nextFloat()) * 0.4F);
+        // Play the cooling sound
+        server.playSound(null, pos,
+                SoundEvents.LAVA_EXTINGUISH,
+                SoundSource.BLOCKS,
+                0.2F,
+                2.0F + (server.getRandom().nextFloat() - server.getRandom().nextFloat()) * 0.4F);
     }
 
     @Override
