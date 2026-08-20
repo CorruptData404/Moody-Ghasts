@@ -12,7 +12,6 @@ import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.registry.ModDispenserBehaviors;
 import ca.corruptdata.moodyghasts.registry.ModRegistries;
 import com.mojang.logging.LogUtils;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -21,7 +20,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import net.neoforged.neoforge.registries.datamaps.DataMapsUpdatedEvent;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.registries.datamaps.RegisterDataMapTypesEvent;
 import org.slf4j.Logger;
 
@@ -51,7 +50,7 @@ public class MoodyGhasts {
         NeoForge.EVENT_BUS.register(new GhastMoodHandler());
         NeoForge.EVENT_BUS.register(new GhastMovementHandler());
 
-        NeoForge.EVENT_BUS.addListener(this::onDataMapsUpdated);
+        NeoForge.EVENT_BUS.addListener(this::onDatapackSync);
 
         ModRegistries.PROJECTILE_FACTORY_REGISTER.register(modEventBus);
         ModRegistries.FIRING_PATTERN_FACTORY_REGISTER.register(modEventBus);
@@ -79,10 +78,8 @@ public class MoodyGhasts {
         }
     }
 
-    private void onDataMapsUpdated(DataMapsUpdatedEvent event) {
-        if (event.getRegistryKey() == Registries.ITEM) {
-            ItemPropertyMap.validateMoodScalingKeys();
-        }
+    private void onDatapackSync(OnDatapackSyncEvent event) {
+        ItemPropertyMap.validateAll();
     }
 
     private void registerDataMaps(RegisterDataMapTypesEvent event) {
