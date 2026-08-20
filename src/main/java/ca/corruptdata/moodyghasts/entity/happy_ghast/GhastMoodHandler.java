@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -197,7 +198,7 @@ public class GhastMoodHandler {
                 // Dismount all riders with short slow falling
                 for (Entity passenger : new ArrayList<>(ghast.getPassengers())) {
                     if (passenger instanceof LivingEntity living) {
-                        living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 200, 0)); // 10 seconds
+                        living.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 100, 0)); // 5 seconds
                     }
                     passenger.stopRiding();
                 }
@@ -221,17 +222,23 @@ public class GhastMoodHandler {
                     }
                 }
 
-                spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER,30);
-
                 // Convert to hostile ghast
-                ghast.convertTo(EntityTypes.GHAST, ConversionParams.single(ghast, false, true), newGhast -> {
-                    net.neoforged.neoforge.event.EventHooks.onLivingConvert(ghast, newGhast);
+                if(serverLevel.getDifficulty() != Difficulty.PEACEFUL)
+                {
+                    ghast.convertTo(EntityTypes.GHAST, ConversionParams.single(ghast, false, true),
+                            newGhast -> {net.neoforged.neoforge.event.EventHooks.onLivingConvert(ghast, newGhast);});
+                }
+                else{
+                    //in peaceful difficulty
+                    ghast.setData(ModAttachments.TANTRUM_TICKS, 0);
+                    adjustMood(ghast, moodMap.settings().peacefulTantrumCatharsisDelta());
+                }
 
-                    if (!ghast.isSilent()) {
-                        serverLevel.playSound(ghast, ghast.getX(), ghast.getY(), ghast.getZ(),
-                                SoundEvents.GHAST_HURT, SoundSource.HOSTILE, 1.0F, 1.0F);
-                    }
-                });
+                spawnSurroundParticles(ghast, ParticleTypes.ANGRY_VILLAGER,30);
+                if (!ghast.isSilent()) {
+                    serverLevel.playSound(ghast, ghast.getX(), ghast.getY(), ghast.getZ(),
+                            SoundEvents.GHAST_HURT, SoundSource.HOSTILE, 1.0F, 1.0F);
+                }
             }
             else if (tantrumTicks % 50 == 0 && !(ghast.isSilent()
                     || ghast.getData(ModAttachments.IS_CHARGING)
