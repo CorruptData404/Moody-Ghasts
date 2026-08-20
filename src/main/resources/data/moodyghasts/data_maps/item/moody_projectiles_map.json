@@ -6,16 +6,29 @@
       "projectile": {
         "type": "moodyghasts:ice_charge",
         "moodScaling": {
-          "radius": { "min": 2.5, "max": 6.0, "stepped": true },
-          "strength": { "min": 2.0, "max": 5.5 }
+          "radius": {
+            "min": 2.5,
+            "max": 6.0,
+            "stepped": true
+          },
+          "strength": {
+            "min": 2.0,
+            "max": 5.5
+          }
         }
       },
       "shot": {
         "type": "moodyghasts:single_shot",
         "chargeDuration": 20,
         "moodScaling": {
-          "velocity": { "min": 1.0, "max": 1.5 },
-          "inaccuracy": {"min": 0.0, "max": 0.0 }
+          "velocity": {
+            "min": 1.0,
+            "max": 1.5
+          },
+          "inaccuracy": {
+            "min": 0.0,
+            "max": 0.0
+          }
         }
       }
     },
@@ -25,15 +38,25 @@
       "projectile": {
         "type": "moodyghasts:large_fireball",
         "moodScaling": {
-          "strength": { "min": 1.0, "max": 4, "stepped": true }
+          "strength": {
+            "min": 1.0,
+            "max": 4,
+            "stepped": true
+          }
         }
       },
       "shot": {
         "type": "moodyghasts:single_shot",
         "chargeDuration": 20,
         "moodScaling": {
-          "velocity": { "min": 1.0, "max": 1.5 },
-          "inaccuracy": {"min": 0.0, "max": 0.0 }
+          "velocity": {
+            "min": 1.0,
+            "max": 1.5
+          },
+          "inaccuracy": {
+            "min": 0.0,
+            "max": 0.0
+          }
         }
       }
     },
@@ -43,20 +66,35 @@
       "projectile": {
         "type": "moodyghasts:wind_charge",
         "moodScaling": {
-          "radius": { "min": 1.0, "max": 4.0, "stepped": true },
-          "strength": { "min": 1.5, "max": 3.5, "stepped": true }
+          "radius": {
+            "min": 1.0,
+            "max": 4.0,
+            "stepped": true
+          },
+          "strength": {
+            "min": 1.5,
+            "max": 3.5,
+            "stepped": true
+          }
         }
       },
       "shot": {
         "type": "moodyghasts:single_shot",
         "chargeDuration": 20,
         "moodScaling": {
-          "velocity": { "min": 1.0, "max": 1.5 },
-          "inaccuracy": {"min": 0.0, "max": 0.0 }
+          "velocity": {
+            "min": 1.0,
+            "max": 1.5
+          },
+          "inaccuracy": {
+            "min": 0.0,
+            "max": 0.0
+          }
         }
       }
     },
     "minecraft:powder_snow_bucket": {
+      "remainderItem": "minecraft:bucket",
       "cooldown": 60,
       "moodDelta": -0.0035,
       "projectile": {
@@ -66,9 +104,64 @@
         "type": "moodyghasts:barrage",
         "chargeDuration": 20,
         "moodScaling": {
-          "count": { "min": 30, "max": 90 },
-          "velocity": { "min": 1.0, "max": 1.5 },
-          "inaccuracy": { "min": 0.08, "max": 0.10, "inverted": true }
+          "count": {
+            "min": 30,
+            "max": 90
+          },
+          "velocity": {
+            "min": 1.0,
+            "max": 1.5
+          },
+          "inaccuracy": {
+            "min": 0.08,
+            "max": 0.10,
+            "inverted": true
+          }
+        }
+      }
+    },
+    "minecraft:dragon_breath": {
+      "remainderItem": "minecraft:glass_bottle",
+      "cooldown": 40,
+      "moodDelta": 0.075,
+      "projectile": {
+        "type": "moodyghasts:dragon_fireball",
+        "moodScaling": {
+          "splashRange": {
+            "min": 3,
+            "max": 6
+          },
+          "cloudStartRadius": {
+            "min": 2,
+            "max": 4
+          },
+          "cloudEndRadius": {
+            "min": 5,
+            "max": 7
+          },
+          "cloudDuration": {
+            "min": 400,
+            "max": 800
+          },
+          "damageAmplifier": {
+            "min": 0,
+            "max": 2,
+            "stepped": true
+          }
+        }
+      },
+      "shot": {
+        "type": "moodyghasts:single_shot",
+        "chargeDuration": 20,
+        "moodScaling": {
+          "velocity": {
+            "min": 1,
+            "max": 1.5
+          },
+          "inaccuracy": {
+            "min": 0,
+            "max": 0
+          }
         }
       }
     }

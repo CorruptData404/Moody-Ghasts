@@ -35,8 +35,9 @@ public class ModRegistries {
 
         // Register projectile factories
         PROJECTILE_FACTORY_REGISTER.register("ice_charge", IceChargeFactory::new);
-        PROJECTILE_FACTORY_REGISTER.register("large_fireball", LargeFireballFactory::new);
         PROJECTILE_FACTORY_REGISTER.register("wind_charge", WindChargeFactory::new);
+        PROJECTILE_FACTORY_REGISTER.register("large_fireball", LargeFireballFactory::new);
+        PROJECTILE_FACTORY_REGISTER.register("dragon_fireball", DragonFireballFactory::new);
         PROJECTILE_FACTORY_REGISTER.register("snow_ball", SnowBallFactory::new);
     }
 
