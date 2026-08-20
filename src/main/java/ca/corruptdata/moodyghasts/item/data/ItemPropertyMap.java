@@ -12,11 +12,13 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
 import org.slf4j.Logger;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -63,12 +65,16 @@ public class ItemPropertyMap {
     // ============================================================
 
     public record MoodyConsumable(
+            int count,
+            Optional<Identifier> remainderItem,
             float moodDelta,
             int consumeTick,
             int rtpDiameter
     ) {
 
         public static final Codec<MoodyConsumable> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                Codec.INT.optionalFieldOf("count",1).forGetter(MoodyConsumable::count),
+                Identifier.CODEC.optionalFieldOf("remainderItem").forGetter(MoodyConsumable::remainderItem),
                 Codec.FLOAT.fieldOf("moodDelta").forGetter(MoodyConsumable::moodDelta),
                 Codec.INT.optionalFieldOf("consumeTick",32).forGetter(MoodyConsumable::consumeTick),
                 Codec.INT.optionalFieldOf("rtpDiameter",0).forGetter(MoodyConsumable::rtpDiameter)
@@ -183,12 +189,16 @@ public class ItemPropertyMap {
     // ============================================================
 
     public record MoodyProjectile(
+            int count,
+            Optional<Identifier> remainderItem,
             int cooldown,
             float moodDelta,
             ProjectileConfig projectile,
             PatternConfig shot
     ) {
         public static final Codec<MoodyProjectile> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+                Codec.INT.optionalFieldOf("count",1).forGetter(MoodyProjectile::count),
+                Identifier.CODEC.optionalFieldOf("remainderItem").forGetter(MoodyProjectile::remainderItem),
                 Codec.INT.fieldOf("cooldown").forGetter(MoodyProjectile::cooldown),
                 Codec.FLOAT.optionalFieldOf("moodDelta", 0.0f).forGetter(MoodyProjectile::moodDelta),
                 ProjectileConfig.CODEC.fieldOf("projectile").forGetter(MoodyProjectile::projectile),
@@ -200,6 +210,67 @@ public class ItemPropertyMap {
                 Registries.ITEM,
                 CODEC
         ).build();
+    }
+
+    // ============================================================
+    // Datapack validation - entry point
+    // ============================================================
+
+    /** Runs all datapack validation checks below. See MoodyGhasts for where this is called. */
+    public static void validateAll() {
+        validateMoodScalingKeys();
+        validateItemCounts();
+        validateExclusiveItemRoles();
+    }
+
+    // ============================================================
+    // Datapack validation for count
+    // ============================================================
+
+    public static void validateItemCounts() {
+        for (Map.Entry<ResourceKey<Item>, MoodyProjectile> entry : BuiltInRegistries.ITEM.getDataMap(MoodyProjectile.DATA_MAP).entrySet()) {
+            validateCount(entry.getKey(), "moody_projectiles_map", entry.getValue().count());
+        }
+        for (Map.Entry<ResourceKey<Item>, MoodyConsumable> entry : BuiltInRegistries.ITEM.getDataMap(MoodyConsumable.DATA_MAP).entrySet()) {
+            validateCount(entry.getKey(), "moody_consumables_map", entry.getValue().count());
+        }
+    }
+
+    private static void validateCount(ResourceKey<Item> key, String mapName, int count) {
+        Identifier itemId = key.identifier();
+
+        if (count < 0) {
+            LOGGER.error("Item '{}' has {} count {} - count must be at least 0.",
+                    itemId, mapName, count);
+            return;
+        }
+
+        Item item = BuiltInRegistries.ITEM.get(itemId).map(Holder.Reference::value).orElseThrow();
+
+        int maxStackSize = item.getDefaultMaxStackSize();
+        if (count > maxStackSize) {
+            LOGGER.error("Item '{}' has {} count {} but only stacks to {} - " +
+                            "this item can never reach the required count and will never be usable.",
+                    itemId, mapName, count, maxStackSize);
+        }
+    }
+
+    // ============================================================
+    // Datapack validation for items configured as both projectile and consumable
+    // ============================================================
+
+    /** Warns/errors if an item has both a MoodyProjectile and a MoodyConsumable entry. */
+    public static void validateExclusiveItemRoles() {
+        Map<ResourceKey<Item>, MoodyProjectile> projectiles = BuiltInRegistries.ITEM.getDataMap(MoodyProjectile.DATA_MAP);
+        Map<ResourceKey<Item>, MoodyConsumable> consumables = BuiltInRegistries.ITEM.getDataMap(MoodyConsumable.DATA_MAP);
+
+        for (Map.Entry<ResourceKey<Item>, MoodyProjectile> entry : projectiles.entrySet()) {
+            if (consumables.get(entry.getKey()) != null)
+                LOGGER.error("Item '{}' is configured as both a MoodyProjectile and a MoodyConsumable " +
+                                "GhastInteractionHandler can't distinguish which interaction should apply" +
+                                "Remove one of the two moody_*_map entries for this item.",
+                        entry.getKey().identifier());
+        }
     }
 
     // ============================================================
@@ -221,11 +292,10 @@ public class ItemPropertyMap {
         Registry<FiringPatternFactory> shootingBehaviours =
                 ModRegistries.FIRING_PATTERN_FACTORY_REGISTER.getRegistry().get();
 
-        for (Item item : BuiltInRegistries.ITEM) {
-            MoodyProjectile config = item.builtInRegistryHolder().getData(MoodyProjectile.DATA_MAP);
-            if (config == null) continue;
+        for (Map.Entry<ResourceKey<Item>, MoodyProjectile> entry : BuiltInRegistries.ITEM.getDataMap(MoodyProjectile.DATA_MAP).entrySet()) {
+            Identifier itemId = entry.getKey().identifier();
+            MoodyProjectile config = entry.getValue();
 
-            Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
             validateSection(itemId, "projectile", config.projectile().type(), config.projectile().moodScaling(),
                     projectileFactories, "projectile factory registry", ProjectileFactory::getRecognizedMoodScalingKeys);
             validateSection(itemId, "shot", config.shot().type(), config.shot().moodScaling(),
