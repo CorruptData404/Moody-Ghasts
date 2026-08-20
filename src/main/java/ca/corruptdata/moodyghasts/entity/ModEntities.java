@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.entity;
 
+import ca.corruptdata.moodyghasts.entity.projectile.dragon_fireball.MoodyDragonFireballEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.IceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.MoodyIceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.wind_charge.MoodyWindChargeEntity;
@@ -50,6 +51,19 @@ public class ModEntities {
         );
         return EntityType.Builder
                 .<MoodyWindChargeEntity>of(MoodyWindChargeEntity::new, MobCategory.MISC)
+                .sized(1.0F, 1.0F)
+                .clientTrackingRange(8)
+                .updateInterval(10)
+                .build(key);
+    });
+
+    public static final DeferredHolder<EntityType<?>, EntityType<MoodyDragonFireballEntity>> MOODY_DRAGON_FIREBALL = ENTITIES.register("moody_dragon_fireball", () -> {
+        ResourceKey<EntityType<?>> key = ResourceKey.create(
+                Registries.ENTITY_TYPE,
+                Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_dragon_fireball")
+        );
+        return EntityType.Builder
+                .<MoodyDragonFireballEntity>of(MoodyDragonFireballEntity::new, MobCategory.MISC)
                 .sized(1.0F, 1.0F)
                 .clientTrackingRange(8)
                 .updateInterval(10)

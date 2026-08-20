@@ -9,6 +9,7 @@ import ca.corruptdata.moodyghasts.client.rendering.projectile.ice_charge.MoodyIc
 import ca.corruptdata.moodyghasts.client.rendering.projectile.wind_charge.MoodyWindChargeRenderer;
 import ca.corruptdata.moodyghasts.entity.ModEntities;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
+import net.minecraft.client.renderer.entity.DragonFireballRenderer;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
@@ -37,6 +38,7 @@ public class MoodyGhastsClient {
         event.registerEntityRenderer(ModEntities.ICE_CHARGE.get(), IceChargeRenderer::new);
         event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), MoodyIceChargeRenderer::new);
         event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), MoodyWindChargeRenderer::new);
+        event.registerEntityRenderer(ModEntities.MOODY_DRAGON_FIREBALL.get(), DragonFireballRenderer::new);
         event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodyGhastRenderer::new);
     }
 
