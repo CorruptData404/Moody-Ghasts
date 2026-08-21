@@ -36,6 +36,7 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
             float healMoodMult,
             float moodEventRadius,
             float peacefulTantrumCatharsisDelta,
+            float seeTantrumDelta,
             float seeBabyDeathDelta,
             float killBabyDelta,
             float seeAdultDeathDelta,
@@ -50,6 +51,7 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
                 Codec.FLOAT.fieldOf("heal_mood_mult").forGetter(GhastMoodSettings::healMoodMult),
                 NON_NEGATIVE_FLOAT.fieldOf("mood_event_radius").forGetter(GhastMoodSettings::moodEventRadius),
                 Codec.FLOAT.fieldOf("peaceful_tantrum_catharsis_delta").forGetter(GhastMoodSettings::peacefulTantrumCatharsisDelta),
+                Codec.FLOAT.fieldOf("see_tantrum_delta").forGetter(GhastMoodSettings::seeTantrumDelta),
                 Codec.FLOAT.fieldOf("see_baby_death_delta").forGetter(GhastMoodSettings::seeBabyDeathDelta),
                 Codec.FLOAT.fieldOf("kill_baby_delta").forGetter(GhastMoodSettings::killBabyDelta),
                 Codec.FLOAT.fieldOf("see_adult_death_delta").forGetter(GhastMoodSettings::seeAdultDeathDelta),
@@ -229,12 +231,6 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
                         String.format("Tantrum tick for %s (%d) must not be negative",
                                 entry.getKey(), tantrumTick));
             }
-        }
-
-        float moodEventRadius = ghastMoodMap.settings().moodEventRadius();
-        if (moodEventRadius < 0f) {
-            return DataResult.error(() ->
-                    String.format("Mood event radius (%.3f) must not be negative", moodEventRadius));
         }
 
         // Verify exactly one mood has MAX threshold
