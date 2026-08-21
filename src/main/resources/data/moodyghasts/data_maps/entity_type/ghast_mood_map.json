@@ -7,6 +7,7 @@
         "heal_mood_mult": -0.02,
         "mood_event_radius": 32.0,
         "peaceful_tantrum_catharsis_delta": -0.35,
+        "see_tantrum_delta": 0.2,
         "see_baby_death_delta": 0.5,
         "kill_baby_delta": 1.0,
         "see_adult_death_delta": 0.0,

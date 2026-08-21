@@ -239,6 +239,8 @@ public class GhastMoodHandler {
                     serverLevel.playSound(ghast, ghast.getX(), ghast.getY(), ghast.getZ(),
                             SoundEvents.GHAST_HURT, SoundSource.HOSTILE, 1.0F, 1.0F);
                 }
+
+                notifyNearbyGhastsOfTantrum(ghast, moodMap);
             }
             else if (tantrumTicks % 50 == 0 && !(ghast.isSilent()
                     || ghast.getData(ModAttachments.IS_CHARGING)
@@ -249,6 +251,20 @@ public class GhastMoodHandler {
             }
         } else {
             ghast.setData(ModAttachments.TANTRUM_TICKS, 0);
+        }
+    }
+
+    private void notifyNearbyGhastsOfTantrum(HappyGhast ghast, GhastMoodMap moodMap) {
+        var settings = moodMap.settings();
+        if (settings.seeTantrumDelta() == 0F) return;
+
+        AABB searchBox = ghast.getBoundingBox().inflate(settings.moodEventRadius());
+        List<HappyGhast> nearbyAdults = ghast.level().getEntitiesOfClass(
+                HappyGhast.class, searchBox, adult -> !adult.isBaby() && adult != ghast
+        );
+
+        for (HappyGhast adult : nearbyAdults) {
+            adjustMood(adult, settings.seeTantrumDelta());
         }
     }
 
