@@ -39,6 +39,7 @@ public class ModRegistries {
         PROJECTILE_FACTORY_REGISTER.register("large_fireball", LargeFireballFactory::new);
         PROJECTILE_FACTORY_REGISTER.register("dragon_fireball", DragonFireballFactory::new);
         PROJECTILE_FACTORY_REGISTER.register("snow_ball", SnowBallFactory::new);
+        PROJECTILE_FACTORY_REGISTER.register("tear",  TearFactory::new);
     }
 
     // ============================================================
@@ -54,5 +55,6 @@ public class ModRegistries {
         // Register shooting behaviours
         FIRING_PATTERN_FACTORY_REGISTER.register("single_shot", SingleShotFactory::new);
         FIRING_PATTERN_FACTORY_REGISTER.register("barrage", BarrageFactory::new);
+        FIRING_PATTERN_FACTORY_REGISTER.register("cry", CryFactory::new);
     }
 }

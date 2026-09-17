@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.client;
 
+import ca.corruptdata.moodyghasts.client.rendering.projectile.tear.TearRenderer;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
 import ca.corruptdata.moodyghasts.client.rendering.happy_ghast.MoodyGhastRenderer;
@@ -39,6 +40,7 @@ public class MoodyGhastsClient {
         event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), MoodyIceChargeRenderer::new);
         event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), MoodyWindChargeRenderer::new);
         event.registerEntityRenderer(ModEntities.MOODY_DRAGON_FIREBALL.get(), DragonFireballRenderer::new);
+        event.registerEntityRenderer(ModEntities.MOODY_TEAR.get(), TearRenderer::new);
         event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodyGhastRenderer::new);
     }
 
