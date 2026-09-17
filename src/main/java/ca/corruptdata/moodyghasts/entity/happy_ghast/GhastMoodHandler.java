@@ -118,7 +118,7 @@ public class GhastMoodHandler {
         // Finish eating
         if (consumeTime >= foodData.consumeTick()) {
 
-            if(GhastMovementHandler.tryTeleportGhastSafely(ghast, foodItem.getDefaultInstance(), foodData.rtpDiameter()))
+            if(GhastMovementHandler.tryTeleportGhastSafely(ghast, foodItem.getDefaultInstance(), foodData.rtpDiameter(),true))
                 spawnSurroundParticles(ghast, ParticleTypes.PORTAL,600);
 
             if (foodData.targetMood().isPresent())
