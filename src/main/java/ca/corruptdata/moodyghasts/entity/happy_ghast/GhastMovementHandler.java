@@ -8,6 +8,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.BlockUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -32,6 +33,9 @@ public class GhastMovementHandler {
     private static final Logger LOGGER = MoodyGhasts.LOGGER;
     private static final Identifier SPEED_MODIFIER_ID =
             Identifier.fromNamespaceAndPath("moodyghasts", "speed_modifier");
+    private static final int GHAST_SIZE = 3;      // 3x3x3 ghast
+    private static final int RIDER_CLEARANCE = 2; // extra height for riders
+    private static final int MAX_ATTEMPTS = 10;
 
     @SubscribeEvent
     private void onSpeedModifyTick(EntityTickEvent.Post event) {
@@ -59,11 +63,7 @@ public class GhastMovementHandler {
         }
     }
 
-    private static final int GHAST_SIZE = 3;      // 3x3x3 ghast
-    private static final int RIDER_CLEARANCE = 2; // extra height for riders
-    private static final int MAX_ATTEMPTS = 10;
-
-    public static boolean tryTeleportGhastSafely(HappyGhast ghast, ItemStack stack, float diameter) {
+    public static boolean tryTeleportGhastSafely(HappyGhast ghast, ItemStack stack, float diameter, boolean directionalParticles) {
         Level level = ghast.level();
         if (level.isClientSide()) return false;
         if (!(level instanceof ServerLevel serverLevel)) return false;
@@ -82,14 +82,13 @@ public class GhastMovementHandler {
 
             BlockPos candidate = BlockPos.containing(xx, yy, zz);
 
-            if (!isSafeGhastLocation(level, candidate)) continue;
+            if (!isSafeGhastLocation(level, candidate, !ghast.getPassengers().isEmpty())) continue;
 
-            // Fire the event since bypassing randomTeleport's own event firing
             EntityTeleportEvent.ItemConsumption event =
                     new EntityTeleportEvent.ItemConsumption(ghast, stack, xx, yy, zz);
 
             if (NeoForge.EVENT_BUS.post(event).isCanceled()) {
-                return false; // a listener blocked the teleport, stop trying
+                return false;
             }
 
             Vec3 oldPos = ghast.position();
@@ -110,6 +109,13 @@ public class GhastMovementHandler {
                     SoundEvents.CHORUS_FRUIT_TELEPORT,
                     SoundSource.NEUTRAL
             );
+
+            if (directionalParticles) {
+                BlockPos origin = BlockPos.containing(oldPos);
+                BlockPos target = ghast.blockPosition();
+                level.levelEvent(2017, origin, BlockUtil.clampedPackDifferenceInPosition(origin, target, 127, 127, 127));
+            }
+
             ghast.resetFallDistance();
             ghast.resetCurrentImpulseContext();
             return true;
@@ -117,9 +123,11 @@ public class GhastMovementHandler {
         return false;
     }
 
-    private static boolean isSafeGhastLocation(Level level, BlockPos center) {
+    private static boolean isSafeGhastLocation(Level level, BlockPos center, boolean hasRider) {
         int radius = GHAST_SIZE / 2;
-        int height = GHAST_SIZE + RIDER_CLEARANCE;
+        int height = GHAST_SIZE;
+
+        if (hasRider) height += RIDER_CLEARANCE;
 
         for (int x = -radius; x <= radius; x++) {
             for (int z = -radius; z <= radius; z++) {
