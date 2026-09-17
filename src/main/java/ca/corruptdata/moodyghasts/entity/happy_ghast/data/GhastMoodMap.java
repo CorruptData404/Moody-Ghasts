@@ -21,9 +21,9 @@ public record GhastMoodMap(GhastMoodSettings settings, Map<Identifier, GhastMood
     public static final float MAX = 1.0f;
     public static final float MIN = 0.0f;
 
-    private static final Codec<Float> PERCENT = Codec.floatRange(MIN, MAX);
-    private static final Codec<Float> NON_NEGATIVE_FLOAT = Codec.floatRange(0f, Float.MAX_VALUE);
-    private static final Codec<Integer> NON_NEGATIVE_INT = Codec.intRange(0, Integer.MAX_VALUE);
+    public static final Codec<Float> PERCENT = Codec.floatRange(MIN, MAX);
+    public static final Codec<Float> NON_NEGATIVE_FLOAT = Codec.floatRange(0f, Float.MAX_VALUE);
+    public static final Codec<Integer> NON_NEGATIVE_INT = Codec.intRange(0, Integer.MAX_VALUE);
 
     // ============================================================
     // Records

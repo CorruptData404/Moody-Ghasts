@@ -27,7 +27,7 @@ public class Barrage extends FiringPattern {
 
         ghast.setData(ModAttachments.IS_FIRING, true);
         ghast.setData(ModAttachments.SHOTS_LEFT, totalProjectiles);
-        ghast.setData(ModAttachments.BARRAGE_DELAY, 0);
+        ghast.setData(ModAttachments.SHOT_DELAY, 0);
     }
 
     @Override
@@ -49,7 +49,7 @@ public class Barrage extends FiringPattern {
 
     private void handleBarrage() {
         int projectilesLeft = ghast.getData(ModAttachments.SHOTS_LEFT);
-        int nextDelay = ghast.getData(ModAttachments.BARRAGE_DELAY);
+        int nextDelay = ghast.getData(ModAttachments.SHOT_DELAY);
 
         if (projectilesLeft <= 0) {
             stop();
@@ -57,20 +57,22 @@ public class Barrage extends FiringPattern {
         }
 
         float progress = (float) projectilesLeft / totalProjectiles;
+        int maxDelay = data.shot().getShotDelay(mood);
 
-        // Calculate logarithmic delay (increases as progress decreases)
-        // Maps progress from 1.0->0.0 to 0->5 logarithmically
-        float delayFactor = -2.0f * (float)Math.log(progress + 0.1f);
-        int delay = Math.clamp((int) delayFactor, 0, 5);
+        // Logarithmic delay: near 0 early in the barrage, ramping up toward maxDelay as it
+        // nears completion. 2.302585 is -ln(0.1), normalizing the curve to 0-1 so maxDelay
+        // is the curve's actual ceiling, not just a clamp on top of a fixed-scale formula.
+        float normalized = -(float) Math.log(progress + 0.1f) / 2.302585f;
+        int delay = Math.clamp(Math.round(normalized * maxDelay), 0, maxDelay);
 
         if (nextDelay > 0) {
-            ghast.setData(ModAttachments.BARRAGE_DELAY, nextDelay - 1);
+            ghast.setData(ModAttachments.SHOT_DELAY, nextDelay - 1);
             return;
         }
 
         shootProjectile(progress);
         ghast.setData(ModAttachments.SHOTS_LEFT, projectilesLeft - 1);
-        ghast.setData(ModAttachments.BARRAGE_DELAY, delay);
+        ghast.setData(ModAttachments.SHOT_DELAY, delay);
     }
 
     private void shootProjectile(float progress) {
@@ -104,14 +106,14 @@ public class Barrage extends FiringPattern {
 
         level.addFreshEntity(projectile);
         playProjSound();
-        GhastMoodHandler.adjustMood(ghast, data.moodDelta());
+        applyMoodDelta();
     }
 
     @Override
     public void stop() {
         ghast.setData(ModAttachments.IS_FIRING, false);
         ghast.setData(ModAttachments.SHOTS_LEFT, 0);
-        ghast.setData(ModAttachments.BARRAGE_DELAY, 0);
+        ghast.setData(ModAttachments.SHOT_DELAY, 0);
 
         if(Config.SHOOT_LOGGING.get())
             LOGGER.info("Barrage stopped for ghast {}", ghast.getUUID());

@@ -68,6 +68,7 @@ public class ItemPropertyMap {
             int count,
             Optional<Identifier> remainderItem,
             float moodDelta,
+            Optional<Float> targetMood,
             int consumeTick,
             int rtpDiameter
     ) {
@@ -76,6 +77,7 @@ public class ItemPropertyMap {
                 Codec.INT.optionalFieldOf("count",1).forGetter(MoodyConsumable::count),
                 Identifier.CODEC.optionalFieldOf("remainderItem").forGetter(MoodyConsumable::remainderItem),
                 Codec.FLOAT.fieldOf("moodDelta").forGetter(MoodyConsumable::moodDelta),
+                GhastMoodMap.PERCENT.optionalFieldOf("targetMood").forGetter(MoodyConsumable::targetMood),
                 Codec.INT.optionalFieldOf("consumeTick",32).forGetter(MoodyConsumable::consumeTick),
                 Codec.INT.optionalFieldOf("rtpDiameter",0).forGetter(MoodyConsumable::rtpDiameter)
         ).apply(inst, MoodyConsumable::new));
@@ -160,7 +162,7 @@ public class ItemPropertyMap {
     public record PatternConfig(
             Identifier type,
             Integer chargeDuration,
-            Map<String, MoodScalingConfig> moodScaling  // "count", "velocity", etc.
+            Map<String, MoodScalingConfig> moodScaling  // "count", "velocity", "shotDelay", etc.
     ) implements MoodScalable {
         public static final Codec<PatternConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                 Identifier.CODEC.fieldOf("type").forGetter(PatternConfig::type),
@@ -182,6 +184,10 @@ public class ItemPropertyMap {
         public int getCount(float moodValue) {
             return getScaledInt("count", moodValue);
         }
+
+        public int getShotDelay(float moodValue) {
+            return getScaledInt("shotDelay", moodValue);
+        }
     }
 
     // ============================================================
@@ -193,6 +199,7 @@ public class ItemPropertyMap {
             Optional<Identifier> remainderItem,
             int cooldown,
             float moodDelta,
+            Optional<Float> targetMood,
             ProjectileConfig projectile,
             PatternConfig shot
     ) {
@@ -201,6 +208,7 @@ public class ItemPropertyMap {
                 Identifier.CODEC.optionalFieldOf("remainderItem").forGetter(MoodyProjectile::remainderItem),
                 Codec.INT.fieldOf("cooldown").forGetter(MoodyProjectile::cooldown),
                 Codec.FLOAT.optionalFieldOf("moodDelta", 0.0f).forGetter(MoodyProjectile::moodDelta),
+                GhastMoodMap.PERCENT.optionalFieldOf("targetMood").forGetter(MoodyProjectile::targetMood),
                 ProjectileConfig.CODEC.fieldOf("projectile").forGetter(MoodyProjectile::projectile),
                 PatternConfig.CODEC.fieldOf("shot").forGetter(MoodyProjectile::shot)
         ).apply(inst, MoodyProjectile::new));

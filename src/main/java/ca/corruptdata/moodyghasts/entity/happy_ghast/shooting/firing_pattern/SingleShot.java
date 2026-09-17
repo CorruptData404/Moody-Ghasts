@@ -1,6 +1,5 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern;
 
-import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
@@ -38,7 +37,7 @@ public class SingleShot extends FiringPattern {
         level.levelEvent(null, 1016, ghast.blockPosition(), 0);
         level.addFreshEntity(projectile);
         playProjSound();
-        GhastMoodHandler.adjustMood(ghast, data.moodDelta());
+        applyMoodDelta();
     }
 
 

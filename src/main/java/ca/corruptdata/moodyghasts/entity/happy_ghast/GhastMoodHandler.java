@@ -75,6 +75,19 @@ public class GhastMoodHandler {
         ghast.setData(ModAttachments.MOOD, newMood);
     }
 
+    /**
+     * Moves mood toward targetMood by up to delta, snapping instead of overshooting once
+     * within delta of it. Pass a negative delta to instead push mood away from targetMood
+     */
+    public static void adjustMoodToTarget(HappyGhast ghast, float delta, float targetMood) {
+        float currentMood = ghast.getData(ModAttachments.MOOD);
+
+        if (Math.abs(currentMood - targetMood) <= delta)
+            adjustMood(ghast, targetMood - currentMood);
+        else
+            adjustMood(ghast, currentMood > targetMood ? -delta : delta);
+    }
+
     public static boolean wouldCrossMoodThreshold(float currentMood, float delta) {
         float newMood = Mth.clamp(currentMood + delta, GhastMoodMap.MIN, GhastMoodMap.MAX);
         GhastMoodMap thresholds = GhastMoodMap.get();
@@ -108,7 +121,10 @@ public class GhastMoodHandler {
             if(GhastMovementHandler.tryTeleportGhastSafely(ghast, foodItem.getDefaultInstance(), foodData.rtpDiameter()))
                 spawnSurroundParticles(ghast, ParticleTypes.PORTAL,600);
 
-            adjustMood(ghast, foodData.moodDelta());
+            if (foodData.targetMood().isPresent())
+                adjustMoodToTarget(ghast, foodData.moodDelta(), foodData.targetMood().get());
+            else
+                adjustMood(ghast, foodData.moodDelta());
 
             ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                     SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 1.0F, 1.0F);
@@ -167,13 +183,8 @@ public class GhastMoodHandler {
                     ? moodMap.settings().noticedByBabyHappierMult()
                     : moodMap.settings().noticedByBabyAngrierMult();
         }
-
-
-        // If very close to base mood (within one delta), set it to base
-        if (Math.abs(currentMood - baseMood) <= delta)
-            adjustMood(ghast, baseMood - currentMood);
-        else
-            adjustMood(ghast, currentMood > baseMood ? -delta : delta);
+        
+        adjustMoodToTarget(ghast, delta, baseMood);
     }
 
     @SubscribeEvent
