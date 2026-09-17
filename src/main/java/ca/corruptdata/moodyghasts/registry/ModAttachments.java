@@ -50,8 +50,8 @@ public class ModAttachments {
             () -> AttachmentType.builder(() -> 0).build()
     );
 
-    public static final Supplier<AttachmentType<Integer>> BARRAGE_DELAY = ATTACHMENT_TYPES.register(
-            "barrage_delay",
+    public static final Supplier<AttachmentType<Integer>> SHOT_DELAY = ATTACHMENT_TYPES.register(
+            "shot_delay",
             () -> AttachmentType.builder(() -> 0).build()
     );
 

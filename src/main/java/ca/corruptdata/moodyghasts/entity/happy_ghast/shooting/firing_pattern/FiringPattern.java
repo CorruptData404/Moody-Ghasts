@@ -1,6 +1,7 @@
 package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern;
 
 import ca.corruptdata.moodyghasts.Config;
+import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.MoodyGhasts;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
@@ -89,6 +90,19 @@ public abstract class FiringPattern {
                 factory.getSoundEvent(), SoundSource.NEUTRAL,
                 0.35F, 0.4F / (ghast.level().getRandom().nextFloat() * 0.4F + 0.8F));
     }
+
+    /**
+     * Applies this pattern's configured mood change - a flat shift, or convergence toward
+     * (or away from, if moodDelta is negative) targetMood if one is set. Call this once per
+     * shot from onChargeComplete, instead of calling GhastMoodHandler directly.
+     */
+    protected void applyMoodDelta() {
+        if (data.targetMood().isPresent())
+            GhastMoodHandler.adjustMoodToTarget(ghast, data.moodDelta(), data.targetMood().get());
+        else
+            GhastMoodHandler.adjustMood(ghast, data.moodDelta());
+    }
+
 
     protected abstract void onChargeComplete();
     public abstract void stop();

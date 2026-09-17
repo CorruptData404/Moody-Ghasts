@@ -116,6 +116,10 @@
             "min": 0.08,
             "max": 0.10,
             "inverted": true
+          },
+          "shotDelay": {
+            "min": 5,
+            "max": 5
           }
         }
       }
