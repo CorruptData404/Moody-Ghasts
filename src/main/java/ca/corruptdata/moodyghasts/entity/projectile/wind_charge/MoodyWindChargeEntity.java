@@ -57,8 +57,10 @@ public class MoodyWindChargeEntity extends AbstractWindCharge {
     }
 
     @Override
-    public boolean deflect(ProjectileDeflection deflection, @Nullable Entity deflectingEntity, @Nullable EntityReference<Entity> newOwner, boolean byAttack) {
-        return this.noDeflectTicks > 0 ? false : super.deflect(deflection, deflectingEntity, newOwner, byAttack);
+    public boolean deflect(
+            ProjectileDeflection deflection, @org.jspecify.annotations.Nullable Entity deflectingEntity, @Nullable EntityReference<Entity> newOwner, boolean byAttack, Vec3 power
+    ) {
+        return this.noDeflectTicks > 0 ? false : super.deflect(deflection, deflectingEntity, newOwner, byAttack, power);
     }
 
     @Override

@@ -13,6 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.animal.happyghast.HappyGhast;
@@ -155,7 +156,7 @@ public class GhastInteractionHandler {
         }
         player.setItemInHand(hand, shrunk);
         if (!player.getInventory().add(remainder)) {
-            player.drop(remainder, false);
+            player.drop(remainder, false, Prediction.PREDICTED);
         }
     }
 

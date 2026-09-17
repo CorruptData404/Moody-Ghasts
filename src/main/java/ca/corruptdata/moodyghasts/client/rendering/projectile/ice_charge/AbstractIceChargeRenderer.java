@@ -43,7 +43,7 @@ public abstract class AbstractIceChargeRenderer<T extends AbstractIceChargeEntit
         super.submit(renderState, poseStack, collector, cameraState);
 
         poseStack.pushPose();
-        poseStack.mulPose(Axis.YP.rotationDegrees(-renderState.travelYRot));
+        poseStack.rotateDegrees(Axis.YP, -renderState.travelYRot);
         poseStack.translate(0.0F, yTranslate, 0.0F);
         poseStack.scale(scale, scale, scale);
 

@@ -207,10 +207,11 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     }
 
     @Override
-    public boolean deflect(ProjectileDeflection deflection, @Nullable Entity deflectingEntity, @Nullable EntityReference<Entity> newOwner, boolean byAttack) {
-        return this.noDeflectTicks > 0 ? false : super.deflect(deflection, deflectingEntity, newOwner, byAttack);
+    public boolean deflect(
+            ProjectileDeflection deflection, @Nullable Entity deflectingEntity, @Nullable EntityReference<Entity> newOwner, boolean byAttack, Vec3 power
+    ) {
+        return this.noDeflectTicks > 0 ? false : super.deflect(deflection, deflectingEntity, newOwner, byAttack, power);
     }
-
 
     protected float getAdjustedRadius(ServerLevel server) {
         float baseRadius = getEffectRadius();
