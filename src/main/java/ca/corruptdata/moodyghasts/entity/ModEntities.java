@@ -3,6 +3,7 @@ package ca.corruptdata.moodyghasts.entity;
 import ca.corruptdata.moodyghasts.entity.projectile.dragon_fireball.MoodyDragonFireballEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.IceChargeEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.ice_charge.MoodyIceChargeEntity;
+import ca.corruptdata.moodyghasts.entity.projectile.tear.TearEntity;
 import ca.corruptdata.moodyghasts.entity.projectile.wind_charge.MoodyWindChargeEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -64,6 +65,19 @@ public class ModEntities {
         );
         return EntityType.Builder
                 .<MoodyDragonFireballEntity>of(MoodyDragonFireballEntity::new, MobCategory.MISC)
+                .sized(1.0F, 1.0F)
+                .clientTrackingRange(8)
+                .updateInterval(10)
+                .build(key);
+    });
+
+    public static final DeferredHolder<EntityType<?>, EntityType<TearEntity>> MOODY_TEAR = ENTITIES.register("moody_tear", () -> {
+        ResourceKey<EntityType<?>> key = ResourceKey.create(
+                Registries.ENTITY_TYPE,
+                Identifier.fromNamespaceAndPath(MoodyGhasts.MOD_ID, "moody_tear")
+        );
+        return EntityType.Builder
+                .<TearEntity>of(TearEntity::new, MobCategory.MISC)
                 .sized(1.0F, 1.0F)
                 .clientTrackingRange(8)
                 .updateInterval(10)

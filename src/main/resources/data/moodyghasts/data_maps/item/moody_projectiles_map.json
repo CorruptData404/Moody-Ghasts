@@ -168,6 +168,51 @@
           }
         }
       }
+    },
+    "minecraft:ghast_tear": {
+      "cooldown": 40,
+      "moodDelta": 0.025,
+      "targetMood": 0.5,
+      "projectile": {
+        "type": "moodyghasts:tear",
+        "moodScaling": {
+          "cloudRadius": {
+            "min": 1.0,
+            "max": 2.0
+          },
+          "cloudDuration": {
+            "min": 60,
+            "max": 140
+          },
+          "regenAmplifier": {
+            "min": 0,
+            "max": 1,
+            "stepped": true
+          }
+        }
+      },
+      "shot": {
+        "type": "moodyghasts:cry",
+        "chargeDuration": 20,
+        "moodScaling": {
+          "velocity": {
+            "min": 0.8,
+            "max": 1.2
+          },
+          "inaccuracy": {
+            "min": 0.08,
+            "max": 0.10
+          },
+          "count": {
+            "min": 10,
+            "max": 10
+          },
+          "shotDelay": {
+            "min": 8,
+            "max": 8
+          }
+        }
+      }
     }
   }
 }

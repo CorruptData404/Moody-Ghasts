@@ -1,5 +1,6 @@
 package ca.corruptdata.moodyghasts.client;
 
+import ca.corruptdata.moodyghasts.client.rendering.projectile.tear.TearRenderer;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.client.rendering.RenderStateKeys;
 import ca.corruptdata.moodyghasts.client.rendering.happy_ghast.MoodyGhastRenderer;
@@ -12,7 +13,7 @@ import ca.corruptdata.moodyghasts.entity.happy_ghast.data.GhastMoodMap;
 import net.minecraft.client.renderer.entity.DragonFireballRenderer;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.EntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -39,7 +40,8 @@ public class MoodyGhastsClient {
         event.registerEntityRenderer(ModEntities.MOODY_ICE_CHARGE.get(), MoodyIceChargeRenderer::new);
         event.registerEntityRenderer(ModEntities.MOODY_WIND_CHARGE.get(), MoodyWindChargeRenderer::new);
         event.registerEntityRenderer(ModEntities.MOODY_DRAGON_FIREBALL.get(), DragonFireballRenderer::new);
-        event.registerEntityRenderer(EntityTypes.HAPPY_GHAST, MoodyGhastRenderer::new);
+        event.registerEntityRenderer(ModEntities.MOODY_TEAR.get(), TearRenderer::new);
+        event.registerEntityRenderer(EntityType.HAPPY_GHAST, MoodyGhastRenderer::new);
     }
 
     private void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
