@@ -8,7 +8,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.BlockUtil;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -63,7 +62,7 @@ public class GhastMovementHandler {
         }
     }
 
-    public static boolean tryTeleportGhastSafely(HappyGhast ghast, ItemStack stack, float diameter, boolean directionalParticles) {
+    public static boolean tryTeleportGhastSafely(HappyGhast ghast, ItemStack stack, float diameter) {
         Level level = ghast.level();
         if (level.isClientSide()) return false;
         if (!(level instanceof ServerLevel serverLevel)) return false;
@@ -109,12 +108,6 @@ public class GhastMovementHandler {
                     SoundEvents.CHORUS_FRUIT_TELEPORT,
                     SoundSource.NEUTRAL
             );
-
-            if (directionalParticles) {
-                BlockPos origin = BlockPos.containing(oldPos);
-                BlockPos target = ghast.blockPosition();
-                level.levelEvent(2017, origin, BlockUtil.clampedPackDifferenceInPosition(origin, target, 127, 127, 127));
-            }
 
             ghast.resetFallDistance();
             ghast.resetCurrentImpulseContext();
