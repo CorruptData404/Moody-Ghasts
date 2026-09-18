@@ -37,8 +37,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.util.RandomSource;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -109,7 +108,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     }
 
     @Override
-    protected void onHit(@NotNull HitResult result) {
+    protected void onHit(HitResult result) {
         super.onHit(result);
 
         if (!this.level().isClientSide()) {
@@ -173,7 +172,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
 
 
     @Override
-    protected void onHitEntity(@NotNull EntityHitResult entityHit) {
+    protected void onHitEntity(EntityHitResult entityHit) {
         if (!this.level().isClientSide() && entityHit.getEntity() instanceof LivingEntity target) {
 
             if (target.isOnFire()) {
@@ -393,7 +392,7 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
     }
 
     @Override
-    public @NotNull ItemStack getItem() {
+    public ItemStack getItem() {
         return new ItemStack(ModItems.ICE_CHARGE.get());
     }
 }
