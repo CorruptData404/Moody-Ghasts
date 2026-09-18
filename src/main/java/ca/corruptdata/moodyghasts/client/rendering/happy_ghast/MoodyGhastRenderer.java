@@ -7,7 +7,6 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HappyGhastRenderer;
 import net.minecraft.client.renderer.entity.state.HappyGhastRenderState;
 import net.minecraft.resources.Identifier;
-import org.jetbrains.annotations.NotNull;
 
 public class MoodyGhastRenderer extends HappyGhastRenderer {
 
@@ -22,7 +21,7 @@ public class MoodyGhastRenderer extends HappyGhastRenderer {
     }
 
     @Override
-    public @NotNull Identifier getTextureLocation(HappyGhastRenderState state) {
+    public Identifier getTextureLocation(HappyGhastRenderState state) {
         if (state.isBaby) return super.getTextureLocation(state);
 
         if (state.getRenderDataOrThrow(RenderStateKeys.IS_CHARGING) || state.getRenderDataOrThrow(RenderStateKeys.IS_FIRING))

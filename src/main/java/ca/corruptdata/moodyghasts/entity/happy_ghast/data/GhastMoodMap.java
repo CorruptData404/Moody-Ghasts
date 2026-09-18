@@ -9,7 +9,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
 import net.neoforged.neoforge.registries.datamaps.DataMapType;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable; 
 
 import java.util.*;
 import java.util.stream.Collectors;
