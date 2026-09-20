@@ -12,7 +12,9 @@ import ca.corruptdata.moodyghasts.registry.ModAttachments;
 import ca.corruptdata.moodyghasts.registry.ModDispenserBehaviors;
 import ca.corruptdata.moodyghasts.registry.ModRegistries;
 import com.mojang.logging.LogUtils;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -69,12 +71,24 @@ public class MoodyGhasts {
     }
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if(event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES || event.getTabKey() == CreativeModeTabs.COMBAT) {
-            event.accept(ModItems.ICE_CHARGE);
+        if (event.getTabKey() == CreativeModeTabs.TOOLS_AND_UTILITIES || event.getTabKey() == CreativeModeTabs.COMBAT) {
+            event.insertAfter(
+                    Items.WIND_CHARGE.getDefaultInstance(),
+                    ModItems.ICE_CHARGE.get().getDefaultInstance(),
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+            );
         }
-        if(event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
-            event.accept(ModItems.SPICY_COOKIE);
-            event.accept(ModItems.FROSTED_COOKIE);
+        if (event.getTabKey() == CreativeModeTabs.FOOD_AND_DRINKS) {
+            event.insertAfter(
+                    Items.COOKIE.getDefaultInstance(),
+                    ModItems.FROSTED_COOKIE.get().getDefaultInstance(),
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+            );
+            event.insertAfter(
+                    ModItems.FROSTED_COOKIE.get().getDefaultInstance(),
+                    ModItems.SPICY_COOKIE.get().getDefaultInstance(),
+                    CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS
+            );
         }
     }
 
