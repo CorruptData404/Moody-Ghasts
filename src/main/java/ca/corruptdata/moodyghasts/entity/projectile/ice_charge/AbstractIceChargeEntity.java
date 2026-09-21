@@ -184,7 +184,10 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
             if (target.getType().builtInRegistryHolder().is(ModTags.Entities.FREEZE_IMMUNE)) return;
 
             DamageSource iceDamage = new DamageSource(
-                    registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ICECHARGE_DAMAGE));
+                    registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(ICECHARGE_DAMAGE),
+                    this,
+                    this.getOwner()
+            );
 
             if (this.getOwner() instanceof LivingEntity livingOwner) {
                 target.setLastHurtByMob(livingOwner);
