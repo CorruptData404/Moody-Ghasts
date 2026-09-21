@@ -24,10 +24,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile;
-import net.minecraft.world.entity.projectile.ItemSupplier;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import ca.corruptdata.moodyghasts.item.ModItems;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -46,7 +43,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 
-public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile implements ItemSupplier {
+public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile {
 
     protected abstract float getEffectRadius();
     protected abstract float getDamage();
@@ -393,10 +390,5 @@ public abstract class AbstractIceChargeEntity extends AbstractHurtingProjectile 
         return level().dimension() == Level.NETHER ?
                 ParticleTypes.FALLING_WATER :
                 ParticleTypes.SNOWFLAKE;
-    }
-
-    @Override
-    public ItemStack getItem() {
-        return new ItemStack(ModItems.ICE_CHARGE.get());
     }
 }
