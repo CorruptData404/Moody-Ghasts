@@ -13,7 +13,8 @@ import net.minecraft.world.level.Level;
 public class SnowBallFactory implements ProjectileFactory {
 
     @Override
-    public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
+    public Projectile buildProjectile(Level level, Player owner,
+                                      ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
         return new Snowball(level, 0.0, 0.0, 0.0, new ItemStack(Items.SNOWBALL));
     }
 

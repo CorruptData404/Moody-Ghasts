@@ -14,8 +14,9 @@ import java.util.Set;
 public class LargeFireballFactory implements ProjectileFactory {
 
     @Override
-    public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
-        return new LargeFireball(level, owner, Vec3.ZERO, projConfig.getScaledInt("strength", mood));
+    public Projectile buildProjectile(Level level, Player owner,
+                                      ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
+        return new LargeFireball(level, owner, Vec3.ZERO, projConfig.getScaledInt("strength", moodContext));
     }
 
     @Override
