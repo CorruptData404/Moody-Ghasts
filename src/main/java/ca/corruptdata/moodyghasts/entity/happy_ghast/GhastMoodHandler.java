@@ -320,23 +320,33 @@ public class GhastMoodHandler {
             adjustMood(killerGhast, killDelta);
         }
 
-        // Everyone else nearby gets the smaller "witnessed a death" adjustment.
-        if (witnessDelta == 0F) return;
+        // Nothing left to do unless we need to touch nearby adults - either to apply the witness
+        // mood delta, or (for a baby's death) reset their "noticed by baby" cooldown.
+        if (witnessDelta == 0F && !babyDied) return;
 
         HappyGhast finalKillerGhast = killerGhast;
         AABB searchBox = deceasedGhast.getBoundingBox().inflate(settings.moodEventRadius());
         List<HappyGhast> nearbyAdults = deceasedGhast.level().getEntitiesOfClass(
                 HappyGhast.class,
                 searchBox,
-                adult -> !adult.isBaby() && adult != deceasedGhast && !adult.equals(finalKillerGhast)
+                adult -> !adult.isBaby() && adult != deceasedGhast
         );
 
         for (HappyGhast adult : nearbyAdults) {
-            if (Config.MOOD_LOGGING.get())
-                LOGGER.info("Ghast {} died near adult ghast {}, applying mood delta {}",
-                        deceasedGhast.getUUID(), adult.getUUID(), witnessDelta);
+            if (babyDied) {
+                adult.setData(ModAttachments.LAST_NOTICED_BY_BABY_TICK, -1L);
+                if (Config.MOOD_LOGGING.get())
+                    LOGGER.info("Ghast {} reset last-noticed-by-baby tick to 0 after baby ghast {} died nearby",
+                            adult.getUUID(), deceasedGhast.getUUID());
+            }
 
-            adjustMood(adult, witnessDelta);
+            if (witnessDelta != 0F && !adult.equals(finalKillerGhast)) {
+                if (Config.MOOD_LOGGING.get())
+                    LOGGER.info("Ghast {} died near adult ghast {}, applying mood delta {}",
+                            deceasedGhast.getUUID(), adult.getUUID(), witnessDelta);
+
+                adjustMood(adult, witnessDelta);
+            }
         }
     }
 
