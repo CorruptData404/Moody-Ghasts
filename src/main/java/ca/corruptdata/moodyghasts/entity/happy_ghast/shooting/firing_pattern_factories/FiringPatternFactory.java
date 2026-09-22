@@ -28,21 +28,21 @@ public interface FiringPatternFactory {
      * (e.g. Barrage scaling velocity by remaining progress) will still want its own
      * per-shot logging for that
      */
-    default FiringPattern createPattern(ProjectileFactory factory, HappyGhast ghast,
-                                        Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
+    default FiringPattern createPattern(ProjectileFactory factory, HappyGhast ghast, Player player,
+                                        ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext) {
         if (Config.SHOOT_LOGGING.get()) {
             Set<String> keys = getRecognizedMoodScalingKeys();
             if (!keys.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
                 for (String key : new TreeSet<>(keys)) {
                     if (sb.length() > 0) sb.append(", ");
-                    sb.append(key).append('=').append(data.shot().getScaled(key, mood));
+                    sb.append(key).append('=').append(data.shot().getScaled(key, moodContext));
                 }
                 LOGGER.info("Starting shot '{}' for ghast {} ({})", data.shot().type(), ghast.getUUID(), sb);
             }
         }
 
-        return buildPattern(factory, ghast, player, data, mood);
+        return buildPattern(factory, ghast, player, data, moodContext);
     }
 
     /**
@@ -50,7 +50,7 @@ public interface FiringPatternFactory {
      * {@link #createPattern} so the base logging above always runs.
      */
     FiringPattern buildPattern(ProjectileFactory factory, HappyGhast ghast,
-                               Player player, ItemPropertyMap.MoodyProjectile data, float mood);
+                               Player player, ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext);
 
     /**
      * The {@code shot.moodScaling} keys patterns built by this factory actually read

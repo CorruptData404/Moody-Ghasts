@@ -19,14 +19,14 @@ public class Cry extends FiringPattern {
 
     private int totalTears;
 
-    public Cry(ProjectileFactory factory, HappyGhast ghast,
-               Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
-        super(factory, ghast, player, data, mood);
+    public Cry(ProjectileFactory factory, HappyGhast ghast, Player player,
+               ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext) {
+        super(factory, ghast, player, data, moodContext);
     }
 
     @Override
     protected void onChargeComplete() {
-        totalTears = data.shot().getCount(mood);
+        totalTears = data.shot().getCount(moodContext);
 
         ghast.setData(ModAttachments.IS_FIRING, true);
         ghast.setData(ModAttachments.SHOTS_LEFT, totalTears);
@@ -66,7 +66,7 @@ public class Cry extends FiringPattern {
 
         shootTear(totalTears - tearsLeft);
         ghast.setData(ModAttachments.SHOTS_LEFT, tearsLeft - 1);
-        ghast.setData(ModAttachments.SHOT_DELAY, data.shot().getShotDelay(mood));
+        ghast.setData(ModAttachments.SHOT_DELAY, data.shot().getShotDelay(moodContext));
     }
 
     private void shootTear(int index) {
@@ -82,10 +82,10 @@ public class Cry extends FiringPattern {
         );
         Vec3 spawnPos = (index % 2 == 0) ? basePos.subtract(rightOffset) : basePos.add(rightOffset);
 
-        float velocity = data.shot().getVelocity(mood);
-        float inaccuracy = data.shot().getInaccuracy(mood);
+        float velocity = data.shot().getVelocity(moodContext);
+        float inaccuracy = data.shot().getInaccuracy(moodContext);
 
-        Projectile projectile = factory.createProjectile(level, shooter, ghast, mood, data.projectile());
+        Projectile projectile = factory.createProjectile(level, shooter, ghast, moodContext, data.projectile());
         projectile.setPos(spawnPos);
         projectile.shoot(0, -1, 0, velocity, inaccuracy);
 

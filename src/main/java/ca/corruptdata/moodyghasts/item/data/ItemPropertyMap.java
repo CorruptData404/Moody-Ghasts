@@ -26,22 +26,39 @@ public class ItemPropertyMap {
 
     private static final Logger LOGGER = MoodyGhasts.LOGGER;
 
-    /** Reads a mood-scaled value by key, logging a warning and returning 0.0f if the key isn't present. */
+    /**
+     * Bundles a projectile/consumable's current mood value with its (optional) targetMood, so the
+     * two always travel together instead of being passed as separate parameters everywhere.
+     * Build one via {@link MoodyProjectile#context(float)} or {@link MoodyConsumable#context(float)}.
+     */
+    public record MoodContext(float moodValue, Optional<Float> targetMood) {
+        /** A context with no targetMood - equivalent to how every item behaved before targetMood existed. */
+        public static MoodContext of(float moodValue) {
+            return new MoodContext(moodValue, Optional.empty());
+        }
+    }
+
+    /**
+     * Reads a mood-scaled value by key, logging a warning and returning 0.0f if the key isn't present.
+     * When {@code context}'s {@code targetMood} is present, individual {@link MoodScalingConfig} keys
+     * decide for themselves (via their own {@code targetScaling} flag) whether to use it - see
+     * {@link MoodScalingConfig#getScaledValue(MoodContext)}.
+     */
     private static float resolveScaledFloat(Identifier type, Map<String, MoodScalingConfig> moodScaling,
-                                            String key, float moodValue) {
+                                            String key, MoodContext context) {
         MoodScalingConfig scaling = moodScaling.get(key);
         if (scaling == null) {
             LOGGER.warn("'{}' has no moodScaling entry for key '{}' (mood={}) - returning 0.0. " +
-                    "Check moody_projectiles_map.json.", type, key, moodValue);
+                    "Check moody_projectiles_map.json.", type, key, context.moodValue());
             return 0.0f;
         }
-        return scaling.getScaledValue(moodValue);
+        return scaling.getScaledValue(context);
     }
 
-    /** Same as {@link #resolveScaledFloat}, rounded to the nearest int. */
+    /** Same as {@link #resolveScaledFloat(Identifier, Map, String, MoodContext)}, rounded to the nearest int. */
     private static int resolveScaledInt(Identifier type, Map<String, MoodScalingConfig> moodScaling,
-                                        String key, float moodValue) {
-        return Math.round(resolveScaledFloat(type, moodScaling, key, moodValue));
+                                        String key, MoodContext context) {
+        return Math.round(resolveScaledFloat(type, moodScaling, key, context));
     }
 
     /** Shared by any config record with a {@code type} identifier and a {@code moodScaling} map. */
@@ -50,13 +67,13 @@ public class ItemPropertyMap {
         Map<String, MoodScalingConfig> moodScaling();
 
         /** Reads a mood-scaled value by key. */
-        default float getScaled(String key, float moodValue) {
-            return resolveScaledFloat(type(), moodScaling(), key, moodValue);
+        default float getScaled(String key, MoodContext context) {
+            return resolveScaledFloat(type(), moodScaling(), key, context);
         }
 
-        /** Same as {@link #getScaled}, rounded to the nearest int. */
-        default int getScaledInt(String key, float moodValue) {
-            return resolveScaledInt(type(), moodScaling(), key, moodValue);
+        /** Same as {@link #getScaled(String, MoodContext)}, rounded to the nearest int. */
+        default int getScaledInt(String key, MoodContext context) {
+            return resolveScaledInt(type(), moodScaling(), key, context);
         }
     }
 
@@ -87,6 +104,11 @@ public class ItemPropertyMap {
                 Registries.ITEM,
                 CODEC
         ).build();
+
+        /** Bundles {@code actualMood} with this consumable's own {@code targetMood} into one {@link MoodContext}. */
+        public MoodContext context(float actualMood) {
+            return new MoodContext(actualMood, targetMood);
+        }
     }
 
     // ============================================================
@@ -97,27 +119,61 @@ public class ItemPropertyMap {
             float min,
             float max,
             boolean stepped,
-            boolean inverted
+            boolean inverted,
+            boolean targetScaling
     ) {
 
         public static final Codec<MoodScalingConfig> CODEC = RecordCodecBuilder.create(inst -> inst.group(
                         Codec.FLOAT.fieldOf("min").forGetter(MoodScalingConfig::min),
                         Codec.FLOAT.fieldOf("max").forGetter(MoodScalingConfig::max),
                         Codec.BOOL.optionalFieldOf("stepped", false).forGetter(MoodScalingConfig::stepped),
-                        Codec.BOOL.optionalFieldOf("inverted", false).forGetter(MoodScalingConfig::inverted)
+                        Codec.BOOL.optionalFieldOf("inverted", false).forGetter(MoodScalingConfig::inverted),
+                        Codec.BOOL.optionalFieldOf("targetScaling", true).forGetter(MoodScalingConfig::targetScaling)
                 ).apply(inst, MoodScalingConfig::new)
         );
 
-        public float getScaledValue(float moodValue) {
+        /**
+         * Scales by {@code context.moodValue()}. When {@code context.targetMood()} is present
+         * <em>and</em> this key's {@code targetScaling} is {@code true} (the default), the scaling
+         * instead peaks (at {@code max}) when the mood value is closest to the target, and falls off
+         * toward {@code min} as it moves away in either direction - see
+         * {@link #closenessToTarget(float, float)}. Set {@code "targetScaling": false} on a specific
+         * key in the JSON to keep it scaling off the raw mood value even when the parent item has a
+         * {@code targetMood} configured. With no {@code targetMood} present at all (e.g. a context
+         * built via {@link MoodContext#of(float)}), this scales off the raw mood value regardless
+         * of the flag.
+         */
+        public float getScaledValue(MoodContext context) {
             if (min == max)
                 return min;
+
+            boolean useTarget = targetScaling && context.targetMood().isPresent();
+            float effective = useTarget
+                    ? closenessToTarget(context.moodValue(), context.targetMood().get())
+                    : context.moodValue();
+
             if (inverted)
-                moodValue = 1.0f - moodValue;
+                effective = 1.0f - effective;
+
             if (stepped) {
-                return getSteppedValue(moodValue);
+                return getSteppedValue(effective);
             } else {
-                return getLinearValue(moodValue);
+                return getLinearValue(effective);
             }
+        }
+
+        /**
+         * Maps an actual mood value ({@code [0,1]}) to a {@code [0,1]} "closeness to target" score:
+         * {@code 1.0} exactly at {@code targetMood}, tapering linearly to {@code 0.0} at whichever
+         * edge of the mood range ({@link GhastMoodMap#MIN}/{@link GhastMoodMap#MAX}) is furthest away.
+         */
+        private static float closenessToTarget(float moodValue, float targetMood) {
+            float distance = Math.abs(moodValue - targetMood);
+            float maxDistance = Math.max(targetMood - GhastMoodMap.MIN, GhastMoodMap.MAX - targetMood);
+            if (maxDistance <= 0.0f) {
+                return 1.0f; // targetMood sits exactly on a boundary; any distance is "maximal"
+            }
+            return 1.0f - Math.min(1.0f, distance / maxDistance);
         }
 
         private float getLinearValue(float moodValue) {
@@ -146,12 +202,12 @@ public class ItemPropertyMap {
                         .forGetter(ProjectileConfig::moodScaling)
         ).apply(inst, ProjectileConfig::new));
 
-        public float getRadius(float moodValue) {
-            return getScaled("radius", moodValue);
+        public float getRadius(MoodContext context) {
+            return getScaled("radius", context);
         }
 
-        public float getStrength(float moodValue) {
-            return getScaled("strength", moodValue);
+        public float getStrength(MoodContext context) {
+            return getScaled("strength", context);
         }
     }
 
@@ -173,20 +229,20 @@ public class ItemPropertyMap {
         ).apply(inst, PatternConfig::new));
 
         // Named convenience wrappers for the common properties.
-        public float getVelocity(float moodValue) {
-            return getScaled("velocity", moodValue);
+        public float getVelocity(MoodContext context) {
+            return getScaled("velocity", context);
         }
 
-        public float getInaccuracy(float moodValue) {
-            return getScaled("inaccuracy", moodValue);
+        public float getInaccuracy(MoodContext context) {
+            return getScaled("inaccuracy", context);
         }
 
-        public int getCount(float moodValue) {
-            return getScaledInt("count", moodValue);
+        public int getCount(MoodContext context) {
+            return getScaledInt("count", context);
         }
 
-        public int getShotDelay(float moodValue) {
-            return getScaledInt("shotDelay", moodValue);
+        public int getShotDelay(MoodContext context) {
+            return getScaledInt("shotDelay", context);
         }
     }
 
@@ -218,6 +274,11 @@ public class ItemPropertyMap {
                 Registries.ITEM,
                 CODEC
         ).build();
+
+        /** Bundles {@code actualMood} with this item's own {@code targetMood} into one {@link MoodContext}. */
+        public MoodContext context(float actualMood) {
+            return new MoodContext(actualMood, targetMood);
+        }
     }
 
     // ============================================================

@@ -10,9 +10,9 @@ import net.minecraft.world.phys.Vec3;
 
 public class SingleShot extends FiringPattern {
 
-    public SingleShot(ProjectileFactory factory, HappyGhast ghast,
-                      Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
-        super(factory, ghast, player, data, mood);
+    public SingleShot(ProjectileFactory factory, HappyGhast ghast, Player player,
+                      ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext) {
+        super(factory, ghast, player, data, moodContext);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class SingleShot extends FiringPattern {
         Level level = ghast.level();
 
         Projectile projectile = factory.createProjectile(
-                level, shooter, ghast, mood, data.projectile()
+                level, shooter, ghast, moodContext, data.projectile()
         );
 
         Vec3 direction = getShooterAimVector();
@@ -30,8 +30,8 @@ public class SingleShot extends FiringPattern {
         projectile.setPos(getProjectileSpawnPos());
         projectile.shoot(
                 direction.x, direction.y, direction.z,
-                data.shot().getVelocity(mood),
-                data.shot().getInaccuracy(mood));
+                data.shot().getVelocity(moodContext),
+                data.shot().getInaccuracy(moodContext));
 
         // Spawn projectile
         level.levelEvent(null, 1016, ghast.blockPosition(), 0);

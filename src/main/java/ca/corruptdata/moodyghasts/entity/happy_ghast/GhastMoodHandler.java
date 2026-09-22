@@ -53,7 +53,18 @@ public class GhastMoodHandler {
 
     private static final long NOTICED_BY_BABY_GRACE_TICKS = 240L;
 
-    public static void adjustMood(HappyGhast ghast, float delta) {
+    /**
+     * Adjusts mood by delta, or toward targetMood by up to delta if one is present - see
+     * {@link #adjustMood(HappyGhast, float)} and {@link #adjustMoodToTarget(HappyGhast, float, float)}.
+     */
+    public static void adjustMood(HappyGhast ghast, float delta, Optional<Float> targetMood) {
+        if (targetMood.isPresent())
+            adjustMoodToTarget(ghast, delta, targetMood.get());
+        else
+            adjustMood(ghast, delta);
+    }
+
+    private static void adjustMood(HappyGhast ghast, float delta) {
         if (delta == 0.0) return;
 
         float currentMood = ghast.getData(ModAttachments.MOOD);
@@ -79,8 +90,11 @@ public class GhastMoodHandler {
      * Moves mood toward targetMood by up to delta, snapping instead of overshooting once
      * within delta of it. Pass a negative delta to instead push mood away from targetMood
      */
-    public static void adjustMoodToTarget(HappyGhast ghast, float delta, float targetMood) {
+    private static void adjustMoodToTarget(HappyGhast ghast, float delta, float targetMood) {
         float currentMood = ghast.getData(ModAttachments.MOOD);
+
+        if (Config.MOOD_LOGGING.get())
+            LOGGER.info("Adjusting mood toward target {} (currently {}, delta {})", targetMood, currentMood, delta);
 
         if (Math.abs(currentMood - targetMood) <= delta)
             adjustMood(ghast, targetMood - currentMood);
@@ -121,10 +135,7 @@ public class GhastMoodHandler {
             if(GhastMovementHandler.tryTeleportGhastSafely(ghast, foodItem.getDefaultInstance(), foodData.rtpDiameter()))
                 spawnSurroundParticles(ghast, ParticleTypes.PORTAL,600);
 
-            if (foodData.targetMood().isPresent())
-                adjustMoodToTarget(ghast, foodData.moodDelta(), foodData.targetMood().get());
-            else
-                adjustMood(ghast, foodData.moodDelta());
+            adjustMood(ghast, foodData.moodDelta(), foodData.targetMood());
 
             ghast.level().playSound(null, ghast.getX(), ghast.getY(), ghast.getZ(),
                     SoundEvents.PLAYER_BURP, SoundSource.NEUTRAL, 1.0F, 1.0F);
@@ -183,7 +194,7 @@ public class GhastMoodHandler {
                     ? moodMap.settings().noticedByBabyHappierMult()
                     : moodMap.settings().noticedByBabyAngrierMult();
         }
-        
+
         adjustMoodToTarget(ghast, delta, baseMood);
     }
 

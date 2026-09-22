@@ -28,12 +28,12 @@ public interface ProjectileFactory {
      * @param level the level where the projectile will be spawned
      * @param owner the player shooting the projectile (controlling the ghast)
      * @param ghast the ghast the player was riding/controlling when the shot was fired
-     * @param mood the ghast's current mood value for scaling calculations
+     * @param moodContext the ghast's current MoodContext for scaling calculations
      * @param projConfig configuration with base values and scaling functions
      * @return the created projectile entity, tagged and ready to be positioned and launched
      */
-    default Projectile createProjectile(Level level, Player owner, HappyGhast ghast, float mood,
-                                        ItemPropertyMap.ProjectileConfig projConfig) {
+    default Projectile createProjectile(Level level, Player owner, HappyGhast ghast,
+                                        ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
 
         if (Config.SHOOT_LOGGING.get()) {
             Set<String> keys = getRecognizedMoodScalingKeys();
@@ -41,13 +41,13 @@ public interface ProjectileFactory {
                 StringBuilder sb = new StringBuilder();
                 for (String key : new TreeSet<>(keys)) {
                     if (!sb.isEmpty()) sb.append(", ");
-                    sb.append(key).append('=').append(projConfig.getScaled(key, mood));
+                    sb.append(key).append('=').append(projConfig.getScaled(key, moodContext));
                 }
                 LOGGER.info("Creating projectile '{}' ({})", projConfig.type(), sb);
             }
         }
 
-        Projectile projectile = buildProjectile(level, owner, mood, projConfig);
+        Projectile projectile = buildProjectile(level, owner, moodContext, projConfig);
         projectile.setOwner(owner);
         projectile.setData(ModAttachments.OWNING_GHAST, Optional.of(ghast.getUUID()));
         return projectile;
@@ -62,11 +62,11 @@ public interface ProjectileFactory {
      *
      * @param level the level where the projectile will be spawned
      * @param owner the player shooting the projectile (controlling the ghast)
-     * @param mood the ghast's current mood value for scaling calculations
+     * @param moodContext the ghast's current MoodContext for scaling calculations
      * @param projConfig configuration with base values and scaling functions
      * @return the created projectile entity, not yet tagged or positioned
      */
-    Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig);
+    Projectile buildProjectile(Level level, Player owner, ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig);
 
     SoundEvent getSoundEvent();
 

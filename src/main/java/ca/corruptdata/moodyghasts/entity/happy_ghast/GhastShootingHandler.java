@@ -68,7 +68,7 @@ public class GhastShootingHandler {
                 ghast,
                 player,
                 projectileData,
-                ghast.getData(ModAttachments.MOOD));
+                projectileData.context(ghast.getData(ModAttachments.MOOD)));
 
         activePatterns.put(ghast.getUUID(), behaviour);
     }

@@ -12,10 +12,9 @@ import java.util.Set;
 public class CryFactory implements FiringPatternFactory {
 
     @Override
-    public FiringPattern buildPattern(ProjectileFactory factory, HappyGhast ghast,
-                                      
-                                      Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
-        return new Cry(factory, ghast, player, data, mood);
+    public FiringPattern buildPattern(ProjectileFactory factory, HappyGhast ghast, Player player,
+                                      ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext) {
+        return new Cry(factory, ghast, player, data, moodContext);
     }
 
     @Override

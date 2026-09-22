@@ -13,12 +13,13 @@ import java.util.Set;
 public class DragonFireballFactory implements ProjectileFactory {
 
     @Override
-    public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
-        float splashRange = projConfig.getScaled("splashRange", mood);
-        float cloudStartRadius = projConfig.getScaled("cloudStartRadius", mood);
-        float cloudEndRadius = projConfig.getScaled("cloudEndRadius", mood);
-        int cloudDuration = projConfig.getScaledInt("cloudDuration", mood);
-        int damageAmplifier = projConfig.getScaledInt("damageAmplifier", mood);
+    public Projectile buildProjectile(Level level, Player owner,
+                                      ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
+        float splashRange = projConfig.getScaled("splashRange", moodContext);
+        float cloudStartRadius = projConfig.getScaled("cloudStartRadius", moodContext);
+        float cloudEndRadius = projConfig.getScaled("cloudEndRadius", moodContext);
+        int cloudDuration = projConfig.getScaledInt("cloudDuration", moodContext);
+        int damageAmplifier = projConfig.getScaledInt("damageAmplifier", moodContext);
 
         return new MoodyDragonFireballEntity(level, owner, splashRange,
                 cloudStartRadius, cloudEndRadius, cloudDuration, damageAmplifier);

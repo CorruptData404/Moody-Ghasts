@@ -18,6 +18,11 @@ public class TearFactory implements ProjectileFactory {
         float cloudRadius = projConfig.getScaled("cloudRadius", mood);
         int cloudDuration = projConfig.getScaledInt("cloudDuration", mood);
         int regenAmplifier = projConfig.getScaledInt("regenAmplifier", mood);
+    public Projectile buildProjectile(Level level, Player owner,
+                                      ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
+        float cloudRadius = projConfig.getScaled("cloudRadius", moodContext);
+        int cloudDuration = projConfig.getScaledInt("cloudDuration", moodContext);
+        int regenAmplifier = projConfig.getScaledInt("regenAmplifier", moodContext);
 
         return new TearEntity(level, owner, Vec3.ZERO, cloudRadius, cloudDuration, regenAmplifier);
     }
