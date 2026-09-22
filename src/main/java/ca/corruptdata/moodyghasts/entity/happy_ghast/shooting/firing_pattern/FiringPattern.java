@@ -19,16 +19,17 @@ public abstract class FiringPattern {
     protected final ItemPropertyMap.MoodyProjectile data;
     protected final Player shooter;
     protected final HappyGhast ghast;
-    protected final float mood;
+    protected final ItemPropertyMap.MoodContext moodContext;
     protected final int chargeDuration;
     protected static final Logger LOGGER = MoodyGhasts.LOGGER;
 
 
-    protected FiringPattern(ProjectileFactory factory, HappyGhast ghast, Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
+    protected FiringPattern(ProjectileFactory factory, HappyGhast ghast, Player player,
+                            ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext) {
         this.factory = factory;
         this.data = data;
         this.chargeDuration = data.shot().chargeDuration();
-        this.mood = mood;
+        this.moodContext = moodContext;
         this.shooter = player;
         this.ghast = ghast;
         ghast.setData(ModAttachments.IS_CHARGING, true);
@@ -97,10 +98,7 @@ public abstract class FiringPattern {
      * shot from onChargeComplete, instead of calling GhastMoodHandler directly.
      */
     protected void applyMoodDelta() {
-        if (data.targetMood().isPresent())
-            GhastMoodHandler.adjustMoodToTarget(ghast, data.moodDelta(), data.targetMood().get());
-        else
-            GhastMoodHandler.adjustMood(ghast, data.moodDelta());
+        GhastMoodHandler.adjustMood(ghast, data.moodDelta(), data.targetMood());
     }
 
 

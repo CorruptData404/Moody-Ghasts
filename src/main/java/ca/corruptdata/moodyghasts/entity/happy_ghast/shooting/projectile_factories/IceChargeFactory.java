@@ -13,8 +13,9 @@ import java.util.Set;
 public class IceChargeFactory implements ProjectileFactory {
 
     @Override
-    public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
-        return new MoodyIceChargeEntity(level, owner, projConfig.getRadius(mood), projConfig.getStrength(mood));
+    public Projectile buildProjectile(Level level, Player owner,
+                                      ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
+        return new MoodyIceChargeEntity(level, owner, projConfig.getRadius(moodContext), projConfig.getStrength(moodContext));
     }
 
     @Override

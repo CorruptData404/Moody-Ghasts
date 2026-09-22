@@ -2,7 +2,6 @@ package ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.firing_pattern;
 
 import ca.corruptdata.moodyghasts.Config;
 import ca.corruptdata.moodyghasts.registry.ModAttachments;
-import ca.corruptdata.moodyghasts.entity.happy_ghast.GhastMoodHandler;
 import ca.corruptdata.moodyghasts.entity.happy_ghast.shooting.projectile_factories.ProjectileFactory;
 import ca.corruptdata.moodyghasts.item.data.ItemPropertyMap;
 import net.minecraft.util.RandomSource;
@@ -16,14 +15,14 @@ public class Barrage extends FiringPattern {
 
     private int totalProjectiles;
 
-    public Barrage(ProjectileFactory factory, HappyGhast ghast,
-                   Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
-        super(factory, ghast, player, data, mood);
+    public Barrage(ProjectileFactory factory, HappyGhast ghast, Player player,
+                   ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext) {
+        super(factory, ghast, player, data, moodContext);
     }
 
     @Override
     protected void onChargeComplete() {
-        totalProjectiles = data.shot().getCount(mood);
+        totalProjectiles = data.shot().getCount(moodContext);
 
         ghast.setData(ModAttachments.IS_FIRING, true);
         ghast.setData(ModAttachments.SHOTS_LEFT, totalProjectiles);
@@ -57,7 +56,7 @@ public class Barrage extends FiringPattern {
         }
 
         float progress = (float) projectilesLeft / totalProjectiles;
-        int maxDelay = data.shot().getShotDelay(mood);
+        int maxDelay = data.shot().getShotDelay(moodContext);
 
         // Logarithmic delay: near 0 early in the barrage, ramping up toward maxDelay as it
         // nears completion. 2.302585 is -ln(0.1), normalizing the curve to 0-1 so maxDelay
@@ -79,7 +78,7 @@ public class Barrage extends FiringPattern {
         Level level = ghast.level();
         Vec3 spawnPos = getProjectileSpawnPos();
         Vec3 direction = getShooterAimVector();
-        float inaccuracy = data.shot().getInaccuracy(mood);
+        float inaccuracy = data.shot().getInaccuracy(moodContext);
 
         RandomSource random = ghast.getRandom();
         direction = new Vec3(
@@ -89,7 +88,7 @@ public class Barrage extends FiringPattern {
         ).normalize();
 
         float progressScale = 0.5f + (0.9f * (float)Math.log10(progress * 9 + 1));
-        float speedFactor = data.shot().getVelocity(mood) * progressScale;
+        float speedFactor = data.shot().getVelocity(moodContext) * progressScale;
 
         if(Config.SHOOT_LOGGING.get())
             LOGGER.info("""
@@ -97,7 +96,7 @@ public class Barrage extends FiringPattern {
                     Speed Factor: {}
                     Inaccuracy: {}""", speedFactor, inaccuracy);
 
-        Projectile projectile = factory.createProjectile(level, shooter, ghast, mood, data.projectile());
+        Projectile projectile = factory.createProjectile(level, shooter, ghast, moodContext, data.projectile());
         projectile.setPos(spawnPos);
         projectile.shoot(
                 direction.x, direction.y, direction.z,

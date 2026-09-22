@@ -12,10 +12,10 @@ import java.util.Set;
 public class BarrageFactory implements FiringPatternFactory {
 
     @Override
-    public FiringPattern buildPattern(ProjectileFactory factory, HappyGhast ghast,
-                                       Player player, ItemPropertyMap.MoodyProjectile data, float mood) {
+    public FiringPattern buildPattern(ProjectileFactory factory, HappyGhast ghast, Player player,
+                                      ItemPropertyMap.MoodyProjectile data, ItemPropertyMap.MoodContext moodContext) {
 
-        return new Barrage(factory, ghast, player, data, mood);
+        return new Barrage(factory, ghast, player, data, moodContext);
     }
 
     @Override
