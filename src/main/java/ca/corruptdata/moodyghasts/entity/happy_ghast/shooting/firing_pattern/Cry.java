@@ -12,9 +12,11 @@ import net.minecraft.world.phys.Vec3;
 
 public class Cry extends FiringPattern {
 
-    // Horizontal distance from center to each eye
-    private static final double EYE_OFFSET = 0.7;
-    // How far in front of the ghast tears spawn
+    // Horizontal offset from center to each eye
+    private static final double EYE_HORIZONTAL_OFFSET = 0.7;
+    // Vertical offset
+    private static final double EYE_VERTICAL_OFFSET = 0.5;
+    // How far in front of ghast projectiles spawn
     private static final double FORWARD_OFFSET = 3;
 
     private int totalTears;
@@ -74,10 +76,10 @@ public class Cry extends FiringPattern {
 
         // Perpendicular to the ghast's facing direction, in the horizontal plane.
         Vec3 forward = ghast.getViewVector(1.0F);
-        Vec3 rightOffset = new Vec3(-forward.z, 0, forward.x).normalize().scale(EYE_OFFSET);
+        Vec3 rightOffset = new Vec3(-forward.z, 0, forward.x).normalize().scale(EYE_HORIZONTAL_OFFSET);
         Vec3 basePos = new Vec3(
                 ghast.getX() + forward.x * FORWARD_OFFSET,
-                ghast.getEyeY() - 0.5,
+                ghast.getEyeY() - EYE_VERTICAL_OFFSET,
                 ghast.getZ() + forward.z * FORWARD_OFFSET
         );
         Vec3 spawnPos = (index % 2 == 0) ? basePos.subtract(rightOffset) : basePos.add(rightOffset);

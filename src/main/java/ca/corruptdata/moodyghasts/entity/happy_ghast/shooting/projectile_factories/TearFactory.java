@@ -14,27 +14,25 @@ import java.util.Set;
 public class TearFactory implements ProjectileFactory {
 
     @Override
-    public Projectile buildProjectile(Level level, Player owner, float mood, ItemPropertyMap.ProjectileConfig projConfig) {
-        float cloudRadius = projConfig.getScaled("cloudRadius", mood);
-        int cloudDuration = projConfig.getScaledInt("cloudDuration", mood);
-        int regenAmplifier = projConfig.getScaledInt("regenAmplifier", mood);
     public Projectile buildProjectile(Level level, Player owner,
                                       ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
         float cloudRadius = projConfig.getScaled("cloudRadius", moodContext);
         int cloudDuration = projConfig.getScaledInt("cloudDuration", moodContext);
+        int effectDuration = projConfig.getScaledInt("effectDuration", moodContext);
         int regenAmplifier = projConfig.getScaledInt("regenAmplifier", moodContext);
 
-        return new TearEntity(level, owner, Vec3.ZERO, cloudRadius, cloudDuration, regenAmplifier);
+        return new TearEntity(level, owner, Vec3.ZERO,
+                cloudRadius, cloudDuration, effectDuration, regenAmplifier);
     }
 
     @Override
     public SoundEvent getSoundEvent() {
-        //TODO: revisit
-        return SoundEvents.GENERIC_SPLASH;
+        //TODO: Custom Sound
+        return SoundEvents.POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON;
     }
 
     @Override
     public Set<String> getRecognizedMoodScalingKeys() {
-        return Set.of("cloudRadius", "cloudDuration", "regenAmplifier");
+        return Set.of("cloudRadius", "cloudDuration", "effectDuration", "regenAmplifier");
     }
 }
