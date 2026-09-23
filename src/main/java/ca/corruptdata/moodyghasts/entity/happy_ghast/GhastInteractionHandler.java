@@ -41,10 +41,10 @@ public class GhastInteractionHandler {
         ItemStack stack = event.getItemStack();
         if (!stack.is(ModTags.Items.MOODY_PROJECTILES)) return;
         Player player = event.getEntity();
-        if (player.level().isClientSide()) return;
         if (!(player.getVehicle() instanceof HappyGhast ghast)) return;
         if (player != ghast.getControllingPassenger()) return;
         event.setCanceled(true);
+        if (player.level().isClientSide()) return;
         if (isBusy(ghast)) return;
         ItemPropertyMap.MoodyProjectile projectileData = stack.getItem()
                 .builtInRegistryHolder()
