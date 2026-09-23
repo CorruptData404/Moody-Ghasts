@@ -21,6 +21,7 @@ public class TearEntity extends AbstractHurtingProjectile implements ItemSupplie
 
     private final float cloudRadius;
     private final int cloudDuration;
+    private final int effectDuration;
     private final int regenAmplifier;
 
     // Owner is excluded from hits for a few ticks after spawning
@@ -29,15 +30,17 @@ public class TearEntity extends AbstractHurtingProjectile implements ItemSupplie
     public TearEntity(EntityType<? extends TearEntity> type, Level level) {
         super(type, level);
         this.cloudRadius = 1.5F;
-        this.cloudDuration = 100;
-        this.regenAmplifier = 0;
+        this.cloudDuration = 140;
+        this.effectDuration = 120;
+        this.regenAmplifier = 1;
     }
 
     public TearEntity(Level level, LivingEntity owner, Vec3 direction,
-                      float cloudRadius, int cloudDuration, int regenAmplifier) {
+                      float cloudRadius, int cloudDuration, int effectDuration, int regenAmplifier) {
         super(ModEntities.MOODY_TEAR.get(), owner, direction, level);
         this.cloudRadius = cloudRadius;
         this.cloudDuration = cloudDuration;
+        this.effectDuration = effectDuration;
         this.regenAmplifier = regenAmplifier;
     }
 
@@ -47,14 +50,6 @@ public class TearEntity extends AbstractHurtingProjectile implements ItemSupplie
 
         if (noOwnerHitTicks > 0) {
             noOwnerHitTicks--;
-        }
-
-        Vec3 movement = this.getDeltaMovement();
-        if (movement.lengthSqr() > 1.0E-7) {
-            this.setYRot((float) (Mth.atan2(movement.x, movement.z) * (180D / Math.PI)));
-            this.setXRot((float) (Mth.atan2(movement.y, movement.horizontalDistance()) * (180D / Math.PI)));
-            this.yRotO = this.getYRot();
-            this.xRotO = this.getXRot();
         }
     }
 
@@ -76,7 +71,7 @@ public class TearEntity extends AbstractHurtingProjectile implements ItemSupplie
         cloud.setRadius(cloudRadius);
         cloud.setDuration(cloudDuration);
         cloud.setRadiusPerTick(-cloud.getRadius() / cloud.getDuration());
-        cloud.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 5, regenAmplifier));
+        cloud.addEffect(new MobEffectInstance(MobEffects.REGENERATION, effectDuration, regenAmplifier));
 
         this.level().addFreshEntity(cloud);
         this.discard();

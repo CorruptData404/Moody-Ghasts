@@ -78,7 +78,7 @@ public class ModEntities {
         );
         return EntityType.Builder
                 .<TearEntity>of(TearEntity::new, MobCategory.MISC)
-                .sized(1.0F, 1.0F)
+                .sized(0.5F, 0.5F)
                 .clientTrackingRange(8)
                 .updateInterval(10)
                 .build(key);
