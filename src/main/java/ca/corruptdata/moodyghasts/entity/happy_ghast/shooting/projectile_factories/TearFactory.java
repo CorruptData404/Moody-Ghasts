@@ -7,7 +7,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.Set;
 
@@ -21,8 +20,8 @@ public class TearFactory implements ProjectileFactory {
         int effectDuration = projConfig.getScaledInt("effectDuration", moodContext);
         int regenAmplifier = projConfig.getScaledInt("regenAmplifier", moodContext);
 
-        return new TearEntity(level, owner, Vec3.ZERO,
-                cloudRadius, cloudDuration, effectDuration, regenAmplifier);
+        return new TearEntity(level, owner, cloudRadius,
+                cloudDuration, effectDuration, regenAmplifier);
     }
 
     @Override
