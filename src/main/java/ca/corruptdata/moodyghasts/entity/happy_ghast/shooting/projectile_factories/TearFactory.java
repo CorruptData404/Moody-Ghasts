@@ -15,13 +15,14 @@ public class TearFactory implements ProjectileFactory {
     @Override
     public Projectile buildProjectile(Level level, Player owner,
                                       ItemPropertyMap.MoodContext moodContext, ItemPropertyMap.ProjectileConfig projConfig) {
+        float directHitHeal = projConfig.getScaled("directHitHeal", moodContext);
         float cloudRadius = projConfig.getScaled("cloudRadius", moodContext);
         int cloudDuration = projConfig.getScaledInt("cloudDuration", moodContext);
         int effectDuration = projConfig.getScaledInt("effectDuration", moodContext);
         int regenAmplifier = projConfig.getScaledInt("regenAmplifier", moodContext);
 
-        return new TearEntity(level, owner, cloudRadius,
-                cloudDuration, effectDuration, regenAmplifier);
+        return new TearEntity(level, owner, directHitHeal,
+                cloudRadius, cloudDuration, effectDuration, regenAmplifier);
     }
 
     @Override
@@ -32,6 +33,6 @@ public class TearFactory implements ProjectileFactory {
 
     @Override
     public Set<String> getRecognizedMoodScalingKeys() {
-        return Set.of("cloudRadius", "cloudDuration", "effectDuration", "regenAmplifier");
+        return Set.of("directHitHeal", "cloudRadius", "cloudDuration", "effectDuration", "regenAmplifier");
     }
 }
